@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("net.kyori.blossom") version "1.2.0"
 }
 
 group = "com.github.dominik48n.party"
@@ -15,4 +16,8 @@ dependencies {
     annotationProcessor("com.velocitypowered:velocity-api:3.1.1")
 
     implementation(project(":common"))
+}
+
+blossom {
+    replaceToken("@version@", rootProject.version, "src/main/java/com/github/dominik48n/party/velocity/PartyVelocityPlugin.java")
 }
