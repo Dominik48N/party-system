@@ -29,13 +29,15 @@ public interface PartyProvider {
 
     void addPlayerToParty(final @NotNull UUID partyId, final @NotNull UUID player);
 
-    void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player);
+    void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player, final @NotNull String username);
 
     @NotNull Optional<Party> getParty(final @NotNull UUID id);
 
     @NotNull Party createParty(final @NotNull UUID leader);
 
     void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements);
+
+    void sendMessageToMembers(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements);
 
     void connectPartyToServer(final @NotNull Party party, final @NotNull String serverName);
 
@@ -44,6 +46,8 @@ public interface PartyProvider {
     void removePartyRequest(final @NotNull String source, final @NotNull String target);
 
     void createPartyRequest(final @NotNull String source, final @NotNull String target, final int expires);
+
+    void clearPartyRequest(final @NotNull String source);
 
     boolean existsPartyRequest(final @NotNull String source, final @NotNull String target);
 }

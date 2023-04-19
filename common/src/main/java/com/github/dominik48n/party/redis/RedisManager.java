@@ -22,6 +22,7 @@ import com.github.dominik48n.party.user.UserManager;
 import com.google.common.collect.Lists;
 import java.time.Duration;
 import java.util.List;
+import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -31,13 +32,14 @@ public class RedisManager {
 
     private final @NotNull List<RedisSubscription> subscriptions = Lists.newArrayList();
     private final @NotNull JedisPool jedisPool;
+    private final @NotNull Consumer<Runnable> asyncConsumer;
 
     /**
      * Constructs a new RedisManager using the specified {@link RedisConfig}.
      *
      * @param config The {@link RedisConfig} to use.
      */
-    public RedisManager(final @NotNull RedisConfig config) {
+    public RedisManager(final @NotNull RedisConfig config, final @NotNull Consumer<Runnable> asyncConsumer) {
         final JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxTotal(128);
         poolConfig.setMaxIdle(16);
@@ -48,6 +50,7 @@ public class RedisManager {
         poolConfig.setMinEvictableIdleTime(Duration.ofMillis(60000L));
         poolConfig.setTimeBetweenEvictionRuns(Duration.ofMillis(30000L));
         this.jedisPool = new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.username(), config.password());
+        this.asyncConsumer = asyncConsumer;
     }
 
     /**
@@ -83,7 +86,7 @@ public class RedisManager {
         this.subscriptions.add(new RedisSwitchServerSub<>(userManager));
 
         try (final Jedis jedis = this.jedisPool().getResource()) {
-            this.subscriptions.forEach(subscription -> jedis.subscribe(subscription, subscription.channels()));
+            this.subscriptions.forEach(subscription -> this.asyncConsumer.accept(() -> jedis.subscribe(subscription, subscription.channels())));
         }
     }
 

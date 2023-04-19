@@ -25,7 +25,10 @@ import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.redis.RedisSwitchServerSub;
 import com.github.dominik48n.party.user.UserManager;
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -36,7 +39,6 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
 
     private final @NotNull DefaultOnlinePlayersProvider<TUser> onlinePlayerProvider;
 
-    private final @NotNull UserManager<TUser> userManager;
     private final @NotNull RedisManager redisManager;
     private final @NotNull MessageConfig messageConfig;
 
@@ -48,7 +50,6 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
         this.onlinePlayerProvider = new DefaultOnlinePlayersProvider<>(redisManager, userManager);
         this.redisManager = redisManager;
         this.messageConfig = messageConfig;
-        this.userManager = userManager;
 
         PartyAPI.set(this);
     }
@@ -79,7 +80,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     }
 
     @Override
-    public void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player) {
+    public void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player, final @NotNull String username) {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             final String partyKey = "party:" + partyId;
             final String partyJson = jedis.get(partyKey);
@@ -89,6 +90,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
                 jedis.set(partyKey, Document.GSON.toJson(party));
             }
 
+            this.clearPartyRequest(jedis, username);
             this.onlinePlayerProvider.updatePartyId(jedis, player, null);
         }
     }
@@ -120,9 +122,18 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
 
     @Override
     public void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements) {
+        this.sendMessageToPlayers(party.getAllMembers(), messageKey, replacements);
+    }
+
+    @Override
+    public void sendMessageToMembers(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements) {
+        this.sendMessageToPlayers(party.members(), messageKey, replacements);
+    }
+
+    private void sendMessageToPlayers(final @NotNull List<UUID> players, final @NotNull String messageKey, final @NotNull Object... replacements) {
         final Component component = this.messageConfig.getMessage(messageKey, replacements);
         final String message = MiniMessage.miniMessage().serialize(component);
-        party.getAllMembers().forEach(uuid -> this.redisManager.publish(
+       players.forEach(uuid -> this.redisManager.publish(
                 RedisMessageSub.CHANNEL,
                 new Document().append("unique_id", uuid.toString()).append("message", message))
         );
@@ -156,6 +167,18 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     public void createPartyRequest(final @NotNull String source, final @NotNull String target, final int expires) {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             jedis.setex("request:" + source + ":" + target, expires, "");
+        }
+    }
+
+    private void clearPartyRequest(final @NotNull Jedis jedis, final @NotNull String source) {
+        final Set<String> keys = jedis.keys("request:" + source + ":*");
+        if (!keys.isEmpty()) jedis.del(keys.toArray(String[]::new));
+    }
+
+    @Override
+    public void clearPartyRequest(final @NotNull String source) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            this.clearPartyRequest(jedis, source);
         }
     }
 

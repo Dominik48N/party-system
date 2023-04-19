@@ -65,6 +65,7 @@ public class MessageConfig {
                         .append("error", "%prefix% <red>There has been an error. Please try again later."))
                 .append("party", new Document()
                         .append("join", "%prefix% <gradient:#d896ff:#be29ec>{0}</gradient> <green>has joined the party.")
+                        .append("left", "%prefix% <gradient:#d896ff:#be29ec>{0}</gradient> <red>left the party.")
                         .append("connect_to_server", "%prefix% The party will now join the server <gradient:#d896ff:#be29ec>{0}</gradient>."))
                 .append("command", new Document()
                         .append("invite", new Document()
@@ -84,6 +85,7 @@ public class MessageConfig {
                         .append("usage", new Document()
                                 .append("invite", "%prefix% <red>Usage: /party invite <player>")
                                 .append("accept", "%prefix% <red>Usage: /party accept <player>"))
+                        .append("leave", "%prefix% <red>You left the party.")
                         .append("not_in_party", "%prefix% <red>You are not in a party.")
                         .append("list", "%prefix% <gold>Party information<newline>" +
                                 " <gray>Leader<dark_gray>: <dark_red>{0}<newline>" +
