@@ -16,8 +16,10 @@
 
 package com.github.dominik48n.party.api.player;
 
+import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a player who is connected to the network.
@@ -39,11 +41,25 @@ public interface PartyPlayer {
     @NotNull String name();
 
     /**
+     * Returns the unique ID of the party that the player is currently in, if any.
+     *
+     * @return An {@code Optional} containing the player's party ID, or empty if the player is not in a party.
+     */
+    @NotNull Optional<UUID> partyId();
+
+    /**
+     * Sets the unique ID of the party that the player is currently in.
+     *
+     * @param partyId The ID of the party to set, or null to indicate that the player is not in a party.
+     */
+    void partyId(final @Nullable UUID partyId);
+
+    /**
      * Sends a message to the player using a message key and replacements.
      * The message is retrieved from the party system's configuration using the message key.
      * The replacements are used to replace placeholders in the message, such as {0}, {1}, etc.
      *
-     * @param messageKey The key of the message to send.
+     * @param messageKey   The key of the message to send.
      * @param replacements The objects to use as replacements in the message.
      */
     void sendMessage(final @NotNull String messageKey, final @NotNull Object... replacements);

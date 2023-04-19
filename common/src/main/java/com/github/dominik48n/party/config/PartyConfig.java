@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.github.dominik48n.party.api;
+package com.github.dominik48n.party.config;
 
-import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import org.jetbrains.annotations.NotNull;
 
-public interface PartyProvider {
+public record PartyConfig(int requestExpires) {
 
-    @NotNull OnlinePlayerProvider onlinePlayerProvider();
+    static @NotNull PartyConfig fromDocument(final @NotNull Document document) {
+        return new PartyConfig(document.getInt("request_expires", 90));
+    }
 
-    void createPartyRequest(final @NotNull String source, final @NotNull String target, final int expires);
-
-    boolean existsPartyRequest(final @NotNull String source, final @NotNull String target);
+    @NotNull Document toDocument() {
+        return new Document().append("request_expires", this.requestExpires);
+    }
 }

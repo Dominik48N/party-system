@@ -19,13 +19,17 @@ package com.github.dominik48n.party.api;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.redis.RedisManager;
 import org.jetbrains.annotations.NotNull;
+import redis.clients.jedis.Jedis;
 
 public class DefaultPartyProvider implements PartyProvider {
 
     private final @NotNull OnlinePlayerProvider onlinePlayerProvider;
 
+    private final @NotNull RedisManager redisManager;
+
     public DefaultPartyProvider(final @NotNull RedisManager redisManager) {
         this.onlinePlayerProvider = new DefaultOnlinePlayersProvider(redisManager);
+        this.redisManager = redisManager;
 
         PartyAPI.set(this);
     }
@@ -33,5 +37,19 @@ public class DefaultPartyProvider implements PartyProvider {
     @Override
     public @NotNull OnlinePlayerProvider onlinePlayerProvider() {
         return this.onlinePlayerProvider;
+    }
+
+    @Override
+    public void createPartyRequest(final @NotNull String source, final @NotNull String target, final int expires) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            jedis.setex("request:" + source + ":" + target, expires, "");
+        }
+    }
+
+    @Override
+    public boolean existsPartyRequest(final @NotNull String source, final @NotNull String target) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            return jedis.exists("request:" + source + ":" + target);
+        }
     }
 }

@@ -17,6 +17,7 @@
 package com.github.dominik48n.party.velocity;
 
 import com.github.dominik48n.party.command.CommandManager;
+import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.user.UserManager;
 import com.velocitypowered.api.command.RawCommand;
 import com.velocitypowered.api.proxy.Player;
@@ -29,8 +30,18 @@ public class VelocityCommandManager implements RawCommand {
     private final @NotNull UserManager<Player> userManager;
     private final @NotNull CommandManager commandManager;
 
-    public VelocityCommandManager(final @NotNull UserManager<Player> userManager) {
-        this.commandManager = new CommandManager();
+    public VelocityCommandManager(final @NotNull UserManager<Player> userManager, final @NotNull PartyVelocityPlugin plugin) {
+        this.commandManager = new CommandManager() {
+            @Override
+            public void runAsynchronous(final @NotNull Runnable runnable) {
+                plugin.server().getScheduler().buildTask(plugin, runnable).schedule();
+            }
+
+            @Override
+            public @NotNull ProxyPluginConfig config() {
+                return plugin.config();
+            }
+        };
         this.userManager = userManager;
     }
 

@@ -17,8 +17,10 @@
 package com.github.dominik48n.party.user;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class User<TUser> implements PartyPlayer {
 
@@ -26,6 +28,8 @@ public class User<TUser> implements PartyPlayer {
     private final @NotNull TUser user;
     private final @NotNull UUID uniqueId;
     private final @NotNull String name;
+
+    private @Nullable UUID partyId;
 
     public User(final @NotNull TUser user, final @NotNull UserManager<TUser> userManager) {
         this.user = user;
@@ -42,6 +46,16 @@ public class User<TUser> implements PartyPlayer {
     @Override
     public @NotNull String name() {
         return this.name;
+    }
+
+    @Override
+    public @NotNull Optional<UUID> partyId() {
+        return Optional.ofNullable(this.partyId);
+    }
+
+    @Override
+    public void partyId(final @Nullable UUID partyId) {
+        this.partyId = partyId;
     }
 
     @Override

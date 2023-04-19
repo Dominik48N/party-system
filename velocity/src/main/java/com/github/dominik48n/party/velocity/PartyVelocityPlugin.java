@@ -23,6 +23,7 @@ import com.github.dominik48n.party.velocity.listener.OnlinePlayersListener;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -89,8 +90,17 @@ public class PartyVelocityPlugin {
         this.server.getEventManager().register(this, new OnlinePlayersListener(playerManager));
         this.server.getCommandManager().register(
                 this.server.getCommandManager().metaBuilder("party").plugin(this).build(),
-                new VelocityCommandManager(playerManager)
+                new VelocityCommandManager(playerManager, this)
         );
+    }
+
+    @Subscribe
+    public void onProxyShutdown(final ProxyShutdownEvent event) {
+        if (this.redisManager != null) this.redisManager.close();
+    }
+
+    public @NotNull ProxyPluginConfig config() {
+        return this.config;
     }
 
     public @NotNull ProxyServer server() {

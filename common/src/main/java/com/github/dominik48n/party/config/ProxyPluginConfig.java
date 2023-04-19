@@ -32,6 +32,7 @@ public class ProxyPluginConfig {
 
     private final @NotNull MessageConfig messageConfig;
     private final @NotNull RedisConfig redisConfig;
+    private final @NotNull PartyConfig partyConfig;
 
     public ProxyPluginConfig() {
         this(new Document());
@@ -40,6 +41,7 @@ public class ProxyPluginConfig {
     private ProxyPluginConfig(final @NotNull Document document) {
         this.redisConfig = RedisConfig.fromDocument(document.getDocument("redis"));
         this.messageConfig = MessageConfig.fromDocument(document.getDocument("messages"));
+        this.partyConfig = PartyConfig.fromDocument(document.getDocument("party"));
     }
 
     public @NotNull RedisConfig redisConfig() {
@@ -50,7 +52,15 @@ public class ProxyPluginConfig {
         return this.messageConfig;
     }
 
+    public @NotNull PartyConfig partyConfig() {
+        return this.partyConfig;
+    }
+
     public void writeToFile(final @NotNull File file) throws IOException {
-        new Document().append("redis", this.redisConfig.toDocument()).append("messages", this.messageConfig.toDocument()).writeToFile(file);
+        new Document()
+                .append("redis", this.redisConfig.toDocument())
+                .append("party", this.partyConfig.toDocument())
+                .append("messages", this.messageConfig.toDocument())
+                .writeToFile(file);
     }
 }

@@ -60,7 +60,17 @@ public class MessageConfig {
     public @NotNull Document toDocument() {
         return new Document()
                 .append("prefix", this.prefix)
+                .append("general", new Document()
+                        .append("player_not_online", "%prefix% <red>{0} is not online."))
                 .append("command", new Document()
+                        .append("invite", new Document()
+                                .append("created_party", "%prefix% <green>You have created a new party.")
+                                .append("already_in_party", "%prefix% <red>The player is already in a party.")
+                                .append("already_invited", "%prefix% <red>You have already invited this player to your party.")
+                                .append("self", "%prefix% <red>You can't invite yourself to a party.")
+                                .append("sent", "%prefix% <green>You sent a party request to <gradient:#d896ff:#be29ec>{0}</gradient>."))
+                        .append("usage", new Document()
+                                .append("invite", "%prefix% <red>Usage: /party invite <player>"))
                         .append("help", "%prefix% <gold>Party management<newline>" +
                                 " <yellow>/party invite <player> <gray>Invites a player to the party<newline>" +
                                 " <yellow>/party accept <player> <gray>Accepts a request<newline>" +

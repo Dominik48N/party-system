@@ -17,6 +17,7 @@
 package com.github.dominik48n.party.command;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
@@ -24,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
-public class CommandManager {
+public abstract class CommandManager {
 
-    private final @NotNull Map<String, PartyCommand> commands = ImmutableBiMap.of();
+    private final @NotNull Map<String, PartyCommand> commands = ImmutableBiMap.of("invite", new InviteCommand(this.config().partyConfig()));
 
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
         if (args.length == 0) {
@@ -41,7 +42,7 @@ public class CommandManager {
         }
 
         final String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-        command.execute(player, commandArgs);
+        this.runAsynchronous(() -> command.execute(player, commandArgs));
     }
 
     public @NotNull List<String> tabComplete(final @NotNull String[] args) {
@@ -49,4 +50,8 @@ public class CommandManager {
         final String search = args[0].toLowerCase();
         return this.commands.keySet().stream().filter(s -> s.startsWith(search)).toList();
     }
+
+    public abstract void runAsynchronous(final @NotNull Runnable runnable);
+
+    public abstract @NotNull ProxyPluginConfig config();
 }
