@@ -17,6 +17,7 @@
 package com.github.dominik48n.party.bungee;
 
 import com.github.dominik48n.party.api.DefaultPartyProvider;
+import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.bungee.listener.OnlinePlayersListener;
 import com.github.dominik48n.party.bungee.listener.SwitchServerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +64,10 @@ public class PartyBungeePlugin extends Plugin {
 
     @Override
     public void onDisable() {
+        for (final ProxiedPlayer player : this.getProxy().getPlayers()) {
+            PartyAPI.get().onlinePlayerProvider().logout(player.getUniqueId());
+        }
+
         if (this.redisManager != null) this.redisManager.close();
     }
 

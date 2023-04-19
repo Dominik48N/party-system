@@ -17,6 +17,7 @@
 package com.github.dominik48n.party.velocity;
 
 import com.github.dominik48n.party.api.DefaultPartyProvider;
+import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.velocity.listener.OnlinePlayersListener;
@@ -27,6 +28,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -101,6 +103,10 @@ public class PartyVelocityPlugin {
 
     @Subscribe
     public void onProxyShutdown(final ProxyShutdownEvent event) {
+        for (final Player player : this.server.getAllPlayers()) {
+            PartyAPI.get().onlinePlayerProvider().logout(player.getUniqueId());
+        }
+
         if (this.redisManager != null) this.redisManager.close();
     }
 
