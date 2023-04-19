@@ -35,7 +35,11 @@ public interface PartyProvider {
 
     @NotNull Party createParty(final @NotNull UUID leader);
 
+    void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements);
+
     void deleteParty(final @NotNull UUID id);
+
+    void removePartyRequest(final @NotNull String source, final @NotNull String target);
 
     void createPartyRequest(final @NotNull String source, final @NotNull String target, final int expires);
 

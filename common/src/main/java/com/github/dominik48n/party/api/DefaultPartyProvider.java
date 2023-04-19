@@ -19,11 +19,15 @@ package com.github.dominik48n.party.api;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.Document;
+import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.user.UserManager;
 import com.google.common.collect.Lists;
 import java.util.Optional;
 import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 
@@ -32,10 +36,16 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     private final @NotNull DefaultOnlinePlayersProvider<TUser> onlinePlayerProvider;
 
     private final @NotNull RedisManager redisManager;
+    private final @NotNull MessageConfig messageConfig;
 
-    public DefaultPartyProvider(final @NotNull RedisManager redisManager, final @NotNull UserManager<TUser> userManager) {
+    public DefaultPartyProvider(
+            final @NotNull RedisManager redisManager,
+            final @NotNull UserManager<TUser> userManager,
+            final @NotNull MessageConfig messageConfig
+    ) {
         this.onlinePlayerProvider = new DefaultOnlinePlayersProvider<>(redisManager, userManager);
         this.redisManager = redisManager;
+        this.messageConfig = messageConfig;
 
         PartyAPI.set(this);
     }
@@ -106,9 +116,26 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     }
 
     @Override
+    public void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements) {
+        final Component component = this.messageConfig.getMessage(messageKey, replacements);
+        final String message = MiniMessage.miniMessage().serialize(component);
+        party.getAllMembers().forEach(uuid -> this.redisManager.publish(
+                RedisMessageSub.CHANNEL,
+                new Document().append("unique_id", uuid.toString()).append("message", message))
+        );
+    }
+
+    @Override
     public void deleteParty(final @NotNull UUID id) {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             jedis.del("party:" + id);
+        }
+    }
+
+    @Override
+    public void removePartyRequest(final @NotNull String source, final @NotNull String target) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            jedis.del("request:" + source + ":" + target);
         }
     }
 

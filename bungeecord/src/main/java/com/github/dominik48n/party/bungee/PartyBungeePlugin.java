@@ -50,7 +50,7 @@ public class PartyBungeePlugin extends Plugin {
         this.redisManager = new RedisManager(this.config.redisConfig());
 
         final BungeeUserManager userManager = new BungeeUserManager(this);
-        new DefaultPartyProvider<>(this.redisManager, userManager);
+        new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
 
         this.redisManager.subscribes(userManager);
 

@@ -63,6 +63,8 @@ public class MessageConfig {
                 .append("general", new Document()
                         .append("player_not_online", "%prefix% <red>{0} is not online.")
                         .append("error", "%prefix% <red>There has been an error. Please try again later."))
+                .append("party", new Document()
+                        .append("join", "%prefix% <gradient:#d896ff:#be29ec>{0}</gradient> <green>has joined the party."))
                 .append("command", new Document()
                         .append("invite", new Document()
                                 .append("created_party", "%prefix% <green>You have created a new party.")
@@ -74,8 +76,13 @@ public class MessageConfig {
                                 .append("received", "%prefix% <green>You received a party request from <gradient:#d896ff:#be29ec>{0}</gradient>. " +
                                         "<dark_gray>[<green><click:run_command:/party accept {0}>Accept</click></green>] | " +
                                         "[<red><click:run_command:/party deny {0}>Decline</click></red>]"))
+                        .append("accept", new Document()
+                                .append("already", "%prefix% <red>You are already in a party.")
+                                .append("no_request", "%prefix% <red>You either didn't receive a party request or it has expired.")
+                                .append("joined", "%prefix% <green>You joined the party."))
                         .append("usage", new Document()
-                                .append("invite", "%prefix% <red>Usage: /party invite <player>"))
+                                .append("invite", "%prefix% <red>Usage: /party invite <player>")
+                                .append("accept", "%prefix% <red>Usage: /party accept <player>"))
                         .append("help", "%prefix% <gold>Party management<newline>" +
                                 " <yellow>/party invite <player> <gray>Invites a player to the party<newline>" +
                                 " <yellow>/party accept <player> <gray>Accepts a request<newline>" +
