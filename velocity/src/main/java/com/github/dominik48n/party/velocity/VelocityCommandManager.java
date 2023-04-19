@@ -52,7 +52,7 @@ public class VelocityCommandManager implements RawCommand {
             return;
         }
 
-        this.commandManager.execute(this.userManager.createPlayer(player), invocation.arguments().split(" "));
+        this.commandManager.execute(this.userManager.createOrGetPlayer(player), invocation.arguments().split(" "));
     }
 
     @Override

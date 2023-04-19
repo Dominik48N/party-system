@@ -41,5 +41,6 @@ public class OnlinePlayersListener {
     @Subscribe
     public void handlePlayerDisconnect(final DisconnectEvent event) {
         PartyAPI.get().onlinePlayerProvider().logout(event.getPlayer().getUniqueId());
+        this.userManager.removePlayerFromCache(event.getPlayer());
     }
 }

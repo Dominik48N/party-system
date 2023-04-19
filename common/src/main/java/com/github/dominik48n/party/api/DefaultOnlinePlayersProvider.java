@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
 
 public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider {
@@ -96,19 +97,23 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
         }
     }
 
+    boolean updatePartyId(final @NotNull Jedis jedis, final @NotNull UUID uniqueId, final @Nullable UUID partyId) {
+        final String key = "party_player:" + uniqueId;
+        final String json = jedis.get(key);
+        if (json == null) return false;
+
+        final PartyPlayer existingPlayer = Document.GSON.fromJson(json, PartyPlayer.class);
+        if (existingPlayer.partyId().isPresent() && existingPlayer.partyId().get().equals(partyId)) return false;
+
+        existingPlayer.partyId(partyId);
+        jedis.set(key, Document.GSON.toJson(existingPlayer));
+        return true;
+    }
+
     @Override
-    public boolean updatePartyId(final @NotNull UUID uniqueId, final @NotNull UUID partyId) {
+    public boolean updatePartyId(final @NotNull UUID uniqueId, final @Nullable UUID partyId) {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            final String key = "party_player:" + uniqueId;
-            final String json = jedis.get(key);
-            if (json == null) return false;
-
-            final PartyPlayer existingPlayer = Document.GSON.fromJson(json, PartyPlayer.class);
-            if (existingPlayer.partyId().isPresent() && existingPlayer.partyId().get().equals(partyId)) return false;
-
-            existingPlayer.partyId(partyId);
-            jedis.set(key, Document.GSON.toJson(existingPlayer));
-            return true;
+            return this.updatePartyId(jedis, uniqueId, partyId);
         }
     }
 }

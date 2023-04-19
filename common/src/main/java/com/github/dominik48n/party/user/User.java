@@ -16,6 +16,8 @@
 
 package com.github.dominik48n.party.user;
 
+import com.github.dominik48n.party.api.Party;
+import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +38,7 @@ public class User<TUser> implements PartyPlayer {
         this.userManager = userManager;
         this.uniqueId = userManager.playerUUID(user);
         this.name = userManager.playerName(user);
+        this.partyId = PartyAPI.get().getPartyFromPlayer(this.uniqueId).orElse(null);
     }
 
     @Override

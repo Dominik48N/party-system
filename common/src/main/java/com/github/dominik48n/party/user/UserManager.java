@@ -21,6 +21,8 @@ import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisMessageSub;
+import com.google.common.collect.Maps;
+import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -28,14 +30,28 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class UserManager<TUser> {
 
-    public @NotNull PartyPlayer createPlayer(final @NotNull TUser user) {
-        return new User<>(user, this);
-    }
-
+    private final @NotNull Map<TUser, PartyPlayer> cachedPlayers = Maps.newConcurrentMap();
     private final @NotNull RedisManager redisManager;
 
     protected UserManager(final @NotNull RedisManager redisManager) {
         this.redisManager = redisManager;
+    }
+
+    public @NotNull PartyPlayer createPlayer(final @NotNull TUser user) {
+        return new User<>(user, this);
+    }
+
+    public @NotNull PartyPlayer createOrGetPlayer(final @NotNull TUser user) {
+        PartyPlayer player = this.cachedPlayers.get(user);
+        if (player == null) {
+            player = this.createPlayer(user);
+            this.cachedPlayers.put(user, player);
+        }
+        return player;
+    }
+
+    public void removePlayerFromCache(final @NotNull TUser user) {
+        this.cachedPlayers.remove(user);
     }
 
     void sendMessage(final @NotNull UUID uniqueId, final @NotNull Component component) {

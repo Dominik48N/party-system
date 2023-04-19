@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface OnlinePlayerProvider {
 
@@ -72,6 +73,6 @@ public interface OnlinePlayerProvider {
      *
      * @return {@code true} if the player's party ID was updated, {@code false} otherwise.
      */
-    boolean updatePartyId(final @NotNull UUID uniqueId, final @NotNull UUID partyId);
+    boolean updatePartyId(final @NotNull UUID uniqueId, final @Nullable UUID partyId);
 
 }

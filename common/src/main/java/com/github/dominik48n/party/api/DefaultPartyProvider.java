@@ -17,6 +17,7 @@
 package com.github.dominik48n.party.api;
 
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
+import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
@@ -28,7 +29,7 @@ import redis.clients.jedis.Jedis;
 
 public class DefaultPartyProvider<TUser> implements PartyProvider {
 
-    private final @NotNull OnlinePlayerProvider onlinePlayerProvider;
+    private final @NotNull DefaultOnlinePlayersProvider<TUser> onlinePlayerProvider;
 
     private final @NotNull RedisManager redisManager;
 
@@ -42,6 +43,41 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     @Override
     public @NotNull OnlinePlayerProvider onlinePlayerProvider() {
         return this.onlinePlayerProvider;
+    }
+
+    @Override
+    public @NotNull Optional<UUID> getPartyFromPlayer(final @NotNull UUID uniqueId) {
+        return this.onlinePlayerProvider.get(uniqueId).flatMap(PartyPlayer::partyId);
+    }
+
+    @Override
+    public void addPlayerToParty(final @NotNull UUID partyId, final @NotNull UUID player) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            final String partyKey = "party:" + partyId;
+            final String partyJson = jedis.get(partyKey);
+            if (partyJson != null) {
+                final Party party = Document.GSON.fromJson(partyJson, Party.class);
+                party.members().add(player);
+                jedis.set(partyKey, Document.GSON.toJson(party));
+            }
+
+            this.onlinePlayerProvider.updatePartyId(jedis, player, partyId);
+        }
+    }
+
+    @Override
+    public void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            final String partyKey = "party:" + partyId;
+            final String partyJson = jedis.get(partyKey);
+            if (partyJson != null) {
+                final Party party = Document.GSON.fromJson(partyJson, Party.class);
+                party.members().remove(player);
+                jedis.set(partyKey, Document.GSON.toJson(party));
+            }
+
+            this.onlinePlayerProvider.updatePartyId(jedis, player, null);
+        }
     }
 
     @Override

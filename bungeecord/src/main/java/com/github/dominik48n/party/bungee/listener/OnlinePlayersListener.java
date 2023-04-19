@@ -42,5 +42,6 @@ public class OnlinePlayersListener implements Listener {
     @EventHandler
     public void handlePlayerDisconnect(final PlayerDisconnectEvent event) {
         PartyAPI.get().onlinePlayerProvider().logout(event.getPlayer().getUniqueId());
+        this.userManager.removePlayerFromCache(event.getPlayer());
     }
 }

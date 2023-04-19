@@ -25,6 +25,12 @@ public interface PartyProvider {
 
     @NotNull OnlinePlayerProvider onlinePlayerProvider();
 
+    @NotNull Optional<UUID> getPartyFromPlayer(final @NotNull UUID uniqueId);
+
+    void addPlayerToParty(final @NotNull UUID partyId, final @NotNull UUID player);
+
+    void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player);
+
     @NotNull Optional<Party> getParty(final @NotNull UUID id);
 
     @NotNull Party createParty(final @NotNull UUID leader);
