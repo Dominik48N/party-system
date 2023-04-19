@@ -61,13 +61,15 @@ public class MessageConfig {
         return new Document()
                 .append("prefix", this.prefix)
                 .append("general", new Document()
-                        .append("player_not_online", "%prefix% <red>{0} is not online."))
+                        .append("player_not_online", "%prefix% <red>{0} is not online.")
+                        .append("error", "%prefix% <red>There has been an error. Please try again later."))
                 .append("command", new Document()
                         .append("invite", new Document()
                                 .append("created_party", "%prefix% <green>You have created a new party.")
                                 .append("already_in_party", "%prefix% <red>The player is already in a party.")
                                 .append("already_invited", "%prefix% <red>You have already invited this player to your party.")
                                 .append("self", "%prefix% <red>You can't invite yourself to a party.")
+                                .append("not_leader", "%prefix% <red>You must be the party leader to invite players.")
                                 .append("sent", "%prefix% <green>You sent a party request to <gradient:#d896ff:#be29ec>{0}</gradient>.")
                                 .append("received", "%prefix% <green>You received a party request from <gradient:#d896ff:#be29ec>{0}</gradient>. " +
                                         "<dark_gray>[<green><click:run_command:/party accept {0}>Accept</click></green>] | " +

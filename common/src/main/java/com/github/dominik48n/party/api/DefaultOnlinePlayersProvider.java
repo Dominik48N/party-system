@@ -95,4 +95,20 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
             jedis.del("party_player:" + uniqueId);
         }
     }
+
+    @Override
+    public boolean updatePartyId(final @NotNull UUID uniqueId, final @NotNull UUID partyId) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            final String key = "party_player:" + uniqueId;
+            final String json = jedis.get(key);
+            if (json == null) return false;
+
+            final PartyPlayer existingPlayer = Document.GSON.fromJson(json, PartyPlayer.class);
+            if (existingPlayer.partyId().isPresent() && existingPlayer.partyId().get().equals(partyId)) return false;
+
+            existingPlayer.partyId(partyId);
+            jedis.set(key, Document.GSON.toJson(existingPlayer));
+            return true;
+        }
+    }
 }

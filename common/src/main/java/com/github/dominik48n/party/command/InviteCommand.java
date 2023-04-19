@@ -16,10 +16,10 @@
 
 package com.github.dominik48n.party.command;
 
+import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.PartyConfig;
-import com.github.dominik48n.party.redis.RedisManager;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,12 +62,22 @@ public class InviteCommand extends PartyCommand {
             return;
         }
 
-        if (player.partyId().isEmpty()) {
-            // TODO: Create new party
+        final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
 
+        if (party.isEmpty()) {
+            final Party createdParty = PartyAPI.get().createParty(player.uniqueId());
+
+            if (!PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), createdParty.id())) {
+                player.sendMessage("general.error");
+                PartyAPI.get().deleteParty(createdParty.id());
+                return;
+            }
+
+            player.partyId(createdParty.id());
             player.sendMessage("command.invite.created_party");
-        } else {
-            // TODO: Check if player is party leader
+        } else if (!party.get().leader().equals(player.uniqueId())) {
+            player.sendMessage("command.invite.not_leader");
+            return;
         }
 
         PartyAPI.get().createPartyRequest(player.name(), name, this.config.requestExpires());

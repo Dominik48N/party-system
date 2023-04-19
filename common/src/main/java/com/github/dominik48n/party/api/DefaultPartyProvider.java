@@ -17,8 +17,12 @@
 package com.github.dominik48n.party.api;
 
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
+import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
+import com.google.common.collect.Lists;
+import java.util.Optional;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 
@@ -38,6 +42,38 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     @Override
     public @NotNull OnlinePlayerProvider onlinePlayerProvider() {
         return this.onlinePlayerProvider;
+    }
+
+    @Override
+    public @NotNull Optional<Party> getParty(final @NotNull UUID id) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            final String json = jedis.get("party:" + id);
+            if (json == null) return Optional.empty();
+
+            final Party party = Document.GSON.fromJson(json, Party.class);
+            return Optional.of(party);
+        }
+    }
+
+    @Override
+    public @NotNull Party createParty(final @NotNull UUID leader) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            UUID partyId;
+            do {
+                partyId = UUID.randomUUID();
+            } while (jedis.exists("party:" + partyId));
+
+            final Party party = new Party(partyId, leader, Lists.newArrayList());
+            jedis.set("party:" + partyId, Document.GSON.toJson(party));
+            return party;
+        }
+    }
+
+    @Override
+    public void deleteParty(final @NotNull UUID id) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            jedis.del("party:" + id);
+        }
     }
 
     @Override

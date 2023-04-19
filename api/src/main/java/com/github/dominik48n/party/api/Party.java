@@ -16,22 +16,19 @@
 
 package com.github.dominik48n.party.api;
 
-import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
-public interface PartyProvider {
+/**
+ * Represents a party, a group of players in a game who play together.
+ */
+public record Party(@NotNull UUID id, @NotNull UUID leader, @NotNull List<UUID> members) {
 
-    @NotNull OnlinePlayerProvider onlinePlayerProvider();
-
-    @NotNull Optional<Party> getParty(final @NotNull UUID id);
-
-    @NotNull Party createParty(final @NotNull UUID leader);
-
-    void deleteParty(final @NotNull UUID id);
-
-    void createPartyRequest(final @NotNull String source, final @NotNull String target, final int expires);
-
-    boolean existsPartyRequest(final @NotNull String source, final @NotNull String target);
+    public @NotNull List<UUID> getAllMembers() {
+        final List<UUID> allMembers = new ArrayList<>(this.members);
+        allMembers.add(leader);
+        return allMembers;
+    }
 }

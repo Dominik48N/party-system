@@ -62,4 +62,16 @@ public interface OnlinePlayerProvider {
      */
     void logout(final @NotNull UUID uniqueId);
 
+    /**
+     * Updates the party ID of the {@link PartyPlayer} with the given {@link UUID} to the specified party ID.
+     * If the player's current party ID already matches the specified party ID, no update is performed.
+     * If no player with the given unique ID exists, returns {@code false}.
+     *
+     * @param uniqueId The unique ID of the {@link PartyPlayer} to update.
+     * @param partyId  The new party ID to set for the player.
+     *
+     * @return {@code true} if the player's party ID was updated, {@code false} otherwise.
+     */
+    boolean updatePartyId(final @NotNull UUID uniqueId, final @NotNull UUID partyId);
+
 }
