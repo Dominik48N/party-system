@@ -16,7 +16,9 @@
 
 package com.github.dominik48n.party.api.player;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +43,8 @@ public interface OnlinePlayerProvider {
      * @return The retrieved {@link PartyPlayer}, or null if the {@link PartyPlayer} does not exist in Redis.
      */
     @NotNull Optional<PartyPlayer> get(final @NotNull UUID uniqueId);
+
+    @NotNull Map<UUID, PartyPlayer> get(final @NotNull Collection<UUID> uniqueIds);
 
     /**
      * Retrieves all {@link PartyPlayer} objects from Redis.

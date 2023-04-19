@@ -83,6 +83,10 @@ public class MessageConfig {
                         .append("usage", new Document()
                                 .append("invite", "%prefix% <red>Usage: /party invite <player>")
                                 .append("accept", "%prefix% <red>Usage: /party accept <player>"))
+                        .append("not_in_party", "%prefix% <red>You are not in a party.")
+                        .append("list", "%prefix% <gold>Party information<newline>" +
+                                " <gray>Leader<dark_gray>: <dark_red>{0}<newline>" +
+                                " <gray>Members<dark_gray>: <color:#d896ff>{1}")
                         .append("help", "%prefix% <gold>Party management<newline>" +
                                 " <yellow>/party invite <player> <gray>Invites a player to the party<newline>" +
                                 " <yellow>/party accept <player> <gray>Accepts a request<newline>" +

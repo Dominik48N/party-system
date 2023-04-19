@@ -23,7 +23,10 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.NetworkUser;
 import com.github.dominik48n.party.user.UserManager;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -65,6 +68,24 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
             final PartyPlayer player = Document.GSON.fromJson(json, PartyPlayer.class);
             return Optional.of(new NetworkUser<>(player, this.userManager));
         }
+    }
+
+    @Override
+    public @NotNull Map<UUID, PartyPlayer> get(final @NotNull Collection<UUID> uniqueIds) {
+        final Map<UUID, PartyPlayer> players = Maps.newHashMap();
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            final String[] keys = uniqueIds.stream()
+                    .map(uuid -> "party_player:" + uuid.toString())
+                    .toArray(String[]::new);
+
+            for (final String json : jedis.mget(keys)) {
+                if (json == null) continue;
+
+                final PartyPlayer player = Document.GSON.fromJson(json, PartyPlayer.class);
+                players.put(player.uniqueId(), player);
+            }
+        }
+        return players;
     }
 
     @Override
