@@ -37,6 +37,8 @@ public interface PartyProvider {
 
     void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements);
 
+    void connectPartyToServer(final @NotNull Party party, final @NotNull String serverName);
+
     void deleteParty(final @NotNull UUID id);
 
     void removePartyRequest(final @NotNull String source, final @NotNull String target);

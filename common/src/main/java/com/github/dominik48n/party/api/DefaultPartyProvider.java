@@ -22,6 +22,7 @@ import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisMessageSub;
+import com.github.dominik48n.party.redis.RedisSwitchServerSub;
 import com.github.dominik48n.party.user.UserManager;
 import com.google.common.collect.Lists;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
 
     private final @NotNull DefaultOnlinePlayersProvider<TUser> onlinePlayerProvider;
 
+    private final @NotNull UserManager<TUser> userManager;
     private final @NotNull RedisManager redisManager;
     private final @NotNull MessageConfig messageConfig;
 
@@ -46,6 +48,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
         this.onlinePlayerProvider = new DefaultOnlinePlayersProvider<>(redisManager, userManager);
         this.redisManager = redisManager;
         this.messageConfig = messageConfig;
+        this.userManager = userManager;
 
         PartyAPI.set(this);
     }
@@ -123,6 +126,16 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
                 RedisMessageSub.CHANNEL,
                 new Document().append("unique_id", uuid.toString()).append("message", message))
         );
+    }
+
+    @Override
+    public void connectPartyToServer(final @NotNull Party party, final @NotNull String serverName) {
+        final Component component = this.messageConfig.getMessage("party.connect_to_server", serverName);
+        final String message = MiniMessage.miniMessage().serialize(component);
+        party.getAllMembers().forEach(uuid -> {
+            this.redisManager.publish(RedisSwitchServerSub.CHANNEL, new Document().append("unique_id", uuid.toString()).append("server", serverName));
+            this.redisManager.publish(RedisMessageSub.CHANNEL, new Document().append("unique_id", uuid.toString()).append("message", message));
+        });
     }
 
     @Override

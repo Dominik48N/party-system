@@ -80,6 +80,7 @@ public class RedisManager {
     public <TUser> void subscribes(final @NotNull UserManager<TUser> userManager) {
         this.subscriptions.clear();
         this.subscriptions.add(new RedisMessageSub<>(userManager));
+        this.subscriptions.add(new RedisSwitchServerSub<>(userManager));
 
         try (final Jedis jedis = this.jedisPool().getResource()) {
             this.subscriptions.forEach(subscription -> jedis.subscribe(subscription, subscription.channels()));

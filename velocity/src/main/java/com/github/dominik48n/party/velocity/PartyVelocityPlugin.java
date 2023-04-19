@@ -20,6 +20,7 @@ import com.github.dominik48n.party.api.DefaultPartyProvider;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.velocity.listener.OnlinePlayersListener;
+import com.github.dominik48n.party.velocity.listener.SwitchServerListener;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -85,12 +86,13 @@ public class PartyVelocityPlugin {
 
         this.redisManager = new RedisManager(this.config.redisConfig());
 
-        final VelocityUserManager userManager = new VelocityUserManager(this.redisManager, this.config, this.server);
+        final VelocityUserManager userManager = new VelocityUserManager(this.redisManager, this.config, this.server, this.logger);
         new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
 
         this.redisManager.subscribes(userManager);
 
         this.server.getEventManager().register(this, new OnlinePlayersListener(userManager));
+        this.server.getEventManager().register(this, new SwitchServerListener(userManager));
         this.server.getCommandManager().register(
                 this.server.getCommandManager().metaBuilder("party").plugin(this).build(),
                 new VelocityCommandManager(userManager, this)

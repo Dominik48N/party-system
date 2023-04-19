@@ -63,6 +63,8 @@ public abstract class UserManager<TUser> {
 
     public abstract void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component);
 
+    public abstract void connectToServer(final @NotNull UUID uniqueId, final @NotNull String serverName);
+
     protected abstract void sendMessage(final @NotNull TUser user, final @NotNull Component component);
 
     protected abstract @NotNull String playerName(final @NotNull TUser user);

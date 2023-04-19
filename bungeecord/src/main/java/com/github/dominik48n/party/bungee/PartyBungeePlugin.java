@@ -18,6 +18,7 @@ package com.github.dominik48n.party.bungee;
 
 import com.github.dominik48n.party.api.DefaultPartyProvider;
 import com.github.dominik48n.party.bungee.listener.OnlinePlayersListener;
+import com.github.dominik48n.party.bungee.listener.SwitchServerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import java.io.File;
@@ -55,6 +56,7 @@ public class PartyBungeePlugin extends Plugin {
         this.redisManager.subscribes(userManager);
 
         this.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(userManager));
+        this.getProxy().getPluginManager().registerListener(this, new SwitchServerListener(userManager));
         this.getProxy().getPluginManager().registerCommand(this, new BungeeCommandManager(userManager, this));
     }
 

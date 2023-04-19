@@ -22,25 +22,43 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import java.util.Optional;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 public class VelocityUserManager extends UserManager<Player> {
 
     private final @NotNull ProxyPluginConfig config;
     private final @NotNull ProxyServer server;
+    private final @NotNull Logger logger;
 
-    VelocityUserManager(final @NotNull RedisManager redisManager, final @NotNull ProxyPluginConfig config, final @NotNull ProxyServer server) {
+    VelocityUserManager(
+            final @NotNull RedisManager redisManager,
+            final @NotNull ProxyPluginConfig config,
+            final @NotNull ProxyServer server,
+            final @NotNull Logger logger
+    ) {
         super(redisManager);
         this.config = config;
         this.server = server;
+        this.logger = logger;
     }
 
     @Override
     public void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component) {
         this.server.getPlayer(uniqueId).ifPresent(player -> player.sendMessage(component));
+    }
+
+    @Override
+    public void connectToServer(final @NotNull UUID uniqueId, final @NotNull String serverName) {
+        this.server.getServer(serverName).ifPresentOrElse(
+                server -> this.server.getPlayer(uniqueId).ifPresent(player -> {
+                    if (player.getCurrentServer().isPresent() && player.getCurrentServer().get().getServer().equals(server)) return;
+                    player.createConnectionRequest(server);
+                }),
+                () -> this.logger.error("Failed to send {} to {}, because the server is unknown on this proxy.", uniqueId, serverName)
+        );
     }
 
     @Override

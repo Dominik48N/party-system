@@ -21,8 +21,10 @@ import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.user.UserManager;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.Component;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +45,23 @@ public class BungeeUserManager extends UserManager<ProxiedPlayer> {
     @Override
     public void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component) {
         Optional.ofNullable(this.plugin.getProxy().getPlayer(uniqueId)).ifPresent(player -> this.sendMessage(player, component));
+    }
+
+    @Override
+    public void connectToServer(final @NotNull UUID uniqueId, final @NotNull String serverName) {
+        final ServerInfo serverInfo = this.plugin.getProxy().getServerInfo(serverName);
+        if (serverInfo == null) {
+            this.plugin.getLogger().log(
+                    Level.SEVERE,
+                    "Failed to send {0} to {1}, because the server is unknown on this proxy.",
+                    new Object[] {uniqueId, serverName}
+            );
+            return;
+        }
+
+        Optional.ofNullable(this.plugin.getProxy().getPlayer(uniqueId)).ifPresent(player -> {
+            if (!player.getServer().getInfo().getName().equals(serverInfo.getName())) player.connect(serverInfo);
+        });
     }
 
     @Override
