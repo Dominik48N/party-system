@@ -41,7 +41,7 @@ public class PartyBungeePlugin extends Plugin {
             }
         }
 
-        this.getProxy().getPluginManager().registerCommand(this, new BungeeCommandManager(new BungeePlayerManager()));
+        this.getProxy().getPluginManager().registerCommand(this, new BungeeCommandManager(new BungeePlayerManager(this)));
     }
 
     public @NotNull ProxyPluginConfig config() {

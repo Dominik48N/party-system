@@ -18,7 +18,6 @@ package com.github.dominik48n.party.velocity;
 
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.google.inject.Inject;
-import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
@@ -28,7 +27,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.logging.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -82,7 +80,7 @@ public class PartyVelocityPlugin {
 
         this.server.getCommandManager().register(
                 this.server.getCommandManager().metaBuilder("party").plugin(this).build(),
-                new VelocityCommandManager(new VelocityPlayerManager())
+                new VelocityCommandManager(new VelocityPlayerManager(this.config))
         );
     }
 

@@ -17,6 +17,7 @@
 package com.github.dominik48n.party.player;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.config.MessageConfig;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
@@ -32,4 +33,6 @@ public abstract class PlayerManager<TPlayer> {
     protected abstract @NotNull String playerName(final @NotNull TPlayer player);
 
     protected abstract @NotNull UUID playerUUID(final @NotNull TPlayer player);
+
+    protected abstract @NotNull MessageConfig messageConfig();
 }

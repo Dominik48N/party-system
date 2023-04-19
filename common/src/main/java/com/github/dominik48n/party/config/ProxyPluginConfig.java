@@ -30,6 +30,7 @@ public class ProxyPluginConfig {
         return new ProxyPluginConfig(document);
     }
 
+    private final @NotNull MessageConfig messageConfig;
     private final @NotNull RedisConfig redisConfig;
 
     public ProxyPluginConfig() {
@@ -38,13 +39,18 @@ public class ProxyPluginConfig {
 
     private ProxyPluginConfig(final @NotNull Document document) {
         this.redisConfig = RedisConfig.fromDocument(document.getDocument("redis"));
+        this.messageConfig = MessageConfig.fromDocument(document.getDocument("messages"));
     }
 
     public @NotNull RedisConfig redisConfig() {
         return this.redisConfig;
     }
 
+    public @NotNull MessageConfig messageConfig() {
+        return this.messageConfig;
+    }
+
     public void writeToFile(final @NotNull File file) throws IOException {
-        new Document().append("redis", this.redisConfig.toDocument()).writeToFile(file);
+        new Document().append("redis", this.redisConfig.toDocument()).append("messages", this.messageConfig.toDocument()).writeToFile(file);
     }
 }

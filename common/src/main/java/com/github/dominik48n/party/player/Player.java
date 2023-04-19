@@ -28,10 +28,7 @@ public class Player<TPlayer> implements PartyPlayer {
     private final @NotNull UUID uniqueId;
     private final @NotNull String name;
 
-    Player(
-            final @NotNull TPlayer player,
-            final @NotNull PlayerManager<TPlayer> playerManager
-    ) {
+    Player(final @NotNull TPlayer player, final @NotNull PlayerManager<TPlayer> playerManager) {
         this.player = player;
         this.playerManager = playerManager;
         this.uniqueId = playerManager.playerUUID(player);
@@ -50,6 +47,6 @@ public class Player<TPlayer> implements PartyPlayer {
 
     @Override
     public void sendMessage(final @NotNull String messageKey, final @NotNull Object... replacements) {
-        this.playerManager.sendMessage(this.player, Component.text(messageKey)); // TODO
+        this.playerManager.sendMessage(this.player, this.playerManager.messageConfig().getMessage(messageKey, replacements));
     }
 }

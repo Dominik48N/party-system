@@ -27,6 +27,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 public class Document {
@@ -73,6 +74,14 @@ public class Document {
 
     @NotNull Document getDocument(final @NotNull String key) {
         return this.contains(key) ? new Document(this.jsonObject.getAsJsonObject(key)) : new Document();
+    }
+
+    @NotNull Set<String> keys() {
+        return this.jsonObject.keySet();
+    }
+
+    boolean isDocument(final @NotNull String key) {
+        return this.contains(key) && this.jsonObject.get(key).isJsonObject();
     }
 
     void writeToFile(final @NotNull File file) throws IOException {
