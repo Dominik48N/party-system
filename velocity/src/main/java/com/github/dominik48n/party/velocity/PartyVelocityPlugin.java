@@ -17,6 +17,7 @@
 package com.github.dominik48n.party.velocity;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
@@ -55,14 +56,17 @@ public class PartyVelocityPlugin {
 
     @Subscribe
     public void onProxyInitialize(final ProxyInitializeEvent event) {
-
+        this.server.getCommandManager().register(
+                this.server.getCommandManager().metaBuilder("party").plugin(this).build(),
+                new VelocityCommandManager(new VelocityPlayerManager())
+        );
     }
 
-    public @NotNull ProxyServer getServer() {
+    public @NotNull ProxyServer server() {
         return this.server;
     }
 
-    public @NotNull Logger getLogger() {
+    public @NotNull Logger logger() {
         return this.logger;
     }
 }

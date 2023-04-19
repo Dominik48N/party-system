@@ -15,6 +15,7 @@ dependencies {
     annotationProcessor("com.velocitypowered:velocity-api:3.1.1")
 
     implementation(project(":common"))
+    implementation(project(":api"))
 }
 
 blossom {
