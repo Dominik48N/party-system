@@ -55,7 +55,7 @@ public class VelocityUserManager extends UserManager<Player> {
         this.server.getServer(serverName).ifPresentOrElse(
                 server -> this.server.getPlayer(uniqueId).ifPresent(player -> {
                     if (player.getCurrentServer().isPresent() && player.getCurrentServer().get().getServer().equals(server)) return;
-                    player.createConnectionRequest(server);
+                    player.createConnectionRequest(server).connect();
                 }),
                 () -> this.logger.error("Failed to send {} to {}, because the server is unknown on this proxy.", uniqueId, serverName)
         );
