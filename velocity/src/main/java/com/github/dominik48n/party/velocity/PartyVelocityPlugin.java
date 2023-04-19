@@ -84,13 +84,16 @@ public class PartyVelocityPlugin {
         }
 
         this.redisManager = new RedisManager(this.config.redisConfig());
-        new DefaultPartyProvider(this.redisManager);
 
-        final VelocityUserManager playerManager = new VelocityUserManager(this.config);
-        this.server.getEventManager().register(this, new OnlinePlayersListener(playerManager));
+        final VelocityUserManager userManager = new VelocityUserManager(this.redisManager, this.config, this.server);
+        new DefaultPartyProvider<>(this.redisManager, userManager);
+
+        this.redisManager.subscribes(userManager);
+
+        this.server.getEventManager().register(this, new OnlinePlayersListener(userManager));
         this.server.getCommandManager().register(
                 this.server.getCommandManager().metaBuilder("party").plugin(this).build(),
-                new VelocityCommandManager(playerManager, this)
+                new VelocityCommandManager(userManager, this)
         );
     }
 

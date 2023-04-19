@@ -19,20 +19,30 @@ package com.github.dominik48n.party.bungee;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.user.UserManager;
+import java.util.Optional;
 import java.util.UUID;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 public class BungeeUserManager extends UserManager<ProxiedPlayer> {
 
     private final @NotNull ProxyPluginConfig config;
     private final @NotNull BungeeAudiences audiences;
+    private final @NotNull Plugin plugin;
 
     BungeeUserManager(final @NotNull PartyBungeePlugin plugin) {
+        super(plugin.redisManager());
         this.config = plugin.config();
         this.audiences = BungeeAudiences.create(plugin);
+        this.plugin = plugin;
+    }
+
+    @Override
+    public void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component) {
+        Optional.ofNullable(this.plugin.getProxy().getPlayer(uniqueId)).ifPresent(player -> this.sendMessage(player, component));
     }
 
     @Override

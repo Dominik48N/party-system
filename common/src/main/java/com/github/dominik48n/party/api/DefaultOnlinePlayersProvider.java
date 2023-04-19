@@ -20,6 +20,8 @@ import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.user.NetworkUser;
+import com.github.dominik48n.party.user.UserManager;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Optional;
@@ -28,12 +30,14 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 
-public class DefaultOnlinePlayersProvider implements OnlinePlayerProvider {
+public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider {
 
     private final @NotNull RedisManager redisManager;
+    private final @NotNull UserManager<TUser> userManager;
 
-    public DefaultOnlinePlayersProvider(final @NotNull RedisManager redisManager) {
+    public DefaultOnlinePlayersProvider(final @NotNull RedisManager redisManager, final @NotNull UserManager<TUser> userManager) {
         this.redisManager = redisManager;
+        this.userManager = userManager;
     }
 
     @Override
@@ -45,7 +49,7 @@ public class DefaultOnlinePlayersProvider implements OnlinePlayerProvider {
                 if (json == null) continue;
 
                 final PartyPlayer player = Document.GSON.fromJson(json, PartyPlayer.class);
-                if (player.name().equalsIgnoreCase(username)) return Optional.of(player);
+                if (player.name().equalsIgnoreCase(username)) return Optional.of(new NetworkUser<>(player, this.userManager));
             }
         }
         return Optional.empty();
@@ -58,7 +62,7 @@ public class DefaultOnlinePlayersProvider implements OnlinePlayerProvider {
             if (json == null) return Optional.empty();
 
             final PartyPlayer player = Document.GSON.fromJson(json, PartyPlayer.class);
-            return Optional.of(player);
+            return Optional.of(new NetworkUser<>(player, this.userManager));
         }
     }
 
@@ -69,7 +73,10 @@ public class DefaultOnlinePlayersProvider implements OnlinePlayerProvider {
             final Set<String> keys = jedis.keys("party_player:*");
             for (final String key : keys) {
                 final String json = jedis.get(key);
-                if (json != null) partyPlayers.add(Document.GSON.fromJson(json, PartyPlayer.class));
+                if (json == null) continue;
+
+                final PartyPlayer player = Document.GSON.fromJson(json, PartyPlayer.class);
+                partyPlayers.add(new NetworkUser<>(player, this.userManager));
             }
         }
         return partyPlayers;

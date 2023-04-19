@@ -48,11 +48,14 @@ public class PartyBungeePlugin extends Plugin {
         }
 
         this.redisManager = new RedisManager(this.config.redisConfig());
-        new DefaultPartyProvider(this.redisManager);
 
-        final BungeeUserManager playerManager = new BungeeUserManager(this);
-        this.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(playerManager));
-        this.getProxy().getPluginManager().registerCommand(this, new BungeeCommandManager(playerManager));
+        final BungeeUserManager userManager = new BungeeUserManager(this);
+        new DefaultPartyProvider<>(this.redisManager, userManager);
+
+        this.redisManager.subscribes(userManager);
+
+        this.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(userManager));
+        this.getProxy().getPluginManager().registerCommand(this, new BungeeCommandManager(userManager, this));
     }
 
     @Override
@@ -62,5 +65,10 @@ public class PartyBungeePlugin extends Plugin {
 
     public @NotNull ProxyPluginConfig config() {
         return this.config;
+    }
+
+    public @NotNull RedisManager redisManager() {
+        if (this.redisManager == null) throw new IllegalStateException("RedisManager isn't initialized.");
+        return this.redisManager;
     }
 }

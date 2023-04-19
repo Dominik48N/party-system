@@ -18,17 +18,18 @@ package com.github.dominik48n.party.api;
 
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.user.UserManager;
 import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 
-public class DefaultPartyProvider implements PartyProvider {
+public class DefaultPartyProvider<TUser> implements PartyProvider {
 
     private final @NotNull OnlinePlayerProvider onlinePlayerProvider;
 
     private final @NotNull RedisManager redisManager;
 
-    public DefaultPartyProvider(final @NotNull RedisManager redisManager) {
-        this.onlinePlayerProvider = new DefaultOnlinePlayersProvider(redisManager);
+    public DefaultPartyProvider(final @NotNull RedisManager redisManager, final @NotNull UserManager<TUser> userManager) {
+        this.onlinePlayerProvider = new DefaultOnlinePlayersProvider<>(redisManager, userManager);
         this.redisManager = redisManager;
 
         PartyAPI.set(this);

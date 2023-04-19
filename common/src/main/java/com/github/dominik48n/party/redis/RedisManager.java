@@ -16,14 +16,20 @@
 
 package com.github.dominik48n.party.redis;
 
+import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.config.RedisConfig;
+import com.github.dominik48n.party.user.UserManager;
+import com.google.common.collect.Lists;
 import java.time.Duration;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisManager {
 
+    private final @NotNull List<RedisSubscription> subscriptions = Lists.newArrayList();
     private final @NotNull JedisPool jedisPool;
 
     /**
@@ -48,7 +54,36 @@ public class RedisManager {
      * Disconnects this RedisManager from the Redis server.
      */
     public void close() {
+        this.subscriptions.forEach(RedisSubscription::close);
         this.jedisPool.destroy();
+    }
+
+    /**
+     * Publishes a document to a Redis channel.
+     *
+     * @param channel  The name of the channel to publish the document to.
+     * @param document The {@link Document} to publish to the channel.
+     */
+    public void publish(final @NotNull String channel, final @NotNull Document document) {
+        try (final Jedis jedis = this.jedisPool.getResource()) {
+            jedis.publish(channel, document.toString());
+        }
+    }
+
+    /**
+     * Subscribes to the Redis pub/sub channel and handles incoming messages with a RedisMessageSub instance.
+     * Uses the provided {@link UserManager} to handle user management.
+     *
+     * @param userManager The {@link UserManager} instance to use for user management.
+     * @param <TUser>     The type of user managed by the UserManager.
+     */
+    public <TUser> void subscribes(final @NotNull UserManager<TUser> userManager) {
+        this.subscriptions.clear();
+        this.subscriptions.add(new RedisMessageSub<>(userManager));
+
+        try (final Jedis jedis = this.jedisPool().getResource()) {
+            this.subscriptions.forEach(subscription -> jedis.subscribe(subscription, subscription.channels()));
+        }
     }
 
     public @NotNull JedisPool jedisPool() {

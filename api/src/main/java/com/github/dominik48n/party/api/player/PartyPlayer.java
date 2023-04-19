@@ -64,4 +64,3 @@ public interface PartyPlayer {
      */
     void sendMessage(final @NotNull String messageKey, final @NotNull Object... replacements);
 }
-

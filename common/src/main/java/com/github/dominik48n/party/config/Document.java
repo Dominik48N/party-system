@@ -41,15 +41,15 @@ public class Document {
 
     private final @NotNull JsonObject jsonObject;
 
-    Document() {
+    public Document() {
         this(new JsonObject());
     }
 
-    private Document(final @NotNull JsonObject jsonObject) {
+    public Document(final @NotNull JsonObject jsonObject) {
         this.jsonObject = jsonObject;
     }
 
-    @NotNull Document append(final @NotNull String key, final @NotNull String value) {
+    public @NotNull Document append(final @NotNull String key, final @NotNull String value) {
         this.jsonObject.addProperty(key, value);
         return this;
     }
@@ -64,7 +64,7 @@ public class Document {
         return this;
     }
 
-    @NotNull String getString(final @NotNull String key, final @NotNull String defaultValue) {
+    public @NotNull String getString(final @NotNull String key, final @NotNull String defaultValue) {
         return this.contains(key) ? this.jsonObject.get(key).getAsString() : defaultValue;
     }
 
@@ -90,6 +90,11 @@ public class Document {
         try (final OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             GSON.toJson(this.jsonObject, writer);
         }
+    }
+
+    @Override
+    public String toString() {
+        return GSON.toJson(this.jsonObject);
     }
 
     private boolean contains(final @NotNull String key) {

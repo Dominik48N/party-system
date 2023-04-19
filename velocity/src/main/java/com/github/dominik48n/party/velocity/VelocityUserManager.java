@@ -18,8 +18,11 @@ package com.github.dominik48n.party.velocity;
 
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ProxyServer;
+import java.util.Optional;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
@@ -27,9 +30,17 @@ import org.jetbrains.annotations.NotNull;
 public class VelocityUserManager extends UserManager<Player> {
 
     private final @NotNull ProxyPluginConfig config;
+    private final @NotNull ProxyServer server;
 
-    VelocityUserManager(final @NotNull ProxyPluginConfig config) {
+    VelocityUserManager(final @NotNull RedisManager redisManager, final @NotNull ProxyPluginConfig config, final @NotNull ProxyServer server) {
+        super(redisManager);
         this.config = config;
+        this.server = server;
+    }
+
+    @Override
+    public void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component) {
+        this.server.getPlayer(uniqueId).ifPresent(player -> player.sendMessage(component));
     }
 
     @Override

@@ -17,9 +17,13 @@
 package com.github.dominik48n.party.user;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.config.MessageConfig;
+import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.redis.RedisMessageSub;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class UserManager<TUser> {
@@ -27,6 +31,21 @@ public abstract class UserManager<TUser> {
     public @NotNull PartyPlayer createPlayer(final @NotNull TUser user) {
         return new User<>(user, this);
     }
+
+    private final @NotNull RedisManager redisManager;
+
+    protected UserManager(final @NotNull RedisManager redisManager) {
+        this.redisManager = redisManager;
+    }
+
+    void sendMessage(final @NotNull UUID uniqueId, final @NotNull Component component) {
+        this.redisManager.publish(
+                RedisMessageSub.CHANNEL,
+                new Document().append("unique_id", uniqueId.toString()).append("message", MiniMessage.miniMessage().serialize(component))
+        );
+    }
+
+    public abstract void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component);
 
     protected abstract void sendMessage(final @NotNull TUser user, final @NotNull Component component);
 

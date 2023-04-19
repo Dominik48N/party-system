@@ -57,7 +57,7 @@ public class MessageConfig {
         return MiniMessage.miniMessage().deserialize(messageString.replace("%prefix%", this.prefix));
     }
 
-    public @NotNull Document toDocument() {
+    @NotNull Document toDocument() {
         return new Document()
                 .append("prefix", this.prefix)
                 .append("general", new Document()
@@ -68,7 +68,10 @@ public class MessageConfig {
                                 .append("already_in_party", "%prefix% <red>The player is already in a party.")
                                 .append("already_invited", "%prefix% <red>You have already invited this player to your party.")
                                 .append("self", "%prefix% <red>You can't invite yourself to a party.")
-                                .append("sent", "%prefix% <green>You sent a party request to <gradient:#d896ff:#be29ec>{0}</gradient>."))
+                                .append("sent", "%prefix% <green>You sent a party request to <gradient:#d896ff:#be29ec>{0}</gradient>.")
+                                .append("received", "%prefix% <green>You received a party request from <gradient:#d896ff:#be29ec>{0}</gradient>. " +
+                                        "<dark_gray>[<green><click:run_command:/party accept {0}>Accept</click></green>] | " +
+                                        "[<red><click:run_command:/party deny {0}>Decline</click></red>]"))
                         .append("usage", new Document()
                                 .append("invite", "%prefix% <red>Usage: /party invite <player>"))
                         .append("help", "%prefix% <gold>Party management<newline>" +

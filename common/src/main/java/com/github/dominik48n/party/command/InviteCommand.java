@@ -19,6 +19,7 @@ package com.github.dominik48n.party.command;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.PartyConfig;
+import com.github.dominik48n.party.redis.RedisManager;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,6 +73,6 @@ public class InviteCommand extends PartyCommand {
         PartyAPI.get().createPartyRequest(player.name(), name, this.config.requestExpires());
 
         player.sendMessage("command.invite.sent", name);
-        // TODO: Send message to target
+        target.get().sendMessage("command.invite.received", player.name());
     }
 }
