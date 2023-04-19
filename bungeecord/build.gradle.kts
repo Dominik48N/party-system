@@ -15,3 +15,9 @@ dependencies {
 
     implementation(project(":common"))
 }
+
+tasks.processResources {
+    filesMatching("bungee.yml") {
+        expand(mapOf("version" to rootProject.version))
+    }
+}
