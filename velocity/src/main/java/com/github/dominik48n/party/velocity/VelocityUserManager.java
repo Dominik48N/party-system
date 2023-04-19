@@ -18,17 +18,17 @@ package com.github.dominik48n.party.velocity;
 
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
-import com.github.dominik48n.party.player.PlayerManager;
+import com.github.dominik48n.party.user.UserManager;
 import com.velocitypowered.api.proxy.Player;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class VelocityPlayerManager extends PlayerManager<Player> {
+public class VelocityUserManager extends UserManager<Player> {
 
     private final @NotNull ProxyPluginConfig config;
 
-    VelocityPlayerManager(final @NotNull ProxyPluginConfig config) {
+    VelocityUserManager(final @NotNull ProxyPluginConfig config) {
         this.config = config;
     }
 

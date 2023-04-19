@@ -16,17 +16,23 @@
 
 package com.github.dominik48n.party.bungee;
 
+import com.github.dominik48n.party.api.DefaultPartyProvider;
+import com.github.dominik48n.party.bungee.listener.OnlinePlayersListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.redis.RedisManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class PartyBungeePlugin extends Plugin {
 
     private @NotNull ProxyPluginConfig config = new ProxyPluginConfig();
+
+    private @Nullable RedisManager redisManager = null;
 
     @Override
     public void onEnable() {
@@ -41,7 +47,17 @@ public class PartyBungeePlugin extends Plugin {
             }
         }
 
-        this.getProxy().getPluginManager().registerCommand(this, new BungeeCommandManager(new BungeePlayerManager(this)));
+        this.redisManager = new RedisManager(this.config.redisConfig());
+        new DefaultPartyProvider(this.redisManager);
+
+        final BungeeUserManager playerManager = new BungeeUserManager(this);
+        this.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(playerManager));
+        this.getProxy().getPluginManager().registerCommand(this, new BungeeCommandManager(playerManager));
+    }
+
+    @Override
+    public void onDisable() {
+        if (this.redisManager != null) this.redisManager.close();
     }
 
     public @NotNull ProxyPluginConfig config() {

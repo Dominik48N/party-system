@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Document {
 
-    private static final @NotNull Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    public static final @NotNull Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     static @NotNull Document read(final @NotNull File file) throws FileNotFoundException {
         if (!file.exists()) throw new FileNotFoundException("The configuration file isn't exist.");

@@ -17,7 +17,7 @@
 package com.github.dominik48n.party.bungee;
 
 import com.github.dominik48n.party.command.CommandManager;
-import com.github.dominik48n.party.player.PlayerManager;
+import com.github.dominik48n.party.user.UserManager;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -27,13 +27,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class BungeeCommandManager extends Command implements TabExecutor {
 
-    private final @NotNull PlayerManager<ProxiedPlayer> playerManager;
+    private final @NotNull UserManager<ProxiedPlayer> userManager;
     private final @NotNull CommandManager commandManager;
 
-    public BungeeCommandManager(final @NotNull BungeePlayerManager playerManager) {
+    public BungeeCommandManager(final @NotNull UserManager<ProxiedPlayer> userManager) {
         super("party");
         this.commandManager = new CommandManager();
-        this.playerManager = playerManager;
+        this.userManager = userManager;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class BungeeCommandManager extends Command implements TabExecutor {
             return;
         }
 
-        this.commandManager.execute(this.playerManager.createPlayer(player), args);
+        this.commandManager.execute(this.userManager.createPlayer(player), args);
     }
 
     @Override

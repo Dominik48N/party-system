@@ -17,7 +17,7 @@
 package com.github.dominik48n.party.velocity;
 
 import com.github.dominik48n.party.command.CommandManager;
-import com.github.dominik48n.party.player.PlayerManager;
+import com.github.dominik48n.party.user.UserManager;
 import com.velocitypowered.api.command.RawCommand;
 import com.velocitypowered.api.proxy.Player;
 import java.util.List;
@@ -26,12 +26,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class VelocityCommandManager implements RawCommand {
 
-    private final @NotNull PlayerManager<Player> playerManager;
+    private final @NotNull UserManager<Player> userManager;
     private final @NotNull CommandManager commandManager;
 
-    public VelocityCommandManager(final @NotNull VelocityPlayerManager playerManager) {
+    public VelocityCommandManager(final @NotNull UserManager<Player> userManager) {
         this.commandManager = new CommandManager();
-        this.playerManager = playerManager;
+        this.userManager = userManager;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class VelocityCommandManager implements RawCommand {
             return;
         }
 
-        this.commandManager.execute(this.playerManager.createPlayer(player), invocation.arguments().split(" "));
+        this.commandManager.execute(this.userManager.createPlayer(player), invocation.arguments().split(" "));
     }
 
     @Override

@@ -18,19 +18,19 @@ package com.github.dominik48n.party.bungee;
 
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
-import com.github.dominik48n.party.player.PlayerManager;
+import com.github.dominik48n.party.user.UserManager;
 import java.util.UUID;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 
-public class BungeePlayerManager extends PlayerManager<ProxiedPlayer> {
+public class BungeeUserManager extends UserManager<ProxiedPlayer> {
 
     private final @NotNull ProxyPluginConfig config;
     private final @NotNull BungeeAudiences audiences;
 
-    BungeePlayerManager(final @NotNull PartyBungeePlugin plugin) {
+    BungeeUserManager(final @NotNull PartyBungeePlugin plugin) {
         this.config = plugin.config();
         this.audiences = BungeeAudiences.create(plugin);
     }

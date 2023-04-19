@@ -16,4 +16,5 @@ dependencies {
     compileOnly("com.google.code.gson:gson:2.10.1")
 
     implementation(project(":api"))
+    implementation("redis.clients:jedis:4.3.2")
 }

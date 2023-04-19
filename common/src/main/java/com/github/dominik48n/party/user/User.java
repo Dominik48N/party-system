@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package com.github.dominik48n.party.player;
+package com.github.dominik48n.party.user;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import java.util.UUID;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class Player<TPlayer> implements PartyPlayer {
+public class User<TUser> implements PartyPlayer {
 
-    private final @NotNull PlayerManager<TPlayer> playerManager;
-    private final @NotNull TPlayer player;
+    private final @NotNull UserManager<TUser> userManager;
+    private final @NotNull TUser user;
     private final @NotNull UUID uniqueId;
     private final @NotNull String name;
 
-    Player(final @NotNull TPlayer player, final @NotNull PlayerManager<TPlayer> playerManager) {
-        this.player = player;
-        this.playerManager = playerManager;
-        this.uniqueId = playerManager.playerUUID(player);
-        this.name = playerManager.playerName(player);
+    public User(final @NotNull TUser user, final @NotNull UserManager<TUser> userManager) {
+        this.user = user;
+        this.userManager = userManager;
+        this.uniqueId = userManager.playerUUID(user);
+        this.name = userManager.playerName(user);
     }
 
     @Override
@@ -47,6 +46,6 @@ public class Player<TPlayer> implements PartyPlayer {
 
     @Override
     public void sendMessage(final @NotNull String messageKey, final @NotNull Object... replacements) {
-        this.playerManager.sendMessage(this.player, this.playerManager.messageConfig().getMessage(messageKey, replacements));
+        this.userManager.sendMessage(this.user, this.userManager.messageConfig().getMessage(messageKey, replacements));
     }
 }

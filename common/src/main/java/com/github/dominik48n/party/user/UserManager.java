@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.dominik48n.party.player;
+package com.github.dominik48n.party.user;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.MessageConfig;
@@ -22,17 +22,17 @@ import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class PlayerManager<TPlayer> {
+public abstract class UserManager<TUser> {
 
-    public @NotNull PartyPlayer createPlayer(final @NotNull TPlayer player) {
-        return new Player<>(player, this);
+    public @NotNull PartyPlayer createPlayer(final @NotNull TUser user) {
+        return new User<>(user, this);
     }
 
-    protected abstract void sendMessage(final @NotNull TPlayer player, final @NotNull Component component);
+    protected abstract void sendMessage(final @NotNull TUser user, final @NotNull Component component);
 
-    protected abstract @NotNull String playerName(final @NotNull TPlayer player);
+    protected abstract @NotNull String playerName(final @NotNull TUser user);
 
-    protected abstract @NotNull UUID playerUUID(final @NotNull TPlayer player);
+    protected abstract @NotNull UUID playerUUID(final @NotNull TUser user);
 
     protected abstract @NotNull MessageConfig messageConfig();
 }
