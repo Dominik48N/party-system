@@ -58,6 +58,18 @@ public class MessageConfig {
     }
 
     public @NotNull Document toDocument() {
-        return new Document().append("prefix", this.prefix);
+        return new Document()
+                .append("prefix", this.prefix)
+                .append("command", new Document()
+                        .append("help", "%prefix% <gold>Party management<newline>" +
+                                " <yellow>/party invite <player> <gray>Invites a player to the party<newline>" +
+                                " <yellow>/party accept <player> <gray>Accepts a request<newline>" +
+                                " <yellow>/party deny <player> <gray>Declines a request<newline>" +
+                                " <yellow>/party list <gray>Lists all party members<newline>" +
+                                " <yellow>/party leave <gray>Leaves the party<newline>" +
+                                " <yellow>/party kick <player> <gray>Kicks a player from the party<newline>" +
+                                " <yellow>/party promote <player> <gray>Promotes a player<newline>" +
+                                " <yellow>/p <message> <gray>Sends a party message")
+                );
     }
 }
