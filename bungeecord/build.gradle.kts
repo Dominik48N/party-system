@@ -3,7 +3,6 @@ plugins {
 }
 
 group = "com.github.dominik48n.party"
-version = "1.0.0"
 
 repositories {
     mavenCentral()
