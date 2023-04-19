@@ -16,12 +16,19 @@
 
 package com.github.dominik48n.party.velocity;
 
+import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.logging.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -46,6 +53,12 @@ public class PartyVelocityPlugin {
     private final @NotNull ProxyServer server;
     private final @NotNull Logger logger;
 
+    private @NotNull ProxyPluginConfig config = new ProxyPluginConfig();
+
+    @Inject
+    @DataDirectory
+    private Path dataFolder;
+
     @Inject
     public PartyVelocityPlugin(final @NotNull ProxyServer server, final @NotNull Logger logger) {
         this.server = server;
@@ -56,6 +69,17 @@ public class PartyVelocityPlugin {
 
     @Subscribe
     public void onProxyInitialize(final ProxyInitializeEvent event) {
+        final File configFile = new File(this.dataFolder.toFile(), ProxyPluginConfig.FILE_NAME);
+        try {
+            this.config = ProxyPluginConfig.fromFile(configFile);
+        } catch (final FileNotFoundException e) {
+            try {
+                this.config.writeToFile(configFile);
+            } catch (final IOException e1) {
+                this.logger.error("Failed to write configuration file.", e);
+            }
+        }
+
         this.server.getCommandManager().register(
                 this.server.getCommandManager().metaBuilder("party").plugin(this).build(),
                 new VelocityCommandManager(new VelocityPlayerManager())

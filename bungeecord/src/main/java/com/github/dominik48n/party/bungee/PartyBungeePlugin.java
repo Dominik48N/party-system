@@ -16,12 +16,35 @@
 
 package com.github.dominik48n.party.bungee;
 
+import com.github.dominik48n.party.config.ProxyPluginConfig;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.logging.Level;
 import net.md_5.bungee.api.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 public class PartyBungeePlugin extends Plugin {
 
+    private @NotNull ProxyPluginConfig config = new ProxyPluginConfig();
+
     @Override
     public void onEnable() {
+        final File configFile = new File(this.getDataFolder(), ProxyPluginConfig.FILE_NAME);
+        try {
+            this.config = ProxyPluginConfig.fromFile(configFile);
+        } catch (final FileNotFoundException e) {
+            try {
+                this.config.writeToFile(configFile);
+            } catch (final IOException e1) {
+                this.getLogger().log(Level.SEVERE, "Failed to write configuration file.", e);
+            }
+        }
+
         this.getProxy().getPluginManager().registerCommand(this, new BungeeCommandManager(new BungeePlayerManager()));
+    }
+
+    public @NotNull ProxyPluginConfig config() {
+        return this.config;
     }
 }
