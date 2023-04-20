@@ -39,13 +39,13 @@ public class MessageConfigTest {
         final MessageConfig config = MessageConfig.fromDocument(document);
 
         assertNotNull(config);
-        assertEquals("<gray>[<gradient:#d896ff:#be29ec>PartySystem</gradient>]", config.prefix);
+        assertEquals("<gray>[<gradient:#d896ff:#be29ec>PartySystem</gradient>]", config.prefix());
     }
 
     @Test
     public void testGetMessage() {
         final MessageConfig config = new MessageConfig();
-        config.messages.put("test", new MessageFormat("<dark_red>{0}</dark_red>"));
+        config.messages().put("test", new MessageFormat("<dark_red>{0}</dark_red>"));
         final String expected = "<dark_red>Hello</dark_red>";
 
         final Component message = config.getMessage("test", "Hello");
