@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("net.kyori.blossom") version "1.2.0"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 group = "com.github.dominik48n.party"
@@ -16,6 +17,14 @@ dependencies {
 
     implementation(project(":common"))
     implementation(project(":api"))
+}
+
+tasks.shadowJar {
+    relocate("redis.clients", "${project.group}.libs.redis")
+    relocate("org.apache.commons.pool2", "${project.group}.libs.commons.pool2")
+    relocate("org.json", "${project.group}.libs.json")
+    relocate("org.slf4j", "${project.group}.libs.slf4j")
+    relocate("com.google.gson", "${project.group}.libs.gson")
 }
 
 blossom {

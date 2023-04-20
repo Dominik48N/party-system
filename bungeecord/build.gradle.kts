@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 group = "com.github.dominik48n.party"
@@ -18,6 +19,17 @@ dependencies {
     implementation("org.jetbrains:annotations:24.0.1")
     implementation(project(":common"))
     implementation(project(":api"))
+}
+
+tasks.shadowJar {
+    relocate("net.kyori", "${project.group}.libs.kyori")
+    relocate("org.jetbrains", "${project.group}.libs.jetbrains")
+    relocate("redis.clients", "${project.group}.libs.redis")
+    relocate("org.apache.commons.pool2", "${project.group}.libs.commons.pool2")
+    relocate("org.intellij.lang", "${project.group}.libs.intellij.lang")
+    relocate("org.json", "${project.group}.libs.json")
+    relocate("org.slf4j", "${project.group}.libs.slf4j")
+    relocate("com.google.gson", "${project.group}.libs.gson")
 }
 
 tasks.processResources {
