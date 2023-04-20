@@ -16,7 +16,6 @@
 
 package com.github.dominik48n.party.user;
 
-import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import java.util.Optional;

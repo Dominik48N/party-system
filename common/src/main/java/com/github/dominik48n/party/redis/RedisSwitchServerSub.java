@@ -21,7 +21,6 @@ import com.github.dominik48n.party.user.UserManager;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import java.util.UUID;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
 
 public class RedisSwitchServerSub<TUser> extends RedisSubscription {
