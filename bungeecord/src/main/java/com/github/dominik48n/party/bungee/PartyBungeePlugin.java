@@ -66,6 +66,7 @@ public class PartyBungeePlugin extends Plugin {
     public void onDisable() {
         for (final ProxiedPlayer player : this.getProxy().getPlayers()) {
             PartyAPI.get().onlinePlayerProvider().logout(player.getUniqueId());
+            PartyAPI.get().clearPartyRequest(player.getName());
         }
 
         if (this.redisManager != null) this.redisManager.close();

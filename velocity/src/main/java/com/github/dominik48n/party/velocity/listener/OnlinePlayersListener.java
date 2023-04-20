@@ -40,7 +40,11 @@ public class OnlinePlayersListener {
 
     @Subscribe
     public void handlePlayerDisconnect(final DisconnectEvent event) {
-        PartyAPI.get().onlinePlayerProvider().logout(event.getPlayer().getUniqueId());
-        this.userManager.removePlayerFromCache(event.getPlayer());
+        final Player player = event.getPlayer();
+
+        PartyAPI.get().onlinePlayerProvider().logout(player.getUniqueId());
+        PartyAPI.get().clearPartyRequest(player.getUsername());
+
+        this.userManager.removePlayerFromCache(player);
     }
 }

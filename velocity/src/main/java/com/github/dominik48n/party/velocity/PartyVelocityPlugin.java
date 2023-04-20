@@ -105,6 +105,7 @@ public class PartyVelocityPlugin {
     public void onProxyShutdown(final ProxyShutdownEvent event) {
         for (final Player player : this.server.getAllPlayers()) {
             PartyAPI.get().onlinePlayerProvider().logout(player.getUniqueId());
+            PartyAPI.get().clearPartyRequest(player.getUsername());
         }
 
         if (this.redisManager != null) this.redisManager.close();
