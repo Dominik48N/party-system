@@ -85,8 +85,6 @@ public class Document {
     }
 
     void writeToFile(final @NotNull File file) throws IOException {
-        file.deleteOnExit();
-
         try (final OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             GSON.toJson(this.jsonObject, writer);
         }
