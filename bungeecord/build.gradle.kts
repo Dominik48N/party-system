@@ -17,6 +17,8 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.13.1")
     implementation("net.kyori:adventure-platform-bungeecord:4.3.0")
     implementation("org.jetbrains:annotations:24.0.1")
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("org.slf4j:slf4j-simple:1.7.36")
     implementation(project(":common"))
     implementation(project(":api"))
 }
