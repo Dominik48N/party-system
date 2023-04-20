@@ -76,10 +76,12 @@ public class PartyVelocityPlugin {
     @Subscribe
     public void onProxyInitialize(final ProxyInitializeEvent event) {
         final File configFile = new File(this.dataFolder.toFile(), ProxyPluginConfig.FILE_NAME);
+        this.dataFolder.toFile().mkdirs();
         try {
             this.config = ProxyPluginConfig.fromFile(configFile);
         } catch (final FileNotFoundException e) {
             try {
+                this.config = new ProxyPluginConfig();
                 this.config.writeToFile(configFile);
             } catch (final IOException e1) {
                 this.logger.error("Failed to write configuration file.", e);

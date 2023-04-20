@@ -41,10 +41,12 @@ public class PartyBungeePlugin extends Plugin {
     @Override
     public void onEnable() {
         final File configFile = new File(this.getDataFolder(), ProxyPluginConfig.FILE_NAME);
+        this.getDataFolder().mkdirs();
         try {
             this.config = ProxyPluginConfig.fromFile(configFile);
-        } catch (final FileNotFoundException e) {
+        } catch (final IOException e) {
             try {
+                this.config = new ProxyPluginConfig();
                 this.config.writeToFile(configFile);
             } catch (final IOException e1) {
                 this.getLogger().log(Level.SEVERE, "Failed to write configuration file.", e);
