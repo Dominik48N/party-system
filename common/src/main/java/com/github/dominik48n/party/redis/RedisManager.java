@@ -49,7 +49,9 @@ public class RedisManager {
         poolConfig.setTestWhileIdle(true);
         poolConfig.setMinEvictableIdleTime(Duration.ofMillis(60000L));
         poolConfig.setTimeBetweenEvictionRuns(Duration.ofMillis(30000L));
-        this.jedisPool = new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.username(), config.password());
+        this.jedisPool = config.username().isBlank() ?
+                new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.password()) :
+                new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.username(), config.password());
         this.asyncConsumer = asyncConsumer;
     }
 
