@@ -20,6 +20,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The main class for interacting with the Party API.
+ */
 public class PartyAPI {
 
     private static @Nullable PartyProvider partyProvider = null;
@@ -29,11 +32,23 @@ public class PartyAPI {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Gets the instance of the {@link PartyProvider} for interacting with the Party API.
+     *
+     * @return The instance of the {@link PartyProvider}.
+     *
+     * @throws IllegalStateException if the Party API is not initialized.
+     */
     public static @NotNull PartyProvider get() throws IllegalStateException {
         if (partyProvider == null) throw new IllegalStateException("PartyAPI isn't initialized.");
         return partyProvider;
     }
 
+    /**
+     * Sets the internal instance of the {@link PartyProvider}.
+     *
+     * @param provider The instance of the {@link PartyProvider}.
+     */
     @ApiStatus.Internal
     static void set(final @NotNull PartyProvider provider) {
         partyProvider = provider;

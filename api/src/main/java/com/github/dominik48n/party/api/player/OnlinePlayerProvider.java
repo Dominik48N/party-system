@@ -24,6 +24,9 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides methods for interacting with online players in Redis.
+ */
 public interface OnlinePlayerProvider {
 
     /**
@@ -44,6 +47,13 @@ public interface OnlinePlayerProvider {
      */
     @NotNull Optional<PartyPlayer> get(final @NotNull UUID uniqueId);
 
+    /**
+     * Retrieves multiple {@link PartyPlayer} objects from Redis using their {@link UUID}s.
+     *
+     * @param uniqueIds A collection of {@link UUID}s of the {@link PartyPlayer}s to retrieve.
+     *
+     * @return A map of the retrieved {@link PartyPlayer} objects, keyed by their {@link UUID}s.
+     */
     @NotNull Map<UUID, PartyPlayer> get(final @NotNull Collection<UUID> uniqueIds);
 
     /**

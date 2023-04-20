@@ -40,7 +40,7 @@ public class SwitchServerListener {
         final PartyPlayer player = this.userManager.createOrGetPlayer(event.getPlayer());
 
         final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
-        if (party.isEmpty() || !party.get().leader().equals(player.uniqueId())) return;
+        if (party.isEmpty() || !party.get().isLeader(player.uniqueId())) return;
 
         PartyAPI.get().connectPartyToServer(party.get(), event.getServer().getServerInfo().getName());
     }

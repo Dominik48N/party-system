@@ -26,9 +26,25 @@ import org.jetbrains.annotations.NotNull;
  */
 public record Party(@NotNull UUID id, @NotNull UUID leader, @NotNull List<UUID> members) {
 
+    /**
+     * Returns a list of all members of this party, including the leader.
+     *
+     * @return a list of {@link UUID}s representing all members of this party
+     */
     public @NotNull List<UUID> getAllMembers() {
         final List<UUID> allMembers = new ArrayList<>(this.members);
         allMembers.add(leader);
         return allMembers;
+    }
+
+    /**
+     * Determines whether the specified {@link UUID} represents the leader of this party.
+     *
+     * @param uniqueId the unique ID to check
+     *
+     * @return true if the unique ID represents the leader of this party, false otherwise
+     */
+    public boolean isLeader(final @NotNull UUID uniqueId) {
+        return this.leader.equals(uniqueId);
     }
 }

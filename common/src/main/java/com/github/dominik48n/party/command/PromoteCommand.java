@@ -37,7 +37,7 @@ public class PromoteCommand extends PartyCommand {
             return;
         }
 
-        if (!party.get().leader().equals(player.uniqueId())) {
+        if (!party.get().isLeader(player.uniqueId())) {
             player.sendMessage("command.promote.not_leader");
             return;
         }

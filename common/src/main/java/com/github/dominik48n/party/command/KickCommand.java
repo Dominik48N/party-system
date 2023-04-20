@@ -37,7 +37,7 @@ public class KickCommand extends PartyCommand {
             return;
         }
 
-        if (!party.get().leader().equals(player.uniqueId())) {
+        if (!party.get().isLeader(player.uniqueId())) {
             player.sendMessage("command.kick.not_leader");
             return;
         }

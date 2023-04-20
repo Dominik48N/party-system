@@ -36,7 +36,7 @@ public class LeaveCommand extends PartyCommand {
         if (party.get().getAllMembers().size() <= 1) {
             this.deleteParty(party.get(), player);
         } else {
-            if (party.get().leader().equals(player.uniqueId())) {
+            if (party.get().isLeader(player.uniqueId())) {
                 final Optional<UUID> target = party.get().members().stream().findAny();
                 if (target.isPresent()) {
                     PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get());

@@ -75,7 +75,7 @@ public class InviteCommand extends PartyCommand {
 
             player.partyId(createdParty.id());
             player.sendMessage("command.invite.created_party");
-        } else if (!party.get().leader().equals(player.uniqueId())) {
+        } else if (!party.get().isLeader(player.uniqueId())) {
             player.sendMessage("command.invite.not_leader");
             return;
         }
