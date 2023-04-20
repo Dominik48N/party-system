@@ -48,8 +48,8 @@ public class MessageConfig {
         }
     }
 
-    private final @NotNull Map<String, MessageFormat> messages = Maps.newHashMap();
-    private @NotNull String prefix = "<gray>[<gradient:#d896ff:#be29ec>Party</gradient>]";
+    final @NotNull Map<String, MessageFormat> messages = Maps.newHashMap(); // Protected for test
+    @NotNull String prefix = "<gray>[<gradient:#d896ff:#be29ec>Party</gradient>]"; // Protected for test
 
     public @NotNull Component getMessage(final @NotNull String key, final @NotNull Object... replacements) {
         final MessageFormat messageFormat = this.messages.getOrDefault(key, new MessageFormat(key));

@@ -18,6 +18,9 @@ dependencies {
     implementation(project(":api"))
     implementation("redis.clients:jedis:4.3.2")
 
+    testImplementation("net.kyori:adventure-api:4.13.1")
+    testImplementation("net.kyori:adventure-text-minimessage:4.13.1")
+    testImplementation("org.mockito:mockito-all:1.10.19")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
