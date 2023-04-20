@@ -14,36 +14,25 @@
  * limitations under the License.
  */
 
-package com.github.dominik48n.party.bungee;
+package com.github.dominik48n.party.bungee.command;
 
+import com.github.dominik48n.party.command.ChatCommand;
 import com.github.dominik48n.party.command.CommandManager;
-import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.user.UserManager;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
-import net.md_5.bungee.api.plugin.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 
-public class BungeeCommandManager extends Command implements TabExecutor {
+public class PartyChatCommand extends Command {
 
     private final @NotNull UserManager<ProxiedPlayer> userManager;
-    final @NotNull CommandManager commandManager;
+    private final @NotNull ChatCommand chatCommand;
 
-    public BungeeCommandManager(final @NotNull UserManager<ProxiedPlayer> userManager, final @NotNull PartyBungeePlugin plugin) {
-        super("party");
-        this.commandManager = new CommandManager() {
-            @Override
-            public void runAsynchronous(final @NotNull Runnable runnable) {
-                plugin.getProxy().getScheduler().runAsync(plugin, runnable);
-            }
-
-            @Override
-            public @NotNull ProxyPluginConfig config() {
-                return plugin.config();
-            }
-        };
+    public PartyChatCommand(final @NotNull CommandManager commandManager, final @NotNull UserManager<ProxiedPlayer> userManager) {
+        super("p");
+        this.chatCommand = new ChatCommand(commandManager);
         this.userManager = userManager;
     }
 
@@ -54,11 +43,6 @@ public class BungeeCommandManager extends Command implements TabExecutor {
             return;
         }
 
-        this.commandManager.execute(this.userManager.createOrGetPlayer(player), args);
-    }
-
-    @Override
-    public Iterable<String> onTabComplete(final CommandSender sender, final String[] args) {
-        return this.commandManager.tabComplete(args);
+        this.chatCommand.execute(this.userManager.createOrGetPlayer(player), args);
     }
 }

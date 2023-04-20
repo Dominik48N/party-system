@@ -96,7 +96,7 @@ public class PartyVelocityPlugin {
         this.server.getEventManager().register(this, new OnlinePlayersListener(userManager));
         this.server.getEventManager().register(this, new SwitchServerListener(userManager));
         this.server.getCommandManager().register(
-                this.server.getCommandManager().metaBuilder("party").plugin(this).build(),
+                this.server.getCommandManager().metaBuilder("party").aliases("p").plugin(this).build(),
                 new VelocityCommandManager(userManager, this)
         );
     }

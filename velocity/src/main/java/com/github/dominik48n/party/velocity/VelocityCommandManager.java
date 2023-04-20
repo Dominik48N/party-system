@@ -16,6 +16,8 @@
 
 package com.github.dominik48n.party.velocity;
 
+import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.command.ChatCommand;
 import com.github.dominik48n.party.command.CommandManager;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.user.UserManager;
@@ -29,6 +31,7 @@ public class VelocityCommandManager implements RawCommand {
 
     private final @NotNull UserManager<Player> userManager;
     private final @NotNull CommandManager commandManager;
+    private final @NotNull ChatCommand chatCommand;
 
     public VelocityCommandManager(final @NotNull UserManager<Player> userManager, final @NotNull PartyVelocityPlugin plugin) {
         this.commandManager = new CommandManager() {
@@ -42,6 +45,7 @@ public class VelocityCommandManager implements RawCommand {
                 return plugin.config();
             }
         };
+        this.chatCommand = new ChatCommand(this.commandManager);
         this.userManager = userManager;
     }
 
@@ -52,7 +56,14 @@ public class VelocityCommandManager implements RawCommand {
             return;
         }
 
-        this.commandManager.execute(this.userManager.createOrGetPlayer(player), invocation.arguments().split(" "));
+        final PartyPlayer partyPlayer = this.userManager.createOrGetPlayer(player);
+
+        if (invocation.alias().equalsIgnoreCase("p")) {
+            this.chatCommand.execute(partyPlayer, invocation.arguments().split(" "));
+            return;
+        }
+
+        this.commandManager.execute(partyPlayer, invocation.arguments().split(" "));
     }
 
     @Override
