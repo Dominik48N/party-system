@@ -31,6 +31,8 @@ public interface PartyProvider {
 
     void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player, final @NotNull String username);
 
+    void changePartyLeader(final @NotNull UUID partyId, final @NotNull UUID oldLeader, final @NotNull UUID newLeader);
+
     @NotNull Optional<Party> getParty(final @NotNull UUID id);
 
     @NotNull Party createParty(final @NotNull UUID leader);

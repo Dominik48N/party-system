@@ -32,7 +32,8 @@ public abstract class CommandManager {
             "accept", new AcceptCommand(),
             "deny", new DenyCommand(),
             "list", new ListCommand(),
-            "leave", new LeaveCommand()
+            "leave", new LeaveCommand(),
+            "promote", new PromoteCommand()
     );
 
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {

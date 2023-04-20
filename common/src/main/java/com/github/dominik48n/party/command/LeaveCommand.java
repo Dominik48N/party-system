@@ -20,6 +20,7 @@ import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import java.util.Optional;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
 public class LeaveCommand extends PartyCommand {
@@ -33,23 +34,33 @@ public class LeaveCommand extends PartyCommand {
         }
 
         if (party.get().getAllMembers().size() <= 1) {
-            PartyAPI.get().deleteParty(party.get().id());
-            PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), null);
-            PartyAPI.get().clearPartyRequest(player.name());
+            this.deleteParty(party.get(), player);
         } else {
             if (party.get().leader().equals(player.uniqueId())) {
-                PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), null);
-                PartyAPI.get().clearPartyRequest(player.name());
-                PartyAPI.get().sendMessageToMembers(party.get(), "party.left", player.name());
+                final Optional<UUID> target = party.get().members().stream().findAny();
+                if (target.isPresent()) {
+                    PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get());
+                    PartyAPI.get().sendMessageToMembers(party.get(), "party.left", player.name());
 
-                // TODO: New party leader
+                    PartyAPI.get().onlinePlayerProvider().get(target.get()).ifPresent(
+                            targetPlayer -> PartyAPI.get().sendMessageToMembers(party.get(), "party.new_leader", targetPlayer.name())
+                    );
+                } else this.deleteParty(party.get(), player);
             } else {
                 party.get().members().remove(player.uniqueId());
-                PartyAPI.get().removePlayerFromParty(party.get().id(), player.uniqueId(), player.name());
                 PartyAPI.get().sendMessageToParty(party.get(), "party.left", player.name());
             }
+
+            PartyAPI.get().removePlayerFromParty(party.get().id(), player.uniqueId(), player.name());
         }
 
+        player.partyId(null);
         player.sendMessage("command.leave");
+    }
+
+    private void deleteParty(final @NotNull Party party, final @NotNull PartyPlayer player) {
+        PartyAPI.get().deleteParty(party.id());
+        PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), null);
+        PartyAPI.get().clearPartyRequest(player.name());
     }
 }

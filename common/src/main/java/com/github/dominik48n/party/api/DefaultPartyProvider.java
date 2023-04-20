@@ -25,7 +25,6 @@ import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.redis.RedisSwitchServerSub;
 import com.github.dominik48n.party.user.UserManager;
 import com.google.common.collect.Lists;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -92,6 +91,19 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
 
             this.clearPartyRequest(jedis, username);
             this.onlinePlayerProvider.updatePartyId(jedis, player, null);
+        }
+    }
+
+    @Override
+    public void changePartyLeader(final @NotNull UUID partyId, final @NotNull UUID oldLeader, final @NotNull UUID newLeader) {
+        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
+            final String json = jedis.get("party:" + partyId);
+            if (json == null) return; // Party isn't exist.
+
+            final Party party = Document.GSON.fromJson(json, Party.class);
+            party.members().remove(oldLeader);
+            party.members().add(newLeader);
+            jedis.set("party:" + partyId, Document.GSON.toJson(new Party(partyId, newLeader, party.members())));
         }
     }
 
