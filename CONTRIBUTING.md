@@ -13,6 +13,9 @@ Please follow the [Google Java Style Guide](https://google.github.io/styleguide/
 ## Annotations
 Please always use `org.jetbrains.annotations.NotNull` and `java.util.Optional<T>`. If Optional is not an option, please use `org.jetbrains.annotations.Nullable`.
 
+### Benefits of Using @NotNull, @Nullable, and Optional Annotations
+Using these annotations helps to ensure null safety and prevent NullPointerExceptions. `@NotNull` indicates that a parameter or return value cannot be null, which can help to catch potential issues during compile time. Similarly, `@Nullable` indicates that a parameter or return value can be null, which helps to prevent accidental null dereferencing. `Optional<T>` can be used to indicate that a value may or may not be present, which can make code more expressive and less error-prone. By consistently using these annotations, code becomes more robust, easier to read and maintain.
+
 ## Naming Conventions
 Please follow the following naming conventions:
 * Getter and Setter methods should be named without the "get" and "set" prefixes.
@@ -22,5 +25,8 @@ Please follow the following naming conventions:
 
 ## Variable and Method Arguments
 Please always use the `final` keyword for method and variable arguments whenever possible.
+
+### Why use final for method and variable arguments?
+Using the `final` keyword for method and variable arguments has several benefits. First, it communicates to other developers that the value of the argument should not be changed during the method execution, which can help to prevent bugs and make the code easier to reason about. Second, it can improve code readability by making it clear which variables are inputs to a method and which are not. Finally, the use of `final` can also help the compiler optimize the code, as it knows that the value of the variable will not change and can perform certain optimizations based on that knowledge.
 
 Thank you for your contribution to PartySystem!
