@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("checkstyle")
 }
 
 repositories {
@@ -15,6 +16,7 @@ allprojects {
 subprojects {
     apply(plugin = "java")
     apply(plugin = "com.github.johnrengelman.shadow")
+    apply(plugin = "checkstyle")
 
     repositories {
         mavenCentral()
@@ -23,5 +25,15 @@ subprojects {
     tasks.named<Jar>("shadowJar") {
         archiveBaseName.set("${rootProject.name}-${project.name}")
         archiveClassifier.set("")
+    }
+
+    configure<CheckstyleExtension> {
+        toolVersion = "8.45"
+        configFile = rootProject.file("config/checkstyle/google_checks.xml")
+        isIgnoreFailures = false
+    }
+
+    tasks.withType<Checkstyle> {
+        dependsOn("check")
     }
 }
