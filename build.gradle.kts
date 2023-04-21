@@ -33,7 +33,6 @@ subprojects {
         isIgnoreFailures = false
     }
 
-    tasks.withType<Checkstyle> {
-        dependsOn("check")
-    }
+    val checkTask = tasks.getByName("check")
+    checkTask.dependsOn("checkstyleMain", "checkstyleTest")
 }
