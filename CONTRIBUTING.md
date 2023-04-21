@@ -11,7 +11,7 @@ Thank you for considering contributing to PartySystem! Before you start, please 
 Please follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) for all code contributions. This will help maintain consistency across the project.
 
 ## Annotations
-Please always use `org.jetbrains.annotations.NotNull` and `java.util.Optional<T>` for instance-specific methods and variables. If Optional is not an option, please use `org.jetbrains.annotations.Nullable`.
+Please always use `org.jetbrains.annotations.NotNull` and `java.util.Optional<T>`. If Optional is not an option, please use `org.jetbrains.annotations.Nullable`.
 
 ## Naming Conventions
 Please follow the following naming conventions:
