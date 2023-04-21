@@ -29,7 +29,7 @@ public class RedisSwitchServerSub<TUser> extends RedisSubscription {
 
     private final @NotNull UserManager<TUser> userManager;
 
-    public RedisSwitchServerSub(final @NotNull UserManager<TUser> userManager) {
+    RedisSwitchServerSub(final @NotNull UserManager<TUser> userManager) {
         this.userManager = userManager;
     }
 

@@ -30,7 +30,7 @@ public class RedisMessageSub<TUser> extends RedisSubscription {
 
     private final @NotNull UserManager<TUser> userManager;
 
-    public RedisMessageSub(final @NotNull UserManager<TUser> userManager) {
+    RedisMessageSub(final @NotNull UserManager<TUser> userManager) {
         this.userManager = userManager;
     }
 
