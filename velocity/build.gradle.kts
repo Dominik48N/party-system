@@ -17,6 +17,7 @@ dependencies {
 
     implementation(project(":common"))
     implementation(project(":api"))
+    implementation("redis.clients:jedis:4.3.2")
 }
 
 tasks.shadowJar {

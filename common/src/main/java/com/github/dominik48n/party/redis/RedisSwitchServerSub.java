@@ -34,9 +34,7 @@ public class RedisSwitchServerSub<TUser> extends RedisSubscription {
     }
 
     @Override
-    public void onMessage(final String channel, final String message) {
-        if (!channel.equals(CHANNEL)) return;
-
+    public void onMessage(final @NotNull String message) {
         final Document document;
         try {
             document = new Document(Document.GSON.fromJson(message, JsonObject.class));
@@ -55,12 +53,7 @@ public class RedisSwitchServerSub<TUser> extends RedisSubscription {
     }
 
     @Override
-    public @NotNull String[] channels() {
-        return new String[] {CHANNEL};
-    }
-
-    @Override
-    public void close() {
-        this.unsubscribe();
+    public @NotNull String channel() {
+        return CHANNEL;
     }
 }

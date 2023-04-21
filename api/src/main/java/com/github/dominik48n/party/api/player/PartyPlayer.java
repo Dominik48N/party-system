@@ -63,4 +63,7 @@ public interface PartyPlayer {
      * @param replacements The objects to use as replacements in the message.
      */
     void sendMessage(final @NotNull String messageKey, final @NotNull Object... replacements);
+
+    @Override
+    @NotNull String toString();
 }

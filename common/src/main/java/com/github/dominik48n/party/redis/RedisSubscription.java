@@ -17,11 +17,10 @@
 package com.github.dominik48n.party.redis;
 
 import org.jetbrains.annotations.NotNull;
-import redis.clients.jedis.JedisPubSub;
 
-public abstract class RedisSubscription extends JedisPubSub {
+public abstract class RedisSubscription {
 
-    public abstract @NotNull String[] channels();
+    public abstract @NotNull String channel();
 
-    public abstract void close();
+    public abstract void onMessage(final @NotNull String message);
 }

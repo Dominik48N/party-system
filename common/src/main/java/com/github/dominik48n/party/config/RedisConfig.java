@@ -24,7 +24,7 @@ public record RedisConfig(@NotNull String hostname, int port, @NotNull String us
         return new RedisConfig(
                 document.getString("hostname", "127.0.0.1"),
                 document.getInt("port", 6379),
-                document.getString("username", "party"),
+                document.getString("username", ""),
                 document.getString("password", "secret")
         );
     }

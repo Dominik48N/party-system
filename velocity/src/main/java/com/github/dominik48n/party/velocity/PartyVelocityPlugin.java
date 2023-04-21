@@ -88,7 +88,7 @@ public class PartyVelocityPlugin {
             }
         }
 
-        this.redisManager = new RedisManager(this.config.redisConfig(), r -> this.server.getScheduler().buildTask(this, r).schedule());
+        this.redisManager = new RedisManager(this.config.redisConfig());
 
         final VelocityUserManager userManager = new VelocityUserManager(this.redisManager, this.config, this.server, this.logger);
         new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());

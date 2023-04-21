@@ -22,24 +22,27 @@ import com.github.dominik48n.party.user.UserManager;
 import com.google.common.collect.Lists;
 import java.time.Duration;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisPubSub;
 
-public class RedisManager {
+public class RedisManager extends JedisPubSub {
+
+    private final @NotNull ExecutorService executor = Executors.newFixedThreadPool(1);
 
     private final @NotNull List<RedisSubscription> subscriptions = Lists.newArrayList();
     private final @NotNull JedisPool jedisPool;
-    private final @NotNull Consumer<Runnable> asyncConsumer;
 
     /**
      * Constructs a new RedisManager using the specified {@link RedisConfig}.
      *
      * @param config The {@link RedisConfig} to use.
      */
-    public RedisManager(final @NotNull RedisConfig config, final @NotNull Consumer<Runnable> asyncConsumer) {
+    public RedisManager(final @NotNull RedisConfig config) {
         final JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxTotal(128);
         poolConfig.setMaxIdle(16);
@@ -49,17 +52,23 @@ public class RedisManager {
         poolConfig.setTestWhileIdle(true);
         poolConfig.setMinEvictableIdleTime(Duration.ofMillis(60000L));
         poolConfig.setTimeBetweenEvictionRuns(Duration.ofMillis(30000L));
-        this.jedisPool = config.username().isBlank() ?
+        this.jedisPool = config.username().isEmpty() ?
                 new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.password()) :
                 new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.username(), config.password());
-        this.asyncConsumer = asyncConsumer;
+    }
+
+    @Override
+    public void onMessage(final String channel, final String message) {
+        this.subscriptions.forEach(subscription -> {
+            if (subscription.channel().equals(channel)) subscription.onMessage(message);
+        });
     }
 
     /**
      * Disconnects this RedisManager from the Redis server.
      */
     public void close() {
-        this.subscriptions.forEach(RedisSubscription::close);
+        this.unsubscribe();
         this.jedisPool.destroy();
     }
 
@@ -88,7 +97,10 @@ public class RedisManager {
         this.subscriptions.add(new RedisSwitchServerSub<>(userManager));
 
         try (final Jedis jedis = this.jedisPool().getResource()) {
-            this.subscriptions.forEach(subscription -> this.asyncConsumer.accept(() -> jedis.subscribe(subscription, subscription.channels())));
+            this.executor.execute(() -> jedis.subscribe(
+                    this,
+                    this.subscriptions.stream().map(RedisSubscription::channel).toArray(String[]::new))
+            );
         }
     }
 

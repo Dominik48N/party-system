@@ -19,6 +19,7 @@ dependencies {
     implementation("org.jetbrains:annotations:24.0.1")
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("org.slf4j:slf4j-simple:1.7.36")
+    implementation("redis.clients:jedis:4.3.2")
     implementation(project(":common"))
     implementation(project(":api"))
 }

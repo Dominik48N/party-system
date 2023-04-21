@@ -107,7 +107,7 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
     @Override
     public void login(final @NotNull PartyPlayer player) {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            jedis.set("party_player:" + player.uniqueId(), Document.GSON.toJson(player));
+            jedis.set("party_player:" + player.uniqueId(), player.toString());
         }
     }
 
@@ -127,7 +127,7 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
         if (existingPlayer.partyId().isPresent() && existingPlayer.partyId().get().equals(partyId)) return false;
 
         existingPlayer.partyId(partyId);
-        jedis.set(key, Document.GSON.toJson(existingPlayer));
+        jedis.set(key, existingPlayer.toString());
         return true;
     }
 
