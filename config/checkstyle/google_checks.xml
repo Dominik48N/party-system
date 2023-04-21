@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC
+        "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+    <module name="TreeWalker">
+        <module name="JavadocStyle">
+            <property name="scope" value="public"/>
+            <property name="allowedHtmlTags"
+                      value="a|b|blockquote|br|code|em|h1|h2|h3|h4|h5|h6|i|li|ol|p|pre|sup|table|td|th|tr|u|ul"/>
+        </module>
+        <module name="MemberName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        <module name="FinalParameters">
+            <property name="tokens" value="METHOD_DEF"/>
+        </module>
+        <module name="SuppressWarnings">
+            <property name="names" value="org.jetbrains.annotations.NotNull,java.util.Optional"/>
+        </module>
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+        <module name="UnnecessaryParentheses"/>
+        <module name="RedundantModifier">
+            <property name="checks" value="public"/>
+        </module>
+    </module>
+</module>
