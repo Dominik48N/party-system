@@ -39,7 +39,7 @@ public class LeaveCommand extends PartyCommand {
             return;
         }
 
-        if (party.get().getAllMembers().size() <= 1) {
+        if (party.get().allMembers().size() <= 1) {
             this.deleteParty(party.get(), player);
         } else {
             if (party.get().isLeader(player.uniqueId())) {

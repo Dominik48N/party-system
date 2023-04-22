@@ -44,7 +44,7 @@ public class ListCommand extends PartyCommand {
 
         Map<UUID, PartyPlayer> players;
         try {
-            players = PartyAPI.get().onlinePlayerProvider().get(party.get().getAllMembers());
+            players = PartyAPI.get().onlinePlayerProvider().get(party.get().allMembers());
         } catch (JsonProcessingException e) {
             players = Maps.newHashMap();
         }

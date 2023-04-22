@@ -33,7 +33,7 @@ public record Party(@NotNull UUID id, @NotNull UUID leader, @NotNull List<UUID> 
      * @return a list of {@link UUID}s representing all members of this party
      */
     @JsonIgnore
-    public @NotNull List<UUID> getAllMembers() {
+    public @NotNull List<UUID> allMembers() {
         final List<UUID> allMembers = new ArrayList<>(this.members);
         allMembers.add(leader);
         return allMembers;

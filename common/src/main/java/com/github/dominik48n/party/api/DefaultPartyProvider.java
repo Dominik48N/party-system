@@ -136,7 +136,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
 
     @Override
     public void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements) {
-        this.sendMessageToPlayers(party.getAllMembers(), messageKey, replacements);
+        this.sendMessageToPlayers(party.allMembers(), messageKey, replacements);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     public void connectPartyToServer(final @NotNull Party party, final @NotNull String serverName) {
         final Component component = this.messageConfig.getMessage("party.connect_to_server", serverName);
         final String message = MiniMessage.miniMessage().serialize(component);
-        party.getAllMembers().forEach(uuid -> {
+        party.allMembers().forEach(uuid -> {
             this.redisManager.publish(RedisSwitchServerSub.CHANNEL, new Document().append("unique_id", uuid.toString()).append("server", serverName));
             this.redisManager.publish(RedisMessageSub.CHANNEL, new Document().append("unique_id", uuid.toString()).append("message", message));
         });
