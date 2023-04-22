@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
@@ -44,7 +45,12 @@ public class InviteCommand extends PartyCommand {
             return;
         }
 
-        final Optional<PartyPlayer> target = PartyAPI.get().onlinePlayerProvider().get(name);
+        Optional<PartyPlayer> target;
+        try {
+            target = PartyAPI.get().onlinePlayerProvider().get(name);
+        } catch (final JsonProcessingException e) {
+            target = Optional.empty();
+        }
         if (target.isEmpty()) {
             player.sendMessage("general.player_not_online", name);
             return;
@@ -62,14 +68,24 @@ public class InviteCommand extends PartyCommand {
             return;
         }
 
-        final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+        Optional<Party> party;
+        try {
+            party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+        } catch (final JsonProcessingException e) {
+            party = Optional.empty();
+        }
 
         if (party.isEmpty()) {
-            final Party createdParty = PartyAPI.get().createParty(player.uniqueId());
-
-            if (!PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), createdParty.id())) {
+            final Party createdParty;
+            try {
+                createdParty = PartyAPI.get().createParty(player.uniqueId());
+                if (!PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), createdParty.id())) {
+                    player.sendMessage("general.error");
+                    PartyAPI.get().deleteParty(createdParty.id());
+                    return;
+                }
+            } catch (final JsonProcessingException e) {
                 player.sendMessage("general.error");
-                PartyAPI.get().deleteParty(createdParty.id());
                 return;
             }
 

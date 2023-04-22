@@ -32,6 +32,7 @@ tasks.shadowJar {
     relocate("org.intellij.lang", "${project.group}.libs.intellij.lang")
     relocate("org.json", "${project.group}.libs.json")
     relocate("org.slf4j", "${project.group}.libs.slf4j")
+    relocate("com.fasterxml.jackson", "${project.group}.libs.jackson")
     relocate("com.google.gson", "${project.group}.libs.gson")
 }
 

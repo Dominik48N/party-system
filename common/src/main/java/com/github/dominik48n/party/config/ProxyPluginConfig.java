@@ -17,7 +17,6 @@
 package com.github.dominik48n.party.config;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +24,7 @@ public class ProxyPluginConfig {
 
     public static final @NotNull String FILE_NAME = "config.json";
 
-    public static @NotNull ProxyPluginConfig fromFile(final @NotNull File file) throws FileNotFoundException {
+    public static @NotNull ProxyPluginConfig fromFile(final @NotNull File file) throws IOException {
         final Document document = Document.read(file);
         return new ProxyPluginConfig(document);
     }

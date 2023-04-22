@@ -16,9 +16,11 @@
 
 package com.github.dominik48n.party.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,18 +31,29 @@ public class ListCommand extends PartyCommand {
 
     @Override
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
-        final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+        Optional<Party> party;
+        try {
+            party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+        } catch (final JsonProcessingException e) {
+            party = Optional.empty();
+        }
         if (party.isEmpty()) {
             player.sendMessage("command.not_in_party");
             return;
         }
 
-        final Map<UUID, PartyPlayer> players = PartyAPI.get().onlinePlayerProvider().get(party.get().getAllMembers());
+        Map<UUID, PartyPlayer> players;
+        try {
+            players = PartyAPI.get().onlinePlayerProvider().get(party.get().getAllMembers());
+        } catch (JsonProcessingException e) {
+            players = Maps.newHashMap();
+        }
         if (players.isEmpty()) return; // Weird party with empty online players
 
         final PartyPlayer leader = players.get(party.get().leader());
+        final Party finalParty = party.get();
         final List<String> members = players.entrySet().stream()
-                .filter(entry -> party.get().members().contains(entry.getKey()))
+                .filter(entry -> finalParty.members().contains(entry.getKey()))
                 .map(entry -> entry.getValue().name())
                 .toList();
 

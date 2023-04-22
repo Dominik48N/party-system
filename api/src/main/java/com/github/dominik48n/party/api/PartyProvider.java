@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public interface PartyProvider {
      *
      * @return an optional containing the party ID, or empty if the player is not in a party
      */
-    @NotNull Optional<UUID> getPartyFromPlayer(final @NotNull UUID uniqueId);
+    @NotNull Optional<UUID> getPartyFromPlayer(final @NotNull UUID uniqueId) throws JsonProcessingException;
 
     /**
      * Adds a player to a party.
@@ -48,7 +49,7 @@ public interface PartyProvider {
      * @param partyId the {@link UUID} of the party
      * @param player  the {@link UUID} of the player to add to the party
      */
-    void addPlayerToParty(final @NotNull UUID partyId, final @NotNull UUID player);
+    void addPlayerToParty(final @NotNull UUID partyId, final @NotNull UUID player) throws JsonProcessingException;
 
     /**
      * Removes a player from a party.
@@ -57,7 +58,7 @@ public interface PartyProvider {
      * @param player   the {@link UUID} of the player to remove from the party
      * @param username the username of the player to remove from the party
      */
-    void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player, final @NotNull String username);
+    void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player, final @NotNull String username) throws JsonProcessingException;
 
     /**
      * Changes the leader of a party.
@@ -66,7 +67,7 @@ public interface PartyProvider {
      * @param oldLeader the {@link UUID} of the current party leader
      * @param newLeader the {@link UUID} of the new party leader
      */
-    void changePartyLeader(final @NotNull UUID partyId, final @NotNull UUID oldLeader, final @NotNull UUID newLeader);
+    void changePartyLeader(final @NotNull UUID partyId, final @NotNull UUID oldLeader, final @NotNull UUID newLeader) throws JsonProcessingException;
 
     /**
      * Gets the party associated with a given ID.
@@ -75,7 +76,7 @@ public interface PartyProvider {
      *
      * @return an optional containing the party, or empty if the party does not exist
      */
-    @NotNull Optional<Party> getParty(final @NotNull UUID id);
+    @NotNull Optional<Party> getParty(final @NotNull UUID id) throws JsonProcessingException;
 
     /**
      * Creates a new party with the given leader.
@@ -84,7 +85,7 @@ public interface PartyProvider {
      *
      * @return the new {@link Party}
      */
-    @NotNull Party createParty(final @NotNull UUID leader);
+    @NotNull Party createParty(final @NotNull UUID leader) throws JsonProcessingException;
 
     /**
      * Sends a message to all members of a party.

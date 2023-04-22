@@ -16,9 +16,9 @@
 
 package com.github.dominik48n.party.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
-import com.github.dominik48n.party.config.Document;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +38,11 @@ public class User<TUser> implements PartyPlayer {
         this.userManager = userManager;
         this.uniqueId = userManager.playerUUID(user);
         this.name = userManager.playerName(user);
-        this.partyId = PartyAPI.get().getPartyFromPlayer(this.uniqueId).orElse(null);
+        try {
+            this.partyId = PartyAPI.get().getPartyFromPlayer(this.uniqueId).orElse(null);
+        } catch (final JsonProcessingException e) {
+            this.partyId = null;
+        }
     }
 
     @Override
@@ -64,10 +68,5 @@ public class User<TUser> implements PartyPlayer {
     @Override
     public void sendMessage(final @NotNull String messageKey, final @NotNull Object... replacements) {
         this.userManager.sendMessage(this.user, this.userManager.messageConfig().getMessage(messageKey, replacements));
-    }
-
-    @Override
-    public @NotNull String toString() {
-        return Document.GSON.toJson(this);
     }
 }

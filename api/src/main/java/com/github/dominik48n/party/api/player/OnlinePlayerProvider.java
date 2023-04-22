@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.api.player;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public interface OnlinePlayerProvider {
      *
      * @return the retrieved {@link PartyPlayer} object, or <i>null</i> if not found
      */
-    @NotNull Optional<PartyPlayer> get(final @NotNull String username);
+    @NotNull Optional<PartyPlayer> get(final @NotNull String username) throws JsonProcessingException;
 
     /**
      * Retrieves a {@link PartyPlayer} from Redis using the specified {@link UUID}.
@@ -45,7 +46,7 @@ public interface OnlinePlayerProvider {
      *
      * @return The retrieved {@link PartyPlayer}, or null if the {@link PartyPlayer} does not exist in Redis.
      */
-    @NotNull Optional<PartyPlayer> get(final @NotNull UUID uniqueId);
+    @NotNull Optional<PartyPlayer> get(final @NotNull UUID uniqueId) throws JsonProcessingException;
 
     /**
      * Retrieves multiple {@link PartyPlayer} objects from Redis using their {@link UUID}s.
@@ -54,21 +55,21 @@ public interface OnlinePlayerProvider {
      *
      * @return A map of the retrieved {@link PartyPlayer} objects, keyed by their {@link UUID}s.
      */
-    @NotNull Map<UUID, PartyPlayer> get(final @NotNull Collection<UUID> uniqueIds);
+    @NotNull Map<UUID, PartyPlayer> get(final @NotNull Collection<UUID> uniqueIds) throws JsonProcessingException;
 
     /**
      * Retrieves all {@link PartyPlayer} objects from Redis.
      *
      * @return a list of all {@link PartyPlayer} objects in Redis
      */
-    @NotNull List<PartyPlayer> all();
+    @NotNull List<PartyPlayer> all() throws JsonProcessingException;
 
     /**
      * Creates a new {@link PartyPlayer} in Redis using the specified {@link PartyPlayer}.
      *
      * @param player The {@link PartyPlayer} to create.
      */
-    void login(final @NotNull PartyPlayer player);
+    void login(final @NotNull PartyPlayer player) throws JsonProcessingException;
 
     /**
      * Removes a {@link PartyPlayer} from Redis using the specified {@link UUID}.
@@ -87,6 +88,6 @@ public interface OnlinePlayerProvider {
      *
      * @return {@code true} if the player's party ID was updated, {@code false} otherwise.
      */
-    boolean updatePartyId(final @NotNull UUID uniqueId, final @Nullable UUID partyId);
+    boolean updatePartyId(final @NotNull UUID uniqueId, final @Nullable UUID partyId) throws JsonProcessingException;
 
 }

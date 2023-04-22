@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
@@ -27,7 +28,12 @@ public class LeaveCommand extends PartyCommand {
 
     @Override
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
-        final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+        Optional<Party> party;
+        try {
+            party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+        } catch (final JsonProcessingException e) {
+            party = Optional.empty();
+        }
         if (party.isEmpty()) {
             player.sendMessage("command.not_in_party");
             return;
@@ -39,19 +45,33 @@ public class LeaveCommand extends PartyCommand {
             if (party.get().isLeader(player.uniqueId())) {
                 final Optional<UUID> target = party.get().members().stream().findAny();
                 if (target.isPresent()) {
-                    PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get());
+                    try {
+                        PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get());
+                    } catch (final JsonProcessingException e) {
+                        player.sendMessage("general.error");
+                        return;
+                    }
                     PartyAPI.get().sendMessageToMembers(party.get(), "party.left", player.name());
 
-                    PartyAPI.get().onlinePlayerProvider().get(target.get()).ifPresent(
-                            targetPlayer -> PartyAPI.get().sendMessageToMembers(party.get(), "party.new_leader", targetPlayer.name())
-                    );
+                    try {
+                        final Party finalParty = party.get();
+                        PartyAPI.get().onlinePlayerProvider().get(target.get()).ifPresent(
+                                targetPlayer -> PartyAPI.get().sendMessageToMembers(finalParty, "party.new_leader", targetPlayer.name())
+                        );
+                    } catch (final JsonProcessingException ignored) {
+                    }
                 } else this.deleteParty(party.get(), player);
             } else {
                 party.get().members().remove(player.uniqueId());
                 PartyAPI.get().sendMessageToParty(party.get(), "party.left", player.name());
             }
 
-            PartyAPI.get().removePlayerFromParty(party.get().id(), player.uniqueId(), player.name());
+            try {
+                PartyAPI.get().removePlayerFromParty(party.get().id(), player.uniqueId(), player.name());
+            } catch (final JsonProcessingException e) {
+                player.sendMessage("general.error");
+                return;
+            }
         }
 
         player.partyId(null);
@@ -60,7 +80,10 @@ public class LeaveCommand extends PartyCommand {
 
     private void deleteParty(final @NotNull Party party, final @NotNull PartyPlayer player) {
         PartyAPI.get().deleteParty(party.id());
-        PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), null);
+        try {
+            PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), null);
+        } catch (final JsonProcessingException ignored) {
+        }
         PartyAPI.get().clearPartyRequest(player.name());
     }
 }

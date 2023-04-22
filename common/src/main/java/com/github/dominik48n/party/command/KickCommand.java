@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
@@ -31,7 +32,12 @@ public class KickCommand extends PartyCommand {
             return;
         }
 
-        final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+        Optional<Party> party;
+        try {
+            party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+        } catch (final JsonProcessingException e) {
+            party = Optional.empty();
+        }
         if (party.isEmpty()) {
             player.sendMessage("command.not_in_party");
             return;
@@ -48,7 +54,12 @@ public class KickCommand extends PartyCommand {
             return;
         }
 
-        final Optional<PartyPlayer> target = PartyAPI.get().onlinePlayerProvider().get(name);
+        Optional<PartyPlayer> target;
+        try {
+            target = PartyAPI.get().onlinePlayerProvider().get(name);
+        } catch (final JsonProcessingException e) {
+            target = Optional.empty();
+        }
         if (target.isEmpty() || !party.get().members().contains(target.get().uniqueId())) {
             player.sendMessage("command.not_in_your_party");
             return;
@@ -56,7 +67,11 @@ public class KickCommand extends PartyCommand {
 
         party.get().members().remove(target.get().uniqueId());
         PartyAPI.get().sendMessageToParty(party.get(), "party.kick", name);
-        PartyAPI.get().removePlayerFromParty(party.get().id(), target.get().uniqueId(), name);
+        try {
+            PartyAPI.get().removePlayerFromParty(party.get().id(), target.get().uniqueId(), name);
+        } catch (final JsonProcessingException e) {
+            player.sendMessage("general.error");
+        }
 
         target.get().sendMessage("command.kick.kicked");
         player.sendMessage("command.kick.leader", name);

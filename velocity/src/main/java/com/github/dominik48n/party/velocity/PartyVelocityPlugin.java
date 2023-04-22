@@ -31,7 +31,6 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
@@ -48,13 +47,6 @@ import org.slf4j.Logger;
 )
 public class PartyVelocityPlugin {
 
-    private static @Nullable PartyVelocityPlugin instance;
-
-    public static @NotNull PartyVelocityPlugin get() throws IllegalStateException {
-        if (instance == null) throw new IllegalStateException("Party Plugin isn't initialized.");
-        return instance;
-    }
-
     private final @NotNull ProxyServer server;
     private final @NotNull Logger logger;
 
@@ -69,8 +61,6 @@ public class PartyVelocityPlugin {
     public PartyVelocityPlugin(final @NotNull ProxyServer server, final @NotNull Logger logger) {
         this.server = server;
         this.logger = logger;
-
-        instance = this;
     }
 
     @Subscribe
@@ -79,7 +69,7 @@ public class PartyVelocityPlugin {
         this.dataFolder.toFile().mkdirs();
         try {
             this.config = ProxyPluginConfig.fromFile(configFile);
-        } catch (final FileNotFoundException e) {
+        } catch (final IOException e) {
             try {
                 this.config = new ProxyPluginConfig();
                 this.config.writeToFile(configFile);

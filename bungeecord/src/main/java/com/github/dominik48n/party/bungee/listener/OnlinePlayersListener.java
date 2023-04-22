@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.bungee.listener;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.user.User;
 import com.github.dominik48n.party.user.UserManager;
@@ -35,7 +36,7 @@ public class OnlinePlayersListener implements Listener {
     }
 
     @EventHandler
-    public void handlePostLogin(final PostLoginEvent event) {
+    public void handlePostLogin(final PostLoginEvent event) throws JsonProcessingException {
         PartyAPI.get().onlinePlayerProvider().login(new User<>(event.getPlayer(), this.userManager));
     }
 

@@ -16,6 +16,8 @@
 
 package com.github.dominik48n.party.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.Document;
@@ -59,19 +61,19 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     }
 
     @Override
-    public @NotNull Optional<UUID> getPartyFromPlayer(final @NotNull UUID uniqueId) {
+    public @NotNull Optional<UUID> getPartyFromPlayer(final @NotNull UUID uniqueId) throws JsonProcessingException {
         return this.onlinePlayerProvider.get(uniqueId).flatMap(PartyPlayer::partyId);
     }
 
     @Override
-    public void addPlayerToParty(final @NotNull UUID partyId, final @NotNull UUID player) {
+    public void addPlayerToParty(final @NotNull UUID partyId, final @NotNull UUID player) throws JsonProcessingException {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             final String partyKey = "party:" + partyId;
             final String partyJson = jedis.get(partyKey);
             if (partyJson != null) {
-                final Party party = Document.GSON.fromJson(partyJson, Party.class);
+                final Party party = Document.MAPPER.readValue(partyJson, Party.class);
                 party.members().add(player);
-                jedis.set(partyKey, Document.GSON.toJson(party));
+                jedis.set(partyKey, Document.MAPPER.writeValueAsString(party));
             }
 
             this.onlinePlayerProvider.updatePartyId(jedis, player, partyId);
@@ -79,14 +81,14 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     }
 
     @Override
-    public void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player, final @NotNull String username) {
+    public void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player, final @NotNull String username) throws JsonProcessingException {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             final String partyKey = "party:" + partyId;
             final String partyJson = jedis.get(partyKey);
             if (partyJson != null) {
-                final Party party = Document.GSON.fromJson(partyJson, Party.class);
+                final Party party = Document.MAPPER.readValue(partyJson, Party.class);
                 party.members().remove(player);
-                jedis.set(partyKey, Document.GSON.toJson(party));
+                jedis.set(partyKey, Document.MAPPER.writeValueAsString(party));
             }
 
             this.clearPartyRequest(jedis, username);
@@ -95,31 +97,31 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     }
 
     @Override
-    public void changePartyLeader(final @NotNull UUID partyId, final @NotNull UUID oldLeader, final @NotNull UUID newLeader) {
+    public void changePartyLeader(final @NotNull UUID partyId, final @NotNull UUID oldLeader, final @NotNull UUID newLeader) throws JsonProcessingException {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             final String json = jedis.get("party:" + partyId);
             if (json == null) return; // Party isn't exist.
 
-            final Party party = Document.GSON.fromJson(json, Party.class);
+            final Party party = Document.MAPPER.readValue(json, Party.class);
             party.members().remove(oldLeader);
             party.members().add(newLeader);
-            jedis.set("party:" + partyId, Document.GSON.toJson(new Party(partyId, newLeader, party.members())));
+            jedis.set("party:" + partyId, Document.MAPPER.writeValueAsString(new Party(partyId, newLeader, party.members())));
         }
     }
 
     @Override
-    public @NotNull Optional<Party> getParty(final @NotNull UUID id) {
+    public @NotNull Optional<Party> getParty(final @NotNull UUID id) throws JsonProcessingException {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             final String json = jedis.get("party:" + id);
             if (json == null) return Optional.empty();
 
-            final Party party = Document.GSON.fromJson(json, Party.class);
+            final Party party = Document.MAPPER.readValue(json, Party.class);
             return Optional.of(party);
         }
     }
 
     @Override
-    public @NotNull Party createParty(final @NotNull UUID leader) {
+    public @NotNull Party createParty(final @NotNull UUID leader) throws JsonProcessingException {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             UUID partyId;
             do {
@@ -127,7 +129,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
             } while (jedis.exists("party:" + partyId));
 
             final Party party = new Party(partyId, leader, Lists.newArrayList());
-            jedis.set("party:" + partyId, Document.GSON.toJson(party));
+            jedis.set("party:" + partyId, Document.MAPPER.writeValueAsString(party));
             return party;
         }
     }

@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.bungee.listener;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
@@ -37,7 +38,7 @@ public class SwitchServerListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void handleServerConnected(final ServerConnectedEvent event) {
+    public void handleServerConnected(final ServerConnectedEvent event) throws JsonProcessingException {
         final PartyPlayer player = this.userManager.createOrGetPlayer(event.getPlayer());
 
         final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();

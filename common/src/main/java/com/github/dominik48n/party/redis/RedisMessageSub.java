@@ -16,10 +16,11 @@
 
 package com.github.dominik48n.party.redis;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.user.UserManager;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import java.util.UUID;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
@@ -38,8 +39,8 @@ public class RedisMessageSub<TUser> extends RedisSubscription {
     public void onMessage(final @NotNull String message) {
         final Document document;
         try {
-            document = new Document(Document.GSON.fromJson(message, JsonObject.class));
-        } catch (final JsonSyntaxException ignored) {
+            document = new Document((ObjectNode) Document.MAPPER.readTree(message));
+        } catch (final JsonProcessingException ignored) {
             return;
         }
 

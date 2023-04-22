@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
@@ -48,7 +49,12 @@ public class ChatCommand {
         }
 
         this.commandManager.runAsynchronous(() -> {
-            final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+            Optional<Party> party;
+            try {
+                party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+            } catch (final JsonProcessingException e) {
+                party = Optional.empty();
+            }
             if (party.isEmpty()) {
                 player.sendMessage("command.not_in_party");
                 return;

@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
@@ -44,20 +45,35 @@ public class AcceptCommand extends PartyCommand {
 
         PartyAPI.get().removePartyRequest(name, player.name());
 
-        final Optional<PartyPlayer> target = PartyAPI.get().onlinePlayerProvider().get(name);
+        Optional<PartyPlayer> target;
+        try {
+            target = PartyAPI.get().onlinePlayerProvider().get(name);
+        } catch (final JsonProcessingException e) {
+            target = Optional.empty();
+        }
         if (target.isEmpty() || target.get().partyId().isEmpty()) {
             player.sendMessage("command.accept.no_request");
             return;
         }
 
-        final Optional<Party> party = PartyAPI.get().getParty(target.get().partyId().get());
+        Optional<Party> party;
+        try {
+            party = PartyAPI.get().getParty(target.get().partyId().get());
+        } catch (final JsonProcessingException e) {
+            party = Optional.empty();
+        }
         if (party.isEmpty()) {
             player.sendMessage("command.accept.no_request");
             return;
         }
 
         PartyAPI.get().sendMessageToParty(party.get(), "party.join", player.name());
-        PartyAPI.get().addPlayerToParty(party.get().id(), player.uniqueId());
+        try {
+            PartyAPI.get().addPlayerToParty(party.get().id(), player.uniqueId());
+        } catch (final JsonProcessingException e) {
+            player.sendMessage("general.error");
+            return;
+        }
 
         player.partyId(party.get().id());
         player.sendMessage("command.accept.joined");

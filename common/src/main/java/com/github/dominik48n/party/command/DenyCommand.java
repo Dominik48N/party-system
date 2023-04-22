@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +39,9 @@ public class DenyCommand extends PartyCommand {
         PartyAPI.get().removePartyRequest(name, player.name());
         player.sendMessage("command.deny.declined");
 
-        PartyAPI.get().onlinePlayerProvider().get(name).ifPresent(sender -> sender.sendMessage("command.deny.other", player.name()));
+        try {
+            PartyAPI.get().onlinePlayerProvider().get(name).ifPresent(sender -> sender.sendMessage("command.deny.other", player.name()));
+        } catch (final JsonProcessingException ignored) {
+        }
     }
 }

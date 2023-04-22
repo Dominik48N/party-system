@@ -13,7 +13,6 @@ dependencies {
     compileOnly("com.google.guava:guava:31.1-jre")
     compileOnly("net.kyori:adventure-api:4.13.1")
     compileOnly("net.kyori:adventure-text-minimessage:4.13.1")
-    compileOnly("com.google.code.gson:gson:2.10.1")
 
     implementation(project(":api"))
     implementation("redis.clients:jedis:4.3.2")

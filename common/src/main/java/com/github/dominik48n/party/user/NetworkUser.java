@@ -17,7 +17,6 @@
 package com.github.dominik48n.party.user;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
-import com.github.dominik48n.party.config.Document;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -62,10 +61,5 @@ public class NetworkUser<TUser> implements PartyPlayer {
     @Override
     public void sendMessage(final @NotNull String messageKey, final @NotNull Object... replacements) {
         this.userManager.sendMessage(this.uniqueId, this.userManager.messageConfig().getMessage(messageKey, replacements));
-    }
-
-    @Override
-    public @NotNull String toString() {
-        return Document.GSON.toJson(this);
     }
 }
