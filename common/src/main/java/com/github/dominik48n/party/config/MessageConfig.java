@@ -35,14 +35,15 @@ public class MessageConfig {
 
     private static void loadMessages(final @NotNull MessageConfig config, final @NotNull Document document, final @NotNull String keyPrefix) {
         for (final String key : document.keys()) {
+            final String fullKey = (keyPrefix.isEmpty() ? "" : keyPrefix + '.') + key;
             if (document.isDocument(key)) {
-                loadMessages(config, document.getDocument(key), key);
+                loadMessages(config, document.getDocument(key), fullKey);
                 continue;
             }
 
             try {
                 final MessageFormat messageFormat = new MessageFormat(document.getString(key, "weird message"));
-                config.messages.put((keyPrefix.isEmpty() ? "" : keyPrefix + ".") + key, messageFormat);
+                config.messages.put(fullKey, messageFormat);
             } catch (final IllegalArgumentException ignored) {
             }
         }
