@@ -20,7 +20,6 @@ import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.config.RedisConfig;
 import com.github.dominik48n.party.user.UserManager;
 import com.google.common.collect.Lists;
-import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,14 +43,6 @@ public class RedisManager extends JedisPubSub {
      */
     public RedisManager(final @NotNull RedisConfig config) {
         final JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(128);
-        poolConfig.setMaxIdle(16);
-        poolConfig.setMinIdle(8);
-        poolConfig.setTestOnBorrow(true);
-        poolConfig.setTestOnReturn(true);
-        poolConfig.setTestWhileIdle(true);
-        poolConfig.setMinEvictableIdleTime(Duration.ofMillis(60000L));
-        poolConfig.setTimeBetweenEvictionRuns(Duration.ofMillis(30000L));
         this.jedisPool = config.username().isEmpty() ?
                 new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.password()) :
                 new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.username(), config.password());
@@ -96,12 +87,14 @@ public class RedisManager extends JedisPubSub {
         this.subscriptions.add(new RedisMessageSub<>(userManager));
         this.subscriptions.add(new RedisSwitchServerSub<>(userManager));
 
-        try (final Jedis jedis = this.jedisPool().getResource()) {
-            this.executor.execute(() -> jedis.subscribe(
-                    this,
-                    this.subscriptions.stream().map(RedisSubscription::channel).toArray(String[]::new))
-            );
-        }
+        this.executor.execute(() -> {
+            try (final Jedis jedis = RedisManager.this.jedisPool.getResource()) {
+                jedis.subscribe(
+                        this,
+                        this.subscriptions.stream().map(RedisSubscription::channel).toArray(String[]::new)
+                );
+            }
+        });
     }
 
     public @NotNull JedisPool jedisPool() {
