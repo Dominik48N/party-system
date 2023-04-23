@@ -17,7 +17,6 @@
 package com.github.dominik48n.party.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.Document;

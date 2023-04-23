@@ -24,7 +24,6 @@ import com.github.dominik48n.party.bungee.listener.SwitchServerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
