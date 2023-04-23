@@ -43,11 +43,6 @@ public class ChatCommand {
             return;
         }
 
-        if (player.partyId().isEmpty()) {
-            player.sendMessage("command.not_in_party");
-            return;
-        }
-
         this.commandManager.runAsynchronous(() -> {
             Optional<Party> party;
             try {
