@@ -108,7 +108,10 @@ public class PartyVelocityPlugin {
             PartyAPI.get().clearPartyRequest(player.getUsername());
         }
 
-        if (this.redisManager != null) this.redisManager.close();
+        if (this.redisManager != null) {
+            this.logger.info("Close connection to redis...");
+            this.redisManager.close();
+        } else this.logger.warn("The connection to redis is not closed, because the redis manager is not initialized.");
     }
 
     public @NotNull ProxyPluginConfig config() {

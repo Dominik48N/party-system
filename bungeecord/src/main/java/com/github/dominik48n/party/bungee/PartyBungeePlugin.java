@@ -87,7 +87,10 @@ public class PartyBungeePlugin extends Plugin {
             PartyAPI.get().clearPartyRequest(player.getName());
         }
 
-        if (this.redisManager != null) this.redisManager.close();
+        if (this.redisManager != null) {
+            this.getLogger().info("Close connection to redis...");
+            this.redisManager.close();
+        } else this.getLogger().warning("The connection to redis is not closed, because the redis manager is not initialized.");
     }
 
     public @NotNull ProxyPluginConfig config() {
