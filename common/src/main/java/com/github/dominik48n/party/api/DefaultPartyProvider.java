@@ -17,7 +17,6 @@
 package com.github.dominik48n.party.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.Document;
@@ -81,7 +80,11 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     }
 
     @Override
-    public void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player, final @NotNull String username) throws JsonProcessingException {
+    public void removePlayerFromParty(
+            final @NotNull UUID partyId,
+            final @NotNull UUID player,
+            final @NotNull String username
+    ) throws JsonProcessingException {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             final String partyKey = "party:" + partyId;
             final String partyJson = jedis.get(partyKey);
@@ -97,14 +100,18 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     }
 
     @Override
-    public void changePartyLeader(final @NotNull UUID partyId, final @NotNull UUID oldLeader, final @NotNull UUID newLeader) throws JsonProcessingException {
+    public void changePartyLeader(
+            final @NotNull UUID partyId,
+            final @NotNull UUID oldLeader,
+            final @NotNull UUID newLeader
+    ) throws JsonProcessingException {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             final String json = jedis.get("party:" + partyId);
             if (json == null) return; // Party isn't exist.
 
             final Party party = Document.MAPPER.readValue(json, Party.class);
-            party.members().remove(oldLeader);
-            party.members().add(newLeader);
+            party.members().remove(newLeader);
+            party.members().add(oldLeader);
             jedis.set("party:" + partyId, Document.MAPPER.writeValueAsString(new Party(partyId, newLeader, party.members())));
         }
     }

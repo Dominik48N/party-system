@@ -30,6 +30,10 @@ public record RedisConfig(@NotNull String hostname, int port, @NotNull String us
     }
 
     @NotNull Document toDocument() {
-        return new Document().append("hostname", this.hostname).append("port", this.port).append("username", this.username).append("password", this.password);
+        return new Document()
+                .append("hostname", this.hostname)
+                .append("port", this.port)
+                .append("username", this.username)
+                .append("password", this.password);
     }
 }
