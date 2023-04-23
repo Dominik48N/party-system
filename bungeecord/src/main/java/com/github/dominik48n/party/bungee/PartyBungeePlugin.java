@@ -52,7 +52,19 @@ public class PartyBungeePlugin extends Plugin {
             }
         }
 
-        this.redisManager = new RedisManager(this.config.redisConfig());
+        try {
+            this.redisManager = new RedisManager(this.config.redisConfig());
+            this.getLogger().info("The connection to Redis has been established.");
+        } catch (final Exception e) {
+            this.getLogger().log(
+                    Level.SEVERE,
+                    "The connection to redis could not be established. The party system is therefore not fully loaded.",
+                    e
+            );
+            // If the code continued, there would be some problems at runtime, which is
+            // why the plugin simply does not load completely when the error occurs here.
+            return;
+        }
 
         final BungeeUserManager userManager = new BungeeUserManager(this);
         new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());

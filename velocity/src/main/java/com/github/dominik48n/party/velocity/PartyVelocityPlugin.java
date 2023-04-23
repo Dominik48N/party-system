@@ -78,7 +78,15 @@ public class PartyVelocityPlugin {
             }
         }
 
-        this.redisManager = new RedisManager(this.config.redisConfig());
+        try {
+            this.redisManager = new RedisManager(this.config.redisConfig());
+            this.logger.info("The connection to Redis has been established.");
+        } catch (final Exception e) {
+            this.logger.error("The connection to redis could not be established. The party system is therefore not fully loaded.", e);
+            // If the code continued, there would be some problems at runtime, which is
+            // why the plugin simply does not load completely when the error occurs here.
+            return;
+        }
 
         final VelocityUserManager userManager = new VelocityUserManager(this.redisManager, this.config, this.server, this.logger);
         new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
