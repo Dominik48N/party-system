@@ -113,7 +113,7 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
     }
 
     @Override
-    public void logout(@NotNull UUID uniqueId) {
+    public void logout(final @NotNull UUID uniqueId) {
         final String playerKey = "party_player:" + uniqueId;
 
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {

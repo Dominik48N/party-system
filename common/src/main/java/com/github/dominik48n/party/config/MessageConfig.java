@@ -70,7 +70,7 @@ public class MessageConfig {
                         .append("kick", "%prefix% <gradient:#d896ff:#be29ec>{0}</gradient> <red>was kicked out of the party.")
                         .append("connect_to_server", "%prefix% The party will now join the server <gradient:#d896ff:#be29ec>{0}</gradient>.")
                         .append("chat", "%prefix% <gradient:#d896ff:#be29ec>{0}</gradient><dark_gray>: <gray>{1}")
-                        .append("new_leader", "%prefix% <gradient:#d896ff:#be29ec>{0}</gradient> is now the <dark_red>party leader</dark_red>."))
+                        .append("new_leader", "%prefix% <gradient:#d896ff:#be29ec>{0}</gradient> is now the <gradient:#940000:#c30101>party leader</gradient>."))
                 .append("command", new Document()
                         .append("invite", new Document()
                                 .append("created_party", "%prefix% <green>You have created a new party.")
@@ -93,7 +93,7 @@ public class MessageConfig {
                         .append("promote", new Document()
                                 .append("not_leader", "%prefix% <red>This action can only be performed as a party leader.")
                                 .append("self", "%prefix% <red>You cannot promote yourself to leader.")
-                                .append("changed", "%prefix% You promoted <gradient:#d896ff:#be29ec>{0}</gradient> to <dark_red>leader</dark_red>."))
+                                .append("changed", "%prefix% You promoted <gradient:#d896ff:#be29ec>{0}</gradient> to <gradient:#940000:#c30101>leader</gradient>."))
                         .append("kick", new Document()
                                 .append("not_leader", "%prefix% <red>Only leaders can kick members out of the party.")
                                 .append("self", "%prefix% <red>You can't kick yourself out of the party.")
@@ -110,7 +110,7 @@ public class MessageConfig {
                         .append("not_in_party", "%prefix% <red>You are not in a party.")
                         .append("not_in_your_party", "%prefix% <red>The player is not in your party.")
                         .append("list", "%prefix% <gold>Party information<newline>" +
-                                " <gray>Leader<dark_gray>: <dark_red>{0}<newline>" +
+                                " <gray>Leader<dark_gray>: <gradient:#940000:#c30101>{0}<newline>" +
                                 " <gray>Members<dark_gray>: <color:#d896ff>{1}")
                         .append("help", "%prefix% <gold>Party management<newline>" +
                                 " <yellow>/party invite <player> <gray>Invites a player to the party<newline>" +
