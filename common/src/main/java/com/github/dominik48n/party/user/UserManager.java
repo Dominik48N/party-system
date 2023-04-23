@@ -23,6 +23,7 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -48,6 +49,10 @@ public abstract class UserManager<TUser> {
             this.cachedPlayers.put(user, player);
         }
         return player;
+    }
+
+    public @NotNull Optional<PartyPlayer> userFromCache(final @NotNull UUID playerId) {
+        return this.cachedPlayers.values().stream().filter(player -> player.uniqueId().equals(playerId)).findAny();
     }
 
     public void removePlayerFromCache(final @NotNull TUser user) {

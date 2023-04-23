@@ -68,10 +68,22 @@ public class RedisManager extends JedisPubSub {
      *
      * @param channel  The name of the channel to publish the document to.
      * @param document The {@link Document} to publish to the channel.
+     *                 
+     * @see #publish(String, String) 
      */
     public void publish(final @NotNull String channel, final @NotNull Document document) {
+        this.publish(channel, document.toString());
+    }
+
+    /**
+     * Publishes a string to a Redis channel.
+     *
+     * @param channel  The name of the channel to publish the document to.
+     * @param message The message to publish to the channel.
+     */
+    public void publish(final @NotNull String channel, final @NotNull String message) {
         try (final Jedis jedis = this.jedisPool.getResource()) {
-            jedis.publish(channel, document.toString());
+            jedis.publish(channel, message);
         }
     }
 
@@ -86,6 +98,7 @@ public class RedisManager extends JedisPubSub {
         this.subscriptions.clear();
         this.subscriptions.add(new RedisMessageSub<>(userManager));
         this.subscriptions.add(new RedisSwitchServerSub<>(userManager));
+        this.subscriptions.add(new RedisUpdateUserPartySub<>(userManager));
 
         this.executor.execute(() -> {
             try (final Jedis jedis = RedisManager.this.jedisPool.getResource()) {

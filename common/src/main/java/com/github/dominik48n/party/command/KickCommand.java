@@ -20,10 +20,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.redis.RedisUpdateUserPartySub;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 public class KickCommand extends PartyCommand {
+
+    private final @NotNull RedisManager redisManager;
+
+    public KickCommand(final @NotNull RedisManager redisManager) {
+        this.redisManager = redisManager;
+    }
 
     @Override
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
@@ -72,6 +80,8 @@ public class KickCommand extends PartyCommand {
         } catch (final JsonProcessingException e) {
             player.sendMessage("general.error");
         }
+
+        this.redisManager.publish(RedisUpdateUserPartySub.CHANNEL, target.get().uniqueId() + ":null");
 
         target.get().sendMessage("command.kick.kicked");
         player.sendMessage("command.kick.leader", name);
