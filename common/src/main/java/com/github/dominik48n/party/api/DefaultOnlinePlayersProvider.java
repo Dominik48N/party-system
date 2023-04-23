@@ -113,9 +113,69 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
     }
 
     @Override
-    public void logout(final @NotNull UUID uniqueId) {
+    public void logout(@NotNull UUID uniqueId) {
+        final String playerKey = "party_player:" + uniqueId;
+
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            jedis.del("party_player:" + uniqueId);
+            // Check if player is logged in
+            final String json = jedis.get(playerKey);
+            if (json == null) return;
+
+            // Deserialize player object
+            final PartyPlayer player;
+            try {
+                player = Document.MAPPER.readValue(json, PartyPlayer.class);
+            } catch (final JsonProcessingException e) {
+                jedis.del(playerKey);
+                return;
+            }
+
+            // Check if player is in a party
+            if (player.partyId().isPresent()) try {
+                PartyAPI.get().getParty(player.partyId().get()).ifPresent(party -> {
+                    if (party.allMembers().size() <= 1) {
+                        // Last member leaving the party, delete the party
+                        PartyAPI.get().deleteParty(party.id());
+                    } else {
+                        // Player is in a party with multiple members
+                        if (party.isLeader(player.uniqueId())) {
+                            // Player is the leader of the party, transfer leadership to another member
+                            final Optional<UUID> newLeader = party.members().stream().findAny();
+
+                            if (newLeader.isPresent()) {
+                                try {
+                                    // Change party leader
+                                    PartyAPI.get().changePartyLeader(party.id(), player.uniqueId(), newLeader.get());
+                                    PartyAPI.get().sendMessageToMembers(party, "party.left", player.name());
+
+                                    // Send message about new leader to party members
+                                    this.get(newLeader.get()).ifPresent(targetPlayer ->
+                                            PartyAPI.get().sendMessageToMembers(party, "party.new_leader", targetPlayer.name())
+                                    );
+                                } catch (final JsonProcessingException ignored) {
+                                }
+                            } else {
+                                // Party has no more members, delete the party
+                                PartyAPI.get().deleteParty(party.id());
+                            }
+                        } else {
+                            // Player is not the leader of the party, remove player from party
+                            party.members().remove(player.uniqueId());
+                            PartyAPI.get().sendMessageToParty(party, "party.left", player.name());
+                        }
+
+                        // Save updated party to Redis
+                        try {
+                            jedis.set("party:" + party.id(), Document.MAPPER.writeValueAsString(party));
+                        } catch (final JsonProcessingException ignored) {
+                        }
+                    }
+                });
+            } catch (final JsonProcessingException ignored) {
+            }
+
+            // Delete player object from Redis
+            jedis.del(playerKey);
         }
     }
 
