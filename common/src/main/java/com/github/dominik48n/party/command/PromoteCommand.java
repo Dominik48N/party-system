@@ -74,6 +74,7 @@ public class PromoteCommand extends PartyCommand {
             return;
         }
         PartyAPI.get().sendMessageToParty(party.get(), "party.new_leader", name);
+        PartyAPI.get().clearPartyRequest(player.name());
 
         player.sendMessage("command.promote.changed", name);
     }
