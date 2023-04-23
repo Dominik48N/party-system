@@ -20,6 +20,7 @@ import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.command.ChatCommand;
 import com.github.dominik48n.party.command.CommandManager;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
 import com.velocitypowered.api.command.RawCommand;
 import com.velocitypowered.api.proxy.Player;
@@ -43,6 +44,11 @@ public class VelocityCommandManager implements RawCommand {
             @Override
             public @NotNull ProxyPluginConfig config() {
                 return plugin.config();
+            }
+
+            @Override
+            public @NotNull RedisManager redisManager() {
+                return plugin.redisManager();
             }
         };
         this.chatCommand = new ChatCommand(this.commandManager);

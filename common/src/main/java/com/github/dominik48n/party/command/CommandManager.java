@@ -18,6 +18,7 @@ package com.github.dominik48n.party.command;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.redis.RedisManager;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
@@ -34,7 +35,7 @@ public abstract class CommandManager {
             "list", new ListCommand(),
             "leave", new LeaveCommand(),
             "promote", new PromoteCommand(),
-            "kick", new KickCommand()
+            "kick", new KickCommand(this.redisManager())
     );
 
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
@@ -62,4 +63,6 @@ public abstract class CommandManager {
     public abstract void runAsynchronous(final @NotNull Runnable runnable);
 
     public abstract @NotNull ProxyPluginConfig config();
+
+    public abstract @NotNull RedisManager redisManager();
 }

@@ -114,4 +114,9 @@ public class PartyVelocityPlugin {
     public @NotNull Logger logger() {
         return this.logger;
     }
+
+    @NotNull RedisManager redisManager() {
+        if (this.redisManager == null) throw new IllegalStateException("RedisManager isn't initialized.");
+        return this.redisManager;
+    }
 }

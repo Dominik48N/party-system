@@ -18,6 +18,7 @@ package com.github.dominik48n.party.bungee;
 
 import com.github.dominik48n.party.command.CommandManager;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -42,6 +43,11 @@ public class BungeeCommandManager extends Command implements TabExecutor {
             @Override
             public @NotNull ProxyPluginConfig config() {
                 return plugin.config();
+            }
+
+            @Override
+            public @NotNull RedisManager redisManager() {
+                return plugin.redisManager();
             }
         };
         this.userManager = userManager;
