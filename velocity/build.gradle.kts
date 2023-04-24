@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":api"))
     implementation("redis.clients:jedis:4.3.2")
+    implementation("com.google.guava:guava:31.1-jre")
 }
 
 tasks.shadowJar {
@@ -25,6 +26,7 @@ tasks.shadowJar {
     relocate("org.apache.commons.pool2", "${project.group}.libs.commons.pool2")
     relocate("org.json", "${project.group}.libs.json")
     relocate("com.fasterxml.jackson", "${project.group}.libs.jackson")
+    relocate("com.google.common.collect", "${project.group}.libs.commons.google.collect")
 }
 
 blossom {
