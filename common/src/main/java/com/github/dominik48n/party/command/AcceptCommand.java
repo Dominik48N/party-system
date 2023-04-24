@@ -67,13 +67,14 @@ public class AcceptCommand extends PartyCommand {
             return;
         }
 
-        PartyAPI.get().sendMessageToParty(party.get(), "party.join", player.name());
         try {
             PartyAPI.get().addPlayerToParty(party.get().id(), player.uniqueId());
         } catch (final JsonProcessingException e) {
             player.sendMessage("general.error");
             return;
         }
+
+        PartyAPI.get().sendMessageToParty(party.get(), "party.join", player.name());
 
         player.partyId(party.get().id());
         player.sendMessage("command.accept.joined");

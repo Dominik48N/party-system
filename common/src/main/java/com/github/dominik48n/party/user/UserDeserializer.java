@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.dominik48n.party.api.player.PartyPlayer;
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class UserDeserializer extends JsonDeserializer<PartyPlayer> {
 
     @Override
-    public PartyPlayer deserialize(final JsonParser parser, DeserializationContext ctxt) throws IOException {
+    public PartyPlayer deserialize(final JsonParser parser, final DeserializationContext ctx) throws IOException {
         final JsonNode node = parser.getCodec().readTree(parser);
         final UUID uniqueId = UUID.fromString(node.get("uuid").asText());
         final String name = node.get("name").asText();

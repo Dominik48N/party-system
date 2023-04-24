@@ -42,7 +42,7 @@ public abstract class UserManager<TUser> {
         return new User<>(user, this);
     }
 
-    public @NotNull PartyPlayer createOrGetPlayer(final @NotNull TUser user) {
+    public @NotNull PartyPlayer getOrCreatePlayer(final @NotNull TUser user) {
         PartyPlayer player = this.cachedPlayers.get(user);
         if (player == null) {
             player = this.createPlayer(user);

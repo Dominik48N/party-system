@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Document {
 
-    public static final ObjectMapper MAPPER = new ObjectMapper()
+    public static final @NotNull ObjectMapper MAPPER = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true))
@@ -49,7 +49,7 @@ public class Document {
                     .addDeserializer(PartyPlayer.class, new UserDeserializer())
             );
 
-    static Document read(final File file) throws IOException {
+    static @NotNull Document read(final File file) throws IOException {
         if (!file.exists()) throw new FileNotFoundException("The configuration file doesn't exist.");
 
         final JsonNode jsonNode = MAPPER.readTree(new BufferedReader(new FileReader(file)));
@@ -57,7 +57,7 @@ public class Document {
         return new Document((ObjectNode) jsonNode);
     }
 
-    private final ObjectNode objectNode;
+    private final @NotNull ObjectNode objectNode;
 
     public Document() {
         this(JsonNodeFactory.instance.objectNode());

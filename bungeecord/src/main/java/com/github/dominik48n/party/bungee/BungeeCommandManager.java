@@ -60,7 +60,7 @@ public class BungeeCommandManager extends Command implements TabExecutor {
             return;
         }
 
-        this.commandManager.execute(this.userManager.createOrGetPlayer(player), args);
+        this.commandManager.execute(this.userManager.getOrCreatePlayer(player), args);
     }
 
     @Override

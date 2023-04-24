@@ -26,7 +26,7 @@ public class RedisUpdateUserPartySub<TUser> extends RedisSubscription {
 
     private final @NotNull UserManager<TUser> userManager;
 
-    public RedisUpdateUserPartySub(final @NotNull UserManager<TUser> userManager) {
+    RedisUpdateUserPartySub(final @NotNull UserManager<TUser> userManager) {
         this.userManager = userManager;
     }
 

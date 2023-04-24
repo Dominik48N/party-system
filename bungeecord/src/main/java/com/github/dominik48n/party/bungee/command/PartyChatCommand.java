@@ -43,6 +43,6 @@ public class PartyChatCommand extends Command {
             return;
         }
 
-        this.chatCommand.execute(this.userManager.createOrGetPlayer(player), args);
+        this.chatCommand.execute(this.userManager.getOrCreatePlayer(player), args);
     }
 }

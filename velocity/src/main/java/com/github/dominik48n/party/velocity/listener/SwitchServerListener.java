@@ -38,7 +38,7 @@ public class SwitchServerListener {
 
     @Subscribe(order = PostOrder.LATE)
     public void handleServerConnected(final ServerConnectedEvent event) throws JsonProcessingException {
-        final PartyPlayer player = this.userManager.createOrGetPlayer(event.getPlayer());
+        final PartyPlayer player = this.userManager.getOrCreatePlayer(event.getPlayer());
 
         final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
         if (party.isEmpty() || !party.get().isLeader(player.uniqueId())) return;

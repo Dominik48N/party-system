@@ -62,7 +62,7 @@ public class VelocityCommandManager implements RawCommand {
             return;
         }
 
-        final PartyPlayer partyPlayer = this.userManager.createOrGetPlayer(player);
+        final PartyPlayer partyPlayer = this.userManager.getOrCreatePlayer(player);
 
         if (invocation.alias().equalsIgnoreCase("p")) {
             this.chatCommand.execute(partyPlayer, invocation.arguments().split(" "));

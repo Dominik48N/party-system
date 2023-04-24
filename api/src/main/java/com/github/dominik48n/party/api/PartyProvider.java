@@ -88,7 +88,7 @@ public interface PartyProvider {
     @NotNull Party createParty(final @NotNull UUID leader) throws JsonProcessingException;
 
     /**
-     * Sends a message to all members of a party.
+     * Sends a message to all members and leader of a party.
      *
      * @param party        the {@link Party} to send the message to
      * @param messageKey   the key of the message to send
@@ -97,7 +97,7 @@ public interface PartyProvider {
     void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements);
 
     /**
-     * Sends a message to all members of a party except the sender.
+     * Sends a message to all members of a party.
      *
      * @param party        the {@link Party} to send the message to
      * @param messageKey   the key of the message to send

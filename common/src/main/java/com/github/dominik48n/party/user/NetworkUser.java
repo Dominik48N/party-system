@@ -34,7 +34,6 @@ public class NetworkUser<TUser> implements PartyPlayer {
         this.userManager = userManager;
         this.uniqueId = player.uniqueId();
         this.name = player.name();
-
         this.partyId = player.partyId().orElse(null);
     }
 
