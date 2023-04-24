@@ -17,6 +17,13 @@ The PartySystem is a plugin for BungeeCord and Velocity that allows players to c
 ## Usage
 Once the plugin is installed and configured, players can create parties using the `/party` command. From there, they can invite other players to join their party, and when the party leader joins a game, the party members are automatically taken with them.
 
+## API
+The Party API is a Java library that provides an interface for managing parties of players. It includes methods for creating, joining, and leaving parties, as well as sending messages to party members and connecting parties to servers.
+
+To use the API, you can create an instance of the `PartyAPI` class and use the `get()` method to obtain the current `PartyProvider` instance. The `PartyProvider` interface includes methods for managing parties, such as adding players, changing the party leader, and deleting a party.
+
+For more detailed information about the API and its methods, please refer to the Wiki.
+
 ## Contributing
 Contributions to the PartySystem plugin are welcome! If you would like to contribute, please follow the guidelines in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
