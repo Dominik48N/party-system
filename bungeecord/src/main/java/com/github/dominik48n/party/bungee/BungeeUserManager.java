@@ -49,17 +49,17 @@ public class BungeeUserManager extends UserManager<ProxiedPlayer> {
 
     @Override
     public void connectToServer(final @NotNull UUID uniqueId, final @NotNull String serverName) {
-        final ServerInfo serverInfo = this.plugin.getProxy().getServerInfo(serverName);
-        if (serverInfo == null) {
-            this.plugin.getLogger().log(
-                    Level.SEVERE,
-                    "Failed to send {0} to {1}, because the server is unknown on this proxy.",
-                    new Object[] {uniqueId, serverName}
-            );
-            return;
-        }
-
         Optional.ofNullable(this.plugin.getProxy().getPlayer(uniqueId)).ifPresent(player -> {
+            final ServerInfo serverInfo = this.plugin.getProxy().getServerInfo(serverName);
+            if (serverInfo == null) {
+                this.plugin.getLogger().log(
+                        Level.SEVERE,
+                        "Failed to send {0} to {1}, because the server is unknown on this proxy.",
+                        new Object[] {uniqueId, serverName}
+                );
+                return;
+            }
+
             if (!player.getServer().getInfo().getName().equals(serverInfo.getName())) player.connect(serverInfo);
         });
     }
