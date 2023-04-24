@@ -29,7 +29,7 @@ public class KickCommand extends PartyCommand {
 
     private final @NotNull RedisManager redisManager;
 
-    public KickCommand(final @NotNull RedisManager redisManager) {
+    KickCommand(final @NotNull RedisManager redisManager) {
         this.redisManager = redisManager;
     }
 
