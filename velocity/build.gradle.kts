@@ -24,7 +24,6 @@ tasks.shadowJar {
     relocate("redis.clients", "${project.group}.libs.redis")
     relocate("org.apache.commons.pool2", "${project.group}.libs.commons.pool2")
     relocate("org.json", "${project.group}.libs.json")
-    relocate("org.slf4j", "${project.group}.libs.slf4j")
     relocate("com.fasterxml.jackson", "${project.group}.libs.jackson")
 }
 

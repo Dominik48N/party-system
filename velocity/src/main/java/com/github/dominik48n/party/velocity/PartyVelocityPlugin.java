@@ -49,18 +49,16 @@ public class PartyVelocityPlugin {
 
     private final @NotNull ProxyServer server;
     private final @NotNull Logger logger;
+    private final @NotNull Path dataFolder;
 
     private @NotNull ProxyPluginConfig config = new ProxyPluginConfig();
     private @Nullable RedisManager redisManager = null;
 
     @Inject
-    @DataDirectory
-    private Path dataFolder;
-
-    @Inject
-    public PartyVelocityPlugin(final @NotNull ProxyServer server, final @NotNull Logger logger) {
+    public PartyVelocityPlugin(final @NotNull ProxyServer server, final @NotNull Logger logger, final @NotNull @DataDirectory Path dataFolder) {
         this.server = server;
         this.logger = logger;
+        this.dataFolder = dataFolder;
     }
 
     @Subscribe
