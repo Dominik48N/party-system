@@ -24,6 +24,7 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
 import com.velocitypowered.api.command.RawCommand;
 import com.velocitypowered.api.proxy.Player;
+import java.util.Collections;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
@@ -74,6 +75,7 @@ public class VelocityCommandManager implements RawCommand {
 
     @Override
     public List<String> suggest(final Invocation invocation) {
+        if (invocation.alias().equalsIgnoreCase("p")) return Collections.emptyList();
         return this.commandManager.tabComplete(invocation.arguments().split(" "));
     }
 }
