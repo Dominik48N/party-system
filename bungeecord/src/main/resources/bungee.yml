@@ -1,0 +1,5 @@
+name: PartySystem
+version: ${version}
+author: Dominik48N
+main: com.github.dominik48n.party.bungee.PartyBungeePlugin
+description: Allow players to play together in rounds with this plugin.

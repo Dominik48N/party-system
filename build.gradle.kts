@@ -22,6 +22,10 @@ subprojects {
         mavenCentral()
     }
 
+    dependencies {
+        implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
+    }
+
     tasks.named<Jar>("shadowJar") {
         archiveBaseName.set("${rootProject.name}-${project.name}")
         archiveClassifier.set("")
