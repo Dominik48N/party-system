@@ -22,7 +22,7 @@ The Party API is a Java library that provides an interface for managing parties 
 
 To use the API, you can create an instance of the `PartyAPI` class and use the `get()` method to obtain the current `PartyProvider` instance. The `PartyProvider` interface includes methods for managing parties, such as adding players, changing the party leader, and deleting a party.
 
-For more detailed information about the API and its methods, please refer to the Wiki.
+For more detailed information about the API and its methods, please refer to the [Wiki](https://github.com/Dominik48N/party-system/wiki/API).
 
 ## Contributing
 Contributions to the PartySystem plugin are welcome! If you would like to contribute, please follow the guidelines in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
