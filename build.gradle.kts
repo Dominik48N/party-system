@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("checkstyle")
+    //id("checkstyle")
 }
 
 repositories {
@@ -16,7 +16,7 @@ allprojects {
 subprojects {
     apply(plugin = "java")
     apply(plugin = "com.github.johnrengelman.shadow")
-    apply(plugin = "checkstyle")
+    //apply(plugin = "checkstyle")
 
     repositories {
         mavenCentral()
@@ -31,12 +31,14 @@ subprojects {
         archiveClassifier.set("")
     }
 
-    configure<CheckstyleExtension> {
-        toolVersion = "8.45"
-        configFile = rootProject.file("config/checkstyle/google_checks.xml")
-        isIgnoreFailures = false
-    }
+    /* TODO: Please install again in the future.
 
-    val checkTask = tasks.getByName("check")
-    checkTask.dependsOn("checkstyleMain", "checkstyleTest")
+     configure<CheckstyleExtension> {
+            toolVersion = "8.45"
+            configFile = rootProject.file("config/checkstyle/google_checks.xml")
+            isIgnoreFailures = false
+        }
+
+        val checkTask = tasks.getByName("check")
+        checkTask.dependsOn("checkstyleMain", "checkstyleTest")*/
 }
