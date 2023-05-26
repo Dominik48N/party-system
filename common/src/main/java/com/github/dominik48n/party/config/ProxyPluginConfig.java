@@ -33,6 +33,8 @@ public class ProxyPluginConfig {
     private final @NotNull RedisConfig redisConfig;
     private final @NotNull PartyConfig partyConfig;
 
+    private final boolean updateChecker;
+
     public ProxyPluginConfig() {
         this(new Document());
     }
@@ -41,6 +43,8 @@ public class ProxyPluginConfig {
         this.redisConfig = RedisConfig.fromDocument(document.getDocument("redis"));
         this.messageConfig = MessageConfig.fromDocument(document.getDocument("messages"));
         this.partyConfig = PartyConfig.fromDocument(document.getDocument("party"));
+
+        this.updateChecker = document.getBoolean("update_checker", true);
     }
 
     public @NotNull RedisConfig redisConfig() {
@@ -55,8 +59,13 @@ public class ProxyPluginConfig {
         return this.partyConfig;
     }
 
+    public boolean updateChecker() {
+        return this.updateChecker;
+    }
+
     public void writeToFile(final @NotNull File file) throws IOException {
         new Document()
+                .append("update_checker", this.updateChecker)
                 .append("redis", this.redisConfig.toDocument())
                 .append("party", this.partyConfig.toDocument())
                 .append("messages", this.messageConfig.toDocument())

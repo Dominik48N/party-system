@@ -86,7 +86,7 @@ public class PartyBungeePlugin extends Plugin {
         this.getProxy().getPluginManager().registerCommand(this, new PartyChatCommand(bungeeCommandManager.commandManager, userManager));
         this.getProxy().getPluginManager().registerCommand(this, bungeeCommandManager);
 
-        this.registerUpdateChecker();
+        if (this.config.updateChecker()) this.registerUpdateChecker();
     }
 
     private void registerUpdateChecker() {

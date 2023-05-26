@@ -82,12 +82,21 @@ public class Document {
         return this;
     }
 
+    @NotNull Document append(final @NotNull String key, final boolean value) {
+        this.objectNode.put(key, value);
+        return this;
+    }
+
     public @NotNull String getString(final @NotNull String key, final @NotNull String defaultValue) {
         return this.contains(key) ? this.objectNode.get(key).asText() : defaultValue;
     }
 
     int getInt(final @NotNull String key, final int defaultValue) {
         return this.contains(key) ? this.objectNode.get(key).asInt() : defaultValue;
+    }
+
+    boolean getBoolean(final @NotNull String key, final boolean defaultValue) {
+        return this.contains(key) ? this.objectNode.get(key).asBoolean() : defaultValue;
     }
 
     @NotNull Document getDocument(final @NotNull String key) {

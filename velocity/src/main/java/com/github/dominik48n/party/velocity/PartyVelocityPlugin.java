@@ -103,7 +103,7 @@ public class PartyVelocityPlugin {
                 new VelocityCommandManager(userManager, this)
         );
 
-        this.registerUpdateChecker();
+        if (this.config.updateChecker()) this.registerUpdateChecker();
     }
 
     private void registerUpdateChecker() {
