@@ -42,7 +42,8 @@ public class RedisManager extends JedisPubSub {
      * @param config The {@link RedisConfig} to use.
      */
     public RedisManager(final @NotNull RedisConfig config) {
-        final JedisPoolConfig poolConfig = new JedisPoolConfig();
+        final JedisPoolConfig poolConfig = new Jedi
+        public sPoolConfig();
         this.jedisPool = config.username().isEmpty() ?
                 new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.password()) :
                 new JedisPool(poolConfig, config.hostname(), config.port(), 3000, config.username(), config.password());
