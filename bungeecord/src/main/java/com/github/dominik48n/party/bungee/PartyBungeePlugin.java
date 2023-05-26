@@ -21,6 +21,7 @@ import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.bungee.command.PartyChatCommand;
 import com.github.dominik48n.party.bungee.listener.OnlinePlayersListener;
 import com.github.dominik48n.party.bungee.listener.SwitchServerListener;
+import com.github.dominik48n.party.bungee.listener.UpdateCheckerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.util.UpdateChecker;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +40,7 @@ public class PartyBungeePlugin extends Plugin {
     private @NotNull ProxyPluginConfig config = new ProxyPluginConfig();
 
     private @Nullable RedisManager redisManager = null;
+    private @Nullable BungeeAudiences audiences = null;
 
     @Override
     public void onEnable() {
@@ -68,6 +71,8 @@ public class PartyBungeePlugin extends Plugin {
             return;
         }
 
+        this.audiences = BungeeAudiences.create(this);
+
         final BungeeUserManager userManager = new BungeeUserManager(this);
         new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
 
@@ -81,6 +86,10 @@ public class PartyBungeePlugin extends Plugin {
         this.getProxy().getPluginManager().registerCommand(this, new PartyChatCommand(bungeeCommandManager.commandManager, userManager));
         this.getProxy().getPluginManager().registerCommand(this, bungeeCommandManager);
 
+        this.registerUpdateChecker();
+    }
+
+    private void registerUpdateChecker() {
         final String currentVersion = this.getDescription().getVersion();
         this.getProxy().getScheduler().schedule(this, () -> {
             try {
@@ -92,6 +101,8 @@ public class PartyBungeePlugin extends Plugin {
                 PartyBungeePlugin.this.getLogger().log(Level.SEVERE, "Failed to check latest PartySystem version.", e);
             }
         }, 1L, 24L * 60L * 60L, TimeUnit.SECONDS);
+
+        this.getProxy().getPluginManager().registerListener(this, new UpdateCheckerListener(this, this.config().messageConfig()));
     }
 
     @Override
@@ -114,5 +125,10 @@ public class PartyBungeePlugin extends Plugin {
     public @NotNull RedisManager redisManager() {
         if (this.redisManager == null) throw new IllegalStateException("RedisManager isn't initialized.");
         return this.redisManager;
+    }
+
+    public @NotNull BungeeAudiences audiences() {
+        if (this.audiences == null) throw new IllegalStateException("Audience isn't initialized.");
+        return this.audiences;
     }
 }
