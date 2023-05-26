@@ -29,6 +29,7 @@ public class UpdateChecker {
 
     public static final @NotNull String OWNER = "Dominik48N";
     public static final @NotNull String REPOSITORY = "party-system";
+    public static final @NotNull String PERMISSION = "party.updates";
 
     public static String latestVersion(final @NotNull String owner, final @NotNull String repository) throws IOException, InterruptedException {
         final HttpClient client = HttpClient.newHttpClient();

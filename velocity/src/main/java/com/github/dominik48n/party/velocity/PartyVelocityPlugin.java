@@ -23,6 +23,7 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.util.UpdateChecker;
 import com.github.dominik48n.party.velocity.listener.OnlinePlayersListener;
 import com.github.dominik48n.party.velocity.listener.SwitchServerListener;
+import com.github.dominik48n.party.velocity.listener.UpdateCheckerListener;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -102,6 +103,10 @@ public class PartyVelocityPlugin {
                 new VelocityCommandManager(userManager, this)
         );
 
+        this.registerUpdateChecker();
+    }
+
+    private void registerUpdateChecker() {
         final String currentVersion = "@version@";
         this.server.getScheduler().buildTask(this, () -> {
             try {
@@ -113,6 +118,11 @@ public class PartyVelocityPlugin {
                 PartyVelocityPlugin.this.logger.error("Failed to check latest PartySystem version.", e);
             }
         }).delay(1L, TimeUnit.SECONDS).repeat(24L, TimeUnit.HOURS).schedule();
+
+        this.server.getEventManager().register(
+                this,
+                new UpdateCheckerListener(this, currentVersion, this.config.messageConfig(), this.logger)
+        );
     }
 
     @Subscribe
