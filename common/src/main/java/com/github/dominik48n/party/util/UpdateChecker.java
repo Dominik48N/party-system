@@ -27,6 +27,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class UpdateChecker {
 
+    public static final @NotNull String OWNER = "Dominik48N";
+    public static final @NotNull String REPOSITORY = "party-system";
+
     public static String latestVersion(final @NotNull String owner, final @NotNull String repository) throws IOException, InterruptedException {
         final HttpClient client = HttpClient.newHttpClient();
         final HttpRequest request = HttpRequest.newBuilder()
