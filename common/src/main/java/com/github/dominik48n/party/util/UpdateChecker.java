@@ -31,6 +31,17 @@ public class UpdateChecker {
     public static final @NotNull String REPOSITORY = "party-system";
     public static final @NotNull String PERMISSION = "party.updates";
 
+    /**
+     * Retrieves the latest version of a GitHub repository's release.
+     *
+     * @param owner      The owner of the repository.
+     * @param repository The name of the repository.
+     *
+     * @return The latest version as a string.
+     *
+     * @throws IOException          if an I/O error occurs while making the HTTP request.
+     * @throws InterruptedException if the thread is interrupted while waiting for the response.
+     */
     public static String latestVersion(final @NotNull String owner, final @NotNull String repository) throws IOException, InterruptedException {
         final HttpClient client = HttpClient.newHttpClient();
         final HttpRequest request = HttpRequest.newBuilder()

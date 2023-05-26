@@ -106,6 +106,11 @@ public class PartyVelocityPlugin {
         if (this.config.updateChecker()) this.registerUpdateChecker();
     }
 
+    /**
+     * Registers the update checker for the PartyVelocityPlugin.
+     * The update checker checks for the latest version of the party system and logs a message if a new version is available.
+     * It also registers an UpdateCheckerListener to notify admins when they join about the availability of a new version.
+     */
     private void registerUpdateChecker() {
         final String currentVersion = "@version@";
         this.server.getScheduler().buildTask(this, () -> {
