@@ -23,8 +23,10 @@ import com.github.dominik48n.party.bungee.listener.OnlinePlayersListener;
 import com.github.dominik48n.party.bungee.listener.SwitchServerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.util.UpdateChecker;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -78,6 +80,18 @@ public class PartyBungeePlugin extends Plugin {
 
         this.getProxy().getPluginManager().registerCommand(this, new PartyChatCommand(bungeeCommandManager.commandManager, userManager));
         this.getProxy().getPluginManager().registerCommand(this, bungeeCommandManager);
+
+        final String currentVersion = this.getDescription().getVersion();
+        this.getProxy().getScheduler().schedule(this, () -> {
+            try {
+                final String latestVersion = UpdateChecker.latestVersion(UpdateChecker.OWNER, UpdateChecker.REPOSITORY);
+                if (latestVersion.equals(currentVersion)) return; // Up to date :)
+
+                PartyBungeePlugin.this.getLogger().log(Level.INFO, "There is a new version of the party system: {0}", new Object[] {latestVersion});
+            } catch (final IOException | InterruptedException e) {
+                PartyBungeePlugin.this.getLogger().log(Level.SEVERE, "Failed to check latest PartySystem version.", e);
+            }
+        }, 1L, 24L * 60L * 60L, TimeUnit.SECONDS);
     }
 
     @Override
