@@ -106,12 +106,17 @@ public class MessageConfig {
                                 .append("promote", "%prefix% <red>Usage: /party promote <player>")
                                 .append("kick", "%prefix% <red>Usage: /party kick <player>")
                                 .append("chat", "%prefix% <red>Usage: /p <message>"))
+                        .append("list", new Document()
+                                .append("without_member_limit", "%prefix% <gold>Party information<newline>" +
+                                        " <gray>Leader<dark_gray>: <gradient:#940000:#c30101>{0}<newline>" +
+                                        " <gray>Members<dark_gray>: <color:#d896ff>{1}")
+                                .append("member_limit", "%prefix% <gold>Party information<newline>" +
+                                        " <gray>Leader<dark_gray>: <gradient:#940000:#c30101>{0}<newline>" +
+                                        " <gray>Members ({2}/{3}) <dark_gray>: <color:#d896ff>{1}")
+                        )
                         .append("leave", "%prefix% <red>You left the party.")
                         .append("not_in_party", "%prefix% <red>You are not in a party.")
                         .append("not_in_your_party", "%prefix% <red>The player is not in your party.")
-                        .append("list", "%prefix% <gold>Party information<newline>" +
-                                " <gray>Leader<dark_gray>: <gradient:#940000:#c30101>{0}<newline>" +
-                                " <gray>Members<dark_gray>: <color:#d896ff>{1}")
                         .append("help", "%prefix% <gold>Party management<newline>" +
                                 " <yellow>/party invite <player> <gray>Invites a player to the party<newline>" +
                                 " <yellow>/party accept <player> <gray>Accepts a request<newline>" +

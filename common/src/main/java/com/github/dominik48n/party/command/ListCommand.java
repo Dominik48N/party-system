@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.config.PartyConfig;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,12 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
 public class ListCommand extends PartyCommand {
+
+    private final @NotNull PartyConfig config;
+
+    public ListCommand(final @NotNull PartyConfig config) {
+        this.config = config;
+    }
 
     @Override
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
@@ -45,7 +52,7 @@ public class ListCommand extends PartyCommand {
         Map<UUID, PartyPlayer> players;
         try {
             players = PartyAPI.get().onlinePlayerProvider().get(party.get().allMembers());
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             players = Maps.newHashMap();
         }
         if (players.isEmpty()) return; // Weird party with empty online players
@@ -57,9 +64,20 @@ public class ListCommand extends PartyCommand {
                 .map(entry -> entry.getValue().name())
                 .toList();
 
-        player.sendMessage(
-                "command.list",
-                leader != null ? leader.name() : '-', members.isEmpty() ? '-' : String.join("<dark_gray>, </dark_gray>", members)
-        );
+        if (this.config.useMemberLimit()) {
+            player.sendMessage(
+                    "command.list.member_limit",
+                    leader != null ? leader.name() : '-',
+                    members.isEmpty() ? '-' : String.join("<dark_gray>, </dark_gray>", members),
+                    players.size() - 1,
+                    finalParty.maxMembers()
+            );
+        } else {
+            player.sendMessage(
+                    "command.list.without_member_limit",
+                    leader != null ? leader.name() : '-',
+                    members.isEmpty() ? '-' : String.join("<dark_gray>, </dark_gray>", members)
+            );
+        }
     }
 }

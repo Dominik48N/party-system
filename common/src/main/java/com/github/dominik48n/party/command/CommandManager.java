@@ -32,7 +32,7 @@ public abstract class CommandManager {
             "invite", new InviteCommand(this.config().partyConfig()),
             "accept", new AcceptCommand(),
             "deny", new DenyCommand(),
-            "list", new ListCommand(),
+            "list", new ListCommand(this.config().partyConfig()),
             "leave", new LeaveCommand(),
             "promote", new PromoteCommand(),
             "kick", new KickCommand(this.redisManager())
