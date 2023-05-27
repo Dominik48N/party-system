@@ -18,7 +18,8 @@ package com.github.dominik48n.party.user;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import net.kyori.adventure.text.Component;
-import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -43,8 +44,8 @@ public class UserManagerTest {
         Mockito.when(this.userManager.getPlayer(userMock)).thenReturn(Optional.of(expectedPlayer));
 
         final Optional<PartyPlayer> actualPlayer = this.userManager.getPlayer(userMock);
-        Assertions.assertTrue(actualPlayer.isPresent());
-        Assertions.assertEquals(expectedPlayer, actualPlayer.get());
+        assertTrue(actualPlayer.isPresent());
+        assertEquals(expectedPlayer, actualPlayer.get());
     }
 
     @Test
@@ -55,8 +56,8 @@ public class UserManagerTest {
         Mockito.when(this.userManager.userFromCache(playerId)).thenReturn(Optional.of(expectedPlayer));
 
         final Optional<PartyPlayer> actualPlayer = this.userManager.userFromCache(playerId);
-        Assertions.assertTrue(actualPlayer.isPresent());
-        Assertions.assertEquals(expectedPlayer, actualPlayer.get());
+        assertTrue(actualPlayer.isPresent());
+        assertEquals(expectedPlayer, actualPlayer.get());
     }
 
     @Test

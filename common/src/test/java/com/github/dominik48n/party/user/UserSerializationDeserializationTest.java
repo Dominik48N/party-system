@@ -19,7 +19,7 @@ package com.github.dominik48n.party.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.github.dominik48n.party.api.player.PartyPlayer;
-import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.UUID;
@@ -44,10 +44,10 @@ public class UserSerializationDeserializationTest {
         final String json = objectMapper.writeValueAsString(player);
         final PartyPlayer deserializedPlayer = objectMapper.readValue(json, PartyPlayer.class);
 
-        Assertions.assertEquals(player.uniqueId(), deserializedPlayer.uniqueId());
-        Assertions.assertEquals(player.name(), deserializedPlayer.name());
-        Assertions.assertEquals(player.memberLimit(), deserializedPlayer.memberLimit());
-        Assertions.assertEquals(player.partyId(), deserializedPlayer.partyId());
+        assertEquals(player.uniqueId(), deserializedPlayer.uniqueId());
+        assertEquals(player.name(), deserializedPlayer.name());
+        assertEquals(player.memberLimit(), deserializedPlayer.memberLimit());
+        assertEquals(player.partyId(), deserializedPlayer.partyId());
     }
 }
 
