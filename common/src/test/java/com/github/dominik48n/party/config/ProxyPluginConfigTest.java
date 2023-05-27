@@ -44,6 +44,7 @@ public class ProxyPluginConfigTest {
         assertNotNull(readConfig.redisConfig());
         assertNotNull(readConfig.messageConfig());
         assertNotNull(readConfig.partyConfig());
+        assertTrue(readConfig.updateChecker());
     }
 
     @Test
