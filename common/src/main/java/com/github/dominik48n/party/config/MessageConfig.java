@@ -123,6 +123,7 @@ public class MessageConfig {
                         .append("leave", "%prefix% <red>You left the party.")
                         .append("not_in_party", "%prefix% <red>You are not in a party.")
                         .append("not_in_your_party", "%prefix% <red>The player is not in your party.")
+                        .append("user_not_loaded", "%prefix% <red>Your data has not yet been fully loaded, please wait a moment.")
                         .append("help", "%prefix% <gold>Party management<newline>" +
                                 " <yellow>/party invite <player> <gray>Invites a player to the party<newline>" +
                                 " <yellow>/party accept <player> <gray>Accepts a request<newline>" +

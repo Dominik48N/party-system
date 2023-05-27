@@ -83,7 +83,10 @@ public class PartyBungeePlugin extends Plugin {
         this.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(userManager, this));
         this.getProxy().getPluginManager().registerListener(this, new SwitchServerListener(userManager, this.getLogger()));
 
-        this.getProxy().getPluginManager().registerCommand(this, new PartyChatCommand(bungeeCommandManager.commandManager, userManager));
+        this.getProxy().getPluginManager().registerCommand(
+                this,
+                new PartyChatCommand(bungeeCommandManager.commandManager, userManager, this.config().messageConfig())
+        );
         this.getProxy().getPluginManager().registerCommand(this, bungeeCommandManager);
 
         if (this.config.updateChecker()) this.registerUpdateChecker();

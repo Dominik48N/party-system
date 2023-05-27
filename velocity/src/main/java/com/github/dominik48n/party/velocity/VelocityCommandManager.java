@@ -19,6 +19,7 @@ package com.github.dominik48n.party.velocity;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.command.ChatCommand;
 import com.github.dominik48n.party.command.CommandManager;
+import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
@@ -34,6 +35,7 @@ public class VelocityCommandManager implements RawCommand {
     private final @NotNull UserManager<Player> userManager;
     private final @NotNull CommandManager commandManager;
     private final @NotNull ChatCommand chatCommand;
+    private final @NotNull MessageConfig messageConfig;
 
     public VelocityCommandManager(final @NotNull UserManager<Player> userManager, final @NotNull PartyVelocityPlugin plugin) {
         this.commandManager = new CommandManager() {
@@ -54,6 +56,7 @@ public class VelocityCommandManager implements RawCommand {
         };
         this.chatCommand = new ChatCommand(this.commandManager);
         this.userManager = userManager;
+        this.messageConfig = plugin.config().messageConfig();
     }
 
     @Override
@@ -63,15 +66,14 @@ public class VelocityCommandManager implements RawCommand {
             return;
         }
 
-        this.userManager.getPlayer(player).ifPresent(partyPlayer -> {
+        this.userManager.getPlayer(player).ifPresentOrElse(partyPlayer -> {
             if (invocation.alias().equalsIgnoreCase("p")) {
                 this.chatCommand.execute(partyPlayer, invocation.arguments().split(" "));
                 return;
             }
 
             this.commandManager.execute(partyPlayer, invocation.arguments().split(" "));
-        });
-        // TODO: Send message to player if the party player isn't exist in cache
+        }, () -> player.sendMessage(this.messageConfig.getMessage("command.user_not_loaded")));
     }
 
     @Override
