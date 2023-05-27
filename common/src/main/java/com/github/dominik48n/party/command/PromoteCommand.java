@@ -68,7 +68,7 @@ public class PromoteCommand extends PartyCommand {
         name = target.get().name();
 
         try {
-            PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get().uniqueId());
+            PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get().uniqueId(), target.get().memberLimit());
         } catch (final JsonProcessingException e) {
             player.sendMessage("general.error");
             return;

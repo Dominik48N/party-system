@@ -140,18 +140,26 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
                         // Player is in a party with multiple members
                         if (party.isLeader(player.uniqueId())) {
                             // Player is the leader of the party, transfer leadership to another member
-                            final Optional<UUID> newLeader = party.members().stream().findAny();
+                            final Optional<PartyPlayer> newLeader = party.members().stream().findAny().map(uuid -> {
+                                try {
+                                    return PartyAPI.get().onlinePlayerProvider().get(uuid).orElse(null);
+                                } catch (final JsonProcessingException e) {
+                                    return null;
+                                }
+                            });
 
                             if (newLeader.isPresent()) {
                                 try {
                                     // Change party leader
-                                    PartyAPI.get().changePartyLeader(party.id(), player.uniqueId(), newLeader.get());
-                                    PartyAPI.get().sendMessageToMembers(party, "party.left", player.name());
-
-                                    // Send message about new leader to party members
-                                    this.get(newLeader.get()).ifPresent(targetPlayer ->
-                                            PartyAPI.get().sendMessageToMembers(party, "party.new_leader", targetPlayer.name())
+                                    PartyAPI.get().changePartyLeader(
+                                            party.id(),
+                                            player.uniqueId(),
+                                            newLeader.get().uniqueId(),
+                                            newLeader.get().memberLimit()
                                     );
+
+                                    PartyAPI.get().sendMessageToMembers(party, "party.left", player.name());
+                                    PartyAPI.get().sendMessageToMembers(party, "party.new_leader", newLeader.get().name());
                                 } catch (final JsonProcessingException ignored) {
                                 }
                             } else {

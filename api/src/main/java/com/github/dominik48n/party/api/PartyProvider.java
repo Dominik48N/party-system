@@ -61,21 +61,6 @@ public interface PartyProvider {
     void removePlayerFromParty(final @NotNull UUID partyId, final @NotNull UUID player, final @NotNull String username) throws JsonProcessingException;
 
     /**
-     * Changes the leader of a party and set the new max members limit to 5.
-     *
-     * @param partyId   the {@link UUID} of the party
-     * @param oldLeader the {@link UUID} of the current party leader
-     * @param newLeader the {@link UUID} of the new party leader
-     */
-    default void changePartyLeader(
-            final @NotNull UUID partyId,
-            final @NotNull UUID oldLeader,
-            final @NotNull UUID newLeader
-    ) throws JsonProcessingException {
-        this.changePartyLeader(partyId, oldLeader, newLeader, 5);
-    }
-
-    /**
      * Changes the leader of a party.
      *
      * @param partyId    the {@link UUID} of the party

@@ -43,23 +43,23 @@ public class LeaveCommand extends PartyCommand {
             this.deleteParty(party.get(), player);
         } else {
             if (party.get().isLeader(player.uniqueId())) {
-                final Optional<UUID> target = party.get().members().stream().findAny();
+                final Optional<PartyPlayer> target = party.get().members().stream().findAny().map(uuid -> {
+                    try {
+                        return PartyAPI.get().onlinePlayerProvider().get(uuid).orElse(null);
+                    } catch (final JsonProcessingException e) {
+                        return null;
+                    }
+                });
                 if (target.isPresent()) {
                     try {
-                        PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get());
+                        PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get().uniqueId(), target.get().memberLimit());
                     } catch (final JsonProcessingException e) {
                         player.sendMessage("general.error");
                         return;
                     }
-                    PartyAPI.get().sendMessageToMembers(party.get(), "party.left", player.name());
 
-                    try {
-                        final Party finalParty = party.get();
-                        PartyAPI.get().onlinePlayerProvider().get(target.get()).ifPresent(
-                                targetPlayer -> PartyAPI.get().sendMessageToMembers(finalParty, "party.new_leader", targetPlayer.name())
-                        );
-                    } catch (final JsonProcessingException ignored) {
-                    }
+                    PartyAPI.get().sendMessageToMembers(party.get(), "party.left", player.name());
+                    PartyAPI.get().sendMessageToMembers(party.get(), "party.new_leader", target.get().name());
                 } else this.deleteParty(party.get(), player);
             } else {
                 party.get().members().remove(player.uniqueId());
