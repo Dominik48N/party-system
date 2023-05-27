@@ -44,8 +44,9 @@ public class OnlinePlayersListener {
         // longer depending on what other plugins are on the server. Therefore,
         // this is done asynchronously so as not to burden the login process.
         this.plugin.server().getScheduler().buildTask(this.plugin, () -> {
+            final User<Player> user = new User<>(event.getPlayer(), OnlinePlayersListener.this.userManager);
             try {
-                PartyAPI.get().onlinePlayerProvider().login(new User<>(event.getPlayer(), this.userManager));
+                PartyAPI.get().onlinePlayerProvider().login(user);
             } catch (final JsonProcessingException e) {
                 OnlinePlayersListener.this.plugin.logger().error("Failed to login player " + event.getPlayer().getUniqueId() + ".", e);
             }

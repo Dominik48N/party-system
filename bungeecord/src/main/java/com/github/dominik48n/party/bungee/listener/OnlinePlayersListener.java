@@ -46,8 +46,9 @@ public class OnlinePlayersListener implements Listener {
         // longer depending on what other plugins are on the server. Therefore,
         // this is done asynchronously so as not to burden the login process.
         this.plugin.getProxy().getScheduler().runAsync(this.plugin, () -> {
+            final User<ProxiedPlayer> user = new User<>(event.getPlayer(), OnlinePlayersListener.this.userManager);
             try {
-                PartyAPI.get().onlinePlayerProvider().login(new User<>(event.getPlayer(), this.userManager));
+                PartyAPI.get().onlinePlayerProvider().login(user);
             } catch (final JsonProcessingException e) {
                 OnlinePlayersListener.this.plugin.getLogger().log(
                         Level.SEVERE,
