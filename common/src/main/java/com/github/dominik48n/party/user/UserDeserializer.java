@@ -23,7 +23,7 @@ public class UserDeserializer extends JsonDeserializer<PartyPlayer> {
         return new DeserializedUser(uniqueId, name, partyId, memberLimit);
     }
 
-    private static class DeserializedUser implements PartyPlayer {
+    static class DeserializedUser implements PartyPlayer {
 
         private final @NotNull UUID uniqueId;
         private final @NotNull String name;
