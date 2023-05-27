@@ -81,10 +81,12 @@ public class MessageConfig {
                                 .append("sent", "%prefix% <green>You sent a party request to <gradient:#d896ff:#be29ec>{0}</gradient>.")
                                 .append("received", "%prefix% <green>You received a party request from <gradient:#d896ff:#be29ec>{0}</gradient>. " +
                                         "<dark_gray>[<green><click:run_command:/party accept {0}>Accept</click></green>] | " +
-                                        "[<red><click:run_command:/party deny {0}>Decline</click></red>]"))
+                                        "[<red><click:run_command:/party deny {0}>Decline</click></red>]")
+                                .append("limit", "%prefix% <red>You would exceed the member limit of {0} with the invitation, which is why you cannot invite anyone."))
                         .append("accept", new Document()
                                 .append("already", "%prefix% <red>You are already in a party.")
                                 .append("no_request", "%prefix% <red>You either didn't receive a party request or it has expired.")
+                                .append("limit", "%prefix% <red>The party has reached its member limit, so you can't join.")
                                 .append("joined", "%prefix% <green>You joined the party."))
                         .append("deny", new Document()
                                 .append("no_request", "%prefix% <red>You either didn't receive a party request or it has expired.")

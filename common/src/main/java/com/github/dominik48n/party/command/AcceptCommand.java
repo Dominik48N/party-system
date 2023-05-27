@@ -20,10 +20,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.config.PartyConfig;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 public class AcceptCommand extends PartyCommand {
+
+    private final @NotNull PartyConfig config;
+
+    public AcceptCommand(final @NotNull PartyConfig config) {
+        this.config = config;
+    }
 
     @Override
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
@@ -64,6 +71,11 @@ public class AcceptCommand extends PartyCommand {
         }
         if (party.isEmpty()) {
             player.sendMessage("command.accept.no_request");
+            return;
+        }
+
+        if (this.config.useMemberLimit() && party.get().members().size() >= party.get().maxMembers()) {
+            player.sendMessage("command.accept.limit");
             return;
         }
 

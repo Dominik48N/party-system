@@ -91,8 +91,15 @@ public class InviteCommand extends PartyCommand {
 
             player.partyId(createdParty.id());
             player.sendMessage("command.invite.created_party");
+
+            party = Optional.of(createdParty);
         } else if (!party.get().isLeader(player.uniqueId())) {
             player.sendMessage("command.invite.not_leader");
+            return;
+        }
+
+        if (this.config.useMemberLimit() && party.get().members().size() >= party.get().maxMembers()) {
+            player.sendMessage("command.invite.limit", party.get().maxMembers());
             return;
         }
 
