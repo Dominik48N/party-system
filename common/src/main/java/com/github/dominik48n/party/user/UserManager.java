@@ -38,7 +38,7 @@ public abstract class UserManager<TUser> {
         this.redisManager = redisManager;
     }
 
-    public void cachePlayer(final @NotNull TUser user, final @NotNull PartyPlayer player) {
+    void cachePlayer(final @NotNull TUser user, final @NotNull PartyPlayer player) {
         this.cachedPlayers.put(user, player);
     }
 
