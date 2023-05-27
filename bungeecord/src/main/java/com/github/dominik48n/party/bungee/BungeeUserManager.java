@@ -23,23 +23,19 @@ import com.github.dominik48n.party.user.UserManager;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
-import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 public class BungeeUserManager extends UserManager<ProxiedPlayer> {
 
     private final @NotNull ProxyPluginConfig config;
-    private final @NotNull BungeeAudiences audiences;
-    private final @NotNull Plugin plugin;
+    private final @NotNull PartyBungeePlugin plugin;
 
     BungeeUserManager(final @NotNull PartyBungeePlugin plugin) {
         super(plugin.redisManager());
         this.config = plugin.config();
-        this.audiences = BungeeAudiences.create(plugin);
         this.plugin = plugin;
     }
 
@@ -67,7 +63,7 @@ public class BungeeUserManager extends UserManager<ProxiedPlayer> {
 
     @Override
     protected void sendMessage(final @NotNull ProxiedPlayer player, final @NotNull Component component) {
-        this.audiences.player(player).sendMessage(component);
+        this.plugin.audiences().player(player).sendMessage(component);
     }
 
     @Override

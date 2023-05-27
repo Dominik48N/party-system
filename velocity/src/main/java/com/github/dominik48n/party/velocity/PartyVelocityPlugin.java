@@ -20,8 +20,10 @@ import com.github.dominik48n.party.api.DefaultPartyProvider;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.util.UpdateChecker;
 import com.github.dominik48n.party.velocity.listener.OnlinePlayersListener;
 import com.github.dominik48n.party.velocity.listener.SwitchServerListener;
+import com.github.dominik48n.party.velocity.listener.UpdateCheckerListener;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -33,6 +35,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -98,6 +101,32 @@ public class PartyVelocityPlugin {
         this.server.getCommandManager().register(
                 this.server.getCommandManager().metaBuilder("party").aliases("p").plugin(this).build(),
                 new VelocityCommandManager(userManager, this)
+        );
+
+        if (this.config.updateChecker()) this.registerUpdateChecker();
+    }
+
+    /**
+     * Registers the update checker for the PartyVelocityPlugin.
+     * The update checker checks for the latest version of the party system and logs a message if a new version is available.
+     * It also registers an UpdateCheckerListener to notify admins when they join about the availability of a new version.
+     */
+    private void registerUpdateChecker() {
+        final String currentVersion = "@version@";
+        this.server.getScheduler().buildTask(this, () -> {
+            try {
+                final String latestVersion = UpdateChecker.latestVersion(UpdateChecker.OWNER, UpdateChecker.REPOSITORY);
+                if (latestVersion.equals(currentVersion)) return; // Up to date :)
+
+                PartyVelocityPlugin.this.logger.info("There is a new version of the party system: {}", latestVersion);
+            } catch (final IOException | InterruptedException e) {
+                PartyVelocityPlugin.this.logger.error("Failed to check latest PartySystem version.", e);
+            }
+        }).delay(1L, TimeUnit.SECONDS).repeat(24L, TimeUnit.HOURS).schedule();
+
+        this.server.getEventManager().register(
+                this,
+                new UpdateCheckerListener(this, currentVersion, this.config.messageConfig(), this.logger)
         );
     }
 
