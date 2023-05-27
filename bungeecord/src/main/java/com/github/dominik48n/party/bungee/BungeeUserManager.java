@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.bungee;
 
+import com.github.dominik48n.party.Constants;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.user.UserManager;
@@ -67,6 +68,11 @@ public class BungeeUserManager extends UserManager<ProxiedPlayer> {
     @Override
     protected void sendMessage(final @NotNull ProxiedPlayer player, final @NotNull Component component) {
         this.audiences.player(player).sendMessage(component);
+    }
+
+    @Override
+    protected int memberLimit(final @NotNull ProxiedPlayer proxiedPlayer) {
+        return 0;
     }
 
     @Override

@@ -35,6 +35,7 @@ public class UserSerializer extends StdSerializer<PartyPlayer> {
         gen.writeStringField("uuid", value.uniqueId().toString());
         gen.writeStringField("name", value.name());
         gen.writeStringField("party_id", value.partyId().map(UUID::toString).orElse(null));
+        gen.writeNumberField("member_limit", value.memberLimit());
         gen.writeEndObject();
     }
 }

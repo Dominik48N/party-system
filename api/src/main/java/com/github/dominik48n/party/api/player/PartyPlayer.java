@@ -41,6 +41,13 @@ public interface PartyPlayer {
     @NotNull String name();
 
     /**
+     * Get the member limit what the party would have if the player were the party leader.
+     *
+     * @return the member limit
+     */
+    int memberLimit();
+
+    /**
      * Returns the unique ID of the party that the player is currently in, if any.
      *
      * @return An {@code Optional} containing the player's party ID, or empty if the player is not in a party.

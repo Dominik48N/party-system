@@ -72,6 +72,8 @@ public abstract class UserManager<TUser> {
 
     protected abstract void sendMessage(final @NotNull TUser user, final @NotNull Component component);
 
+    protected abstract int memberLimit(final @NotNull TUser user);
+
     protected abstract @NotNull String playerName(final @NotNull TUser user);
 
     protected abstract @NotNull UUID playerUUID(final @NotNull TUser user);

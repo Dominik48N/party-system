@@ -56,6 +56,11 @@ public class User<TUser> implements PartyPlayer {
     }
 
     @Override
+    public int memberLimit() {
+        return this.userManager.memberLimit(this.user);
+    }
+
+    @Override
     public @NotNull Optional<UUID> partyId() {
         return Optional.ofNullable(this.partyId);
     }

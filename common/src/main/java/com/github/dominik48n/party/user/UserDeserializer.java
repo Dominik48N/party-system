@@ -19,19 +19,22 @@ public class UserDeserializer extends JsonDeserializer<PartyPlayer> {
         final UUID uniqueId = UUID.fromString(node.get("uuid").asText());
         final String name = node.get("name").asText();
         final UUID partyId = node.hasNonNull("party_id") ? UUID.fromString(node.get("party_id").asText()) : null;
-        return new DeserializedUser(uniqueId, name, partyId);
+        final int memberLimit = node.get("member_limit").asInt();
+        return new DeserializedUser(uniqueId, name, partyId, memberLimit);
     }
 
     private static class DeserializedUser implements PartyPlayer {
 
         private final @NotNull UUID uniqueId;
         private final @NotNull String name;
+        private final int memberLimit;
         private @Nullable UUID partyId;
 
-        public DeserializedUser(final @NotNull UUID uniqueId, final @NotNull String name, final @Nullable UUID partyId) {
+        public DeserializedUser(final @NotNull UUID uniqueId, final @NotNull String name, final @Nullable UUID partyId, final int memberLimit) {
             this.uniqueId = uniqueId;
             this.name = name;
             this.partyId = partyId;
+            this.memberLimit = memberLimit;
         }
 
         @Override
@@ -42,6 +45,11 @@ public class UserDeserializer extends JsonDeserializer<PartyPlayer> {
         @Override
         public @NotNull String name() {
             return this.name;
+        }
+
+        @Override
+        public int memberLimit() {
+            return this.memberLimit;
         }
 
         @Override
