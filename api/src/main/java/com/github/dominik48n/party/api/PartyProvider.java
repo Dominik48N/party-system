@@ -102,17 +102,6 @@ public interface PartyProvider {
     @NotNull Optional<Party> getParty(final @NotNull UUID id) throws JsonProcessingException;
 
     /**
-     * Creates a new party with the given leader with the members limit of 5.
-     *
-     * @param leader the {@link UUID} of the party leader
-     *
-     * @return the new {@link Party}
-     */
-    default @NotNull Party createParty(final @NotNull UUID leader) throws JsonProcessingException {
-        return this.createParty(leader, 5);
-    }
-
-    /**
      * Creates a new party with the given leader.
      *
      * @param leader     the {@link UUID} of the party leader

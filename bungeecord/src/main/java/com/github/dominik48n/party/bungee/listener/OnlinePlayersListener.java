@@ -20,24 +20,42 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.user.User;
 import com.github.dominik48n.party.user.UserManager;
+import java.util.logging.Level;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class OnlinePlayersListener implements Listener {
 
     private final @NotNull UserManager<ProxiedPlayer> userManager;
+    private final @NotNull Plugin plugin;
 
-    public OnlinePlayersListener(final @NotNull UserManager<ProxiedPlayer> userManager) {
+    public OnlinePlayersListener(final @NotNull UserManager<ProxiedPlayer> userManager, final @NotNull Plugin plugin) {
         this.userManager = userManager;
+        this.plugin = plugin;
     }
 
     @EventHandler
-    public void handlePostLogin(final PostLoginEvent event) throws JsonProcessingException {
-        PartyAPI.get().onlinePlayerProvider().login(new User<>(event.getPlayer(), this.userManager));
+    public void handlePostLogin(final PostLoginEvent event) {
+        // The login is executed asynchronously to the login thread, since
+        // some queries are made during the login, which could take a little
+        // longer depending on what other plugins are on the server. Therefore,
+        // this is done asynchronously so as not to burden the login process.
+        this.plugin.getProxy().getScheduler().runAsync(this.plugin, () -> {
+            try {
+                PartyAPI.get().onlinePlayerProvider().login(new User<>(event.getPlayer(), this.userManager));
+            } catch (final JsonProcessingException e) {
+                OnlinePlayersListener.this.plugin.getLogger().log(
+                        Level.SEVERE,
+                        "Failed to login player " + event.getPlayer().getUniqueId() + ".",
+                        e
+                );
+            }
+        });
     }
 
     @EventHandler

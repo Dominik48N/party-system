@@ -30,7 +30,7 @@ public abstract class CommandManager {
 
     private final @NotNull Map<String, PartyCommand> commands = ImmutableBiMap.of(
             "invite", new InviteCommand(this.config().partyConfig()),
-            "accept", new AcceptCommand(),
+            "accept", new AcceptCommand(this.config().partyConfig()),
             "deny", new DenyCommand(),
             "list", new ListCommand(this.config().partyConfig()),
             "leave", new LeaveCommand(),

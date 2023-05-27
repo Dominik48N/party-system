@@ -78,7 +78,7 @@ public class InviteCommand extends PartyCommand {
         if (party.isEmpty()) {
             final Party createdParty;
             try {
-                createdParty = PartyAPI.get().createParty(player.uniqueId());
+                createdParty = PartyAPI.get().createParty(player.uniqueId(), player.memberLimit());
                 if (!PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), createdParty.id())) {
                     player.sendMessage("general.error");
                     PartyAPI.get().deleteParty(createdParty.id());

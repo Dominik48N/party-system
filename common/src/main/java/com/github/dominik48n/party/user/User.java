@@ -30,6 +30,7 @@ public class User<TUser> implements PartyPlayer {
     private final @NotNull TUser user;
     private final @NotNull UUID uniqueId;
     private final @NotNull String name;
+    private final int memberLimit;
 
     private @Nullable UUID partyId;
 
@@ -38,11 +39,14 @@ public class User<TUser> implements PartyPlayer {
         this.userManager = userManager;
         this.uniqueId = userManager.playerUUID(user);
         this.name = userManager.playerName(user);
+        this.memberLimit = userManager.memberLimit(this.user);
         try {
             this.partyId = PartyAPI.get().getPartyFromPlayer(this.uniqueId).orElse(null);
         } catch (final JsonProcessingException e) {
             this.partyId = null;
         }
+
+        userManager.cachePlayer(user, this);
     }
 
     @Override
@@ -57,7 +61,7 @@ public class User<TUser> implements PartyPlayer {
 
     @Override
     public int memberLimit() {
-        return this.userManager.memberLimit(this.user);
+        return this.memberLimit;
     }
 
     @Override

@@ -63,14 +63,15 @@ public class VelocityCommandManager implements RawCommand {
             return;
         }
 
-        final PartyPlayer partyPlayer = this.userManager.getOrCreatePlayer(player);
+        this.userManager.getPlayer(player).ifPresent(partyPlayer -> {
+            if (invocation.alias().equalsIgnoreCase("p")) {
+                this.chatCommand.execute(partyPlayer, invocation.arguments().split(" "));
+                return;
+            }
 
-        if (invocation.alias().equalsIgnoreCase("p")) {
-            this.chatCommand.execute(partyPlayer, invocation.arguments().split(" "));
-            return;
-        }
-
-        this.commandManager.execute(partyPlayer, invocation.arguments().split(" "));
+            this.commandManager.execute(partyPlayer, invocation.arguments().split(" "));
+        });
+        // TODO: Send message to player if the party player isn't exist in cache
     }
 
     @Override

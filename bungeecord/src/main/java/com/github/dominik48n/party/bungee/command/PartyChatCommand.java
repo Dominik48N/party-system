@@ -43,6 +43,7 @@ public class PartyChatCommand extends Command {
             return;
         }
 
-        this.chatCommand.execute(this.userManager.getOrCreatePlayer(player), args);
+        this.userManager.getPlayer(player).ifPresent(partyPlayer -> this.chatCommand.execute(partyPlayer, args));
+        // TODO: Send message to player if the party player isn't exist in cache
     }
 }

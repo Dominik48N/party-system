@@ -60,7 +60,8 @@ public class BungeeCommandManager extends Command implements TabExecutor {
             return;
         }
 
-        this.commandManager.execute(this.userManager.getOrCreatePlayer(player), args);
+        this.userManager.getPlayer(player).ifPresent(partyPlayer -> this.commandManager.execute(partyPlayer, args));
+        // TODO: Send message to player if the party player isn't exist in cache
     }
 
     @Override

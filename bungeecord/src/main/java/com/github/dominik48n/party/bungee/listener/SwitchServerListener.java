@@ -19,9 +19,10 @@ package com.github.dominik48n.party.bungee.listener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
-import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.user.UserManager;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -32,18 +33,26 @@ import org.jetbrains.annotations.NotNull;
 public class SwitchServerListener implements Listener {
 
     private final @NotNull UserManager<ProxiedPlayer> userManager;
+    private final @NotNull Logger logger;
 
-    public SwitchServerListener(final @NotNull UserManager<ProxiedPlayer> userManager) {
+    public SwitchServerListener(final @NotNull UserManager<ProxiedPlayer> userManager, final @NotNull Logger logger) {
         this.userManager = userManager;
+        this.logger = logger;
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void handleServerConnected(final ServerConnectedEvent event) throws JsonProcessingException {
-        final PartyPlayer player = this.userManager.getOrCreatePlayer(event.getPlayer());
+    public void handleServerConnected(final ServerConnectedEvent event) {
+        this.userManager.getPlayer(event.getPlayer()).ifPresent(player -> {
+            final Optional<Party> party;
+            try {
+                party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+            } catch (final JsonProcessingException e) {
+                SwitchServerListener.this.logger.log(Level.SEVERE, "Failed to get party.", e);
+                return;
+            }
+            if (party.isEmpty() || !party.get().isLeader(player.uniqueId())) return;
 
-        final Optional<Party> party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
-        if (party.isEmpty() || !party.get().isLeader(player.uniqueId())) return;
-
-        PartyAPI.get().connectPartyToServer(party.get(), event.getServer().getInfo().getName());
+            PartyAPI.get().connectPartyToServer(party.get(), event.getServer().getInfo().getName());
+        });
     }
 }

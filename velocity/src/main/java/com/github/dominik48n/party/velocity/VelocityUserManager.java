@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.velocity;
 
+import com.github.dominik48n.party.Constants;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
@@ -68,7 +69,13 @@ public class VelocityUserManager extends UserManager<Player> {
     @Override
     protected int memberLimit(final @NotNull Player player) {
         if (!this.config.partyConfig().useMemberLimit()) return -1;
-        return 0; // TODO
+
+        int result = -1;
+        for (int i = Constants.MAXIMUM_MEMBER_LIMIT; i > 0; i--) {
+            if (!player.hasPermission(Constants.MEMBER_LIMIT_PERMISSION_PREFIX + i) || result > i) continue;
+            result = i;
+        }
+        return result == -1 ? this.config.partyConfig().defaultMemberLimit() : result;
     }
 
     @Override
