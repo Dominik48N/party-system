@@ -24,10 +24,15 @@ public class PartyConfigTest {
 
     @Test
     public void testFromDocument() {
-        final Document document = new Document().append("request_expires", 60);
+        final Document document = new Document()
+                .append("request_expires", 60)
+                .append("use_member_limit", false)
+                .append("default_member_limit", 22);
         final PartyConfig partyConfig = PartyConfig.fromDocument(document);
 
         assertEquals(60, partyConfig.requestExpires());
+        assertFalse(partyConfig.useMemberLimit());
+        assertEquals(22, partyConfig.defaultMemberLimit());
     }
 
     @Test
@@ -36,7 +41,7 @@ public class PartyConfigTest {
         final Document document = partyConfig.toDocument();
 
         assertEquals(30, document.getInt("request_expires", -1));
+        assertFalse(document.getBoolean("use_member_limit", true));
         assertEquals(10, document.getInt("default_member_limit", 22));
-        assertFalse(partyConfig.useMemberLimit());
     }
 }
