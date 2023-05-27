@@ -16,7 +16,6 @@
 
 package com.github.dominik48n.party.velocity;
 
-import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.command.ChatCommand;
 import com.github.dominik48n.party.command.CommandManager;
 import com.github.dominik48n.party.config.MessageConfig;

@@ -21,7 +21,6 @@ import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import java.util.Optional;
-import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
 public class LeaveCommand extends PartyCommand {
