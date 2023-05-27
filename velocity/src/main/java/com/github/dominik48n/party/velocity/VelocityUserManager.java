@@ -16,7 +16,7 @@
 
 package com.github.dominik48n.party.velocity;
 
-import com.github.dominik48n.party.Constants;
+import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
