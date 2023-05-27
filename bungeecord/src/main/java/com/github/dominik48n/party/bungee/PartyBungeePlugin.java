@@ -105,7 +105,7 @@ public class PartyBungeePlugin extends Plugin {
             } catch (final IOException | InterruptedException e) {
                 PartyBungeePlugin.this.getLogger().log(Level.SEVERE, "Failed to check latest PartySystem version.", e);
             }
-        }, 1L, 24L * 60L * 60L, TimeUnit.SECONDS);
+        }, 1L, 24L * 60L * 60L, TimeUnit.SECONDS); // Call 1 second after start and daily thereafter.
 
         this.getProxy().getPluginManager().registerListener(this, new UpdateCheckerListener(this, this.config().messageConfig()));
     }
