@@ -42,7 +42,7 @@ public class UpdateChecker {
      * @throws IOException          if an I/O error occurs while making the HTTP request.
      * @throws InterruptedException if the thread is interrupted while waiting for the response.
      */
-    public static String latestVersion(final @NotNull String owner, final @NotNull String repository) throws IOException, InterruptedException {
+    public static @NotNull String latestVersion(final @NotNull String owner, final @NotNull String repository) throws IOException, InterruptedException {
         final HttpClient client = HttpClient.newHttpClient();
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.github.com/repos/" + owner + "/" + repository + "/releases/latest"))
