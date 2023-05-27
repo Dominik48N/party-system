@@ -18,13 +18,20 @@ package com.github.dominik48n.party.config;
 
 import org.jetbrains.annotations.NotNull;
 
-public record PartyConfig(int requestExpires) {
+public record PartyConfig(int requestExpires, boolean useMemberLimit, int defaultMemberLimit) {
 
     static @NotNull PartyConfig fromDocument(final @NotNull Document document) {
-        return new PartyConfig(document.getInt("request_expires", 90));
+        return new PartyConfig(
+                document.getInt("request_expires", 90),
+                document.getBoolean("use_member_limit", true),
+                document.getInt("default_member_limit", 15)
+        );
     }
 
     @NotNull Document toDocument() {
-        return new Document().append("request_expires", this.requestExpires);
+        return new Document()
+                .append("request_expires", this.requestExpires)
+                .append("use_member_limit", this.useMemberLimit)
+                .append("default_member_limit", this.defaultMemberLimit);
     }
 }

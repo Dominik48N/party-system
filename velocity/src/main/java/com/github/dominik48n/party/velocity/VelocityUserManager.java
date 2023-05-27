@@ -67,6 +67,7 @@ public class VelocityUserManager extends UserManager<Player> {
 
     @Override
     protected int memberLimit(final @NotNull Player player) {
+        if (!this.config.partyConfig().useMemberLimit()) return -1;
         return 0; // TODO
     }
 

@@ -72,6 +72,7 @@ public class BungeeUserManager extends UserManager<ProxiedPlayer> {
 
     @Override
     protected int memberLimit(final @NotNull ProxiedPlayer proxiedPlayer) {
+        if (!this.config.partyConfig().useMemberLimit()) return -1;
         return 0;
     }
 
