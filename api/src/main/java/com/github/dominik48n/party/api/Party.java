@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a party, a group of players in a game who play together.
  */
-public record Party(@NotNull UUID id, @NotNull UUID leader, @NotNull List<UUID> members) {
+public record Party(@NotNull UUID id, @NotNull UUID leader, @NotNull List<UUID> members, int maxMembers) {
 
     /**
      * Returns a list of all members of this party, including the leader.
