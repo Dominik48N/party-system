@@ -157,4 +157,43 @@ public class PartyProviderTest {
 
         verify(jedis).del("party:" + partyId);
     }
+
+    @Test
+    public void testCreateAndDeletePartyRequest() {
+        final String source = "Dominik48N";
+        final String target = "randomUser";
+        final int expires = 25;
+
+        final Jedis jedis = mock(Jedis.class);
+        final JedisPool jedisPool = mock(JedisPool.class);
+
+        when(this.redisManager.jedisPool()).thenReturn(jedisPool);
+        when(jedisPool.getResource()).thenReturn(jedis);
+
+        // Request create
+        this.partyProvider.createPartyRequest(source, target, expires);
+        verify(jedis).setex("request:" + source + ":" + target, expires, "");
+
+        // Request delete
+        this.partyProvider.removePartyRequest(source, target);
+        verify(jedis).del("request:" + source + ":" + target);
+    }
+
+    @Test
+    public void testExistsPartyRequest() {
+        final String source = "Dominik48N";
+        final String target = "randomUser";
+
+        final Jedis jedis = mock(Jedis.class);
+        final JedisPool jedisPool = mock(JedisPool.class);
+
+        when(this.redisManager.jedisPool()).thenReturn(jedisPool);
+        when(jedisPool.getResource()).thenReturn(jedis);
+
+        when(jedis.exists("request:" + source + ":" + target)).thenReturn(true);
+        assertTrue(this.partyProvider.existsPartyRequest(source, target));
+
+        when(jedis.exists("request:" + source + ":" + target)).thenReturn(false);
+        assertFalse(this.partyProvider.existsPartyRequest(source, target));
+    }
 }
