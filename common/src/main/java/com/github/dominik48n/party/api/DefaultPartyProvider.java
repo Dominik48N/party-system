@@ -25,6 +25,7 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.redis.RedisSwitchServerSub;
 import com.github.dominik48n.party.user.UserManager;
+import com.github.dominik48n.party.util.Constants;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -107,7 +108,10 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
             final @NotNull UUID newLeader,
             final int maxMembers
     ) throws JsonProcessingException {
-        Preconditions.checkArgument(maxMembers >= 0, "maxMembers cannot be negative!");
+        Preconditions.checkArgument(
+                maxMembers >= 0 && maxMembers < Constants.MAXIMUM_MEMBER_LIMIT,
+                "maxMembers cannot be negative!"
+        );
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             final String json = jedis.get("party:" + partyId);
             if (json == null) return; // Party isn't exist.

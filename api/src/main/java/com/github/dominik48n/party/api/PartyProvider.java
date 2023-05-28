@@ -66,9 +66,9 @@ public interface PartyProvider {
      * @param partyId    the {@link UUID} of the party
      * @param oldLeader  the {@link UUID} of the current party leader
      * @param newLeader  the {@link UUID} of the new party leader
-     * @param maxMembers the new limit of members (can't be negative!)
+     * @param maxMembers the new limit of members (must be between 0 and 1,000!)
      *
-     * @throws IllegalArgumentException if {@code maxMembers} is negative
+     * @throws IllegalArgumentException if {@code maxMembers} isn't between 0 and 1,000!
      */
     void changePartyLeader(
             final @NotNull UUID partyId,
