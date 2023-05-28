@@ -18,19 +18,22 @@ package com.github.dominik48n.party.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
+import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
 import com.github.dominik48n.party.user.UserMock;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
+import redis.clients.jedis.Jedis;
 
 public class PartyProviderTest {
 
@@ -78,5 +81,19 @@ public class PartyProviderTest {
         assertNotNull(party);
         assertEquals(leader, party.leader());
         assertEquals(maxMembers, party.maxMembers());
+    }
+
+    @Test
+    public void testAddPlayerToParty() throws JsonProcessingException {
+        final UUID partyId = UUID.randomUUID();
+        final UUID player = UUID.randomUUID();
+        final Party party = new Party(partyId, UUID.randomUUID(), new ArrayList<>(), 12);
+
+        when(this.redisManager.jedisPool().getResource()).thenReturn(mock(Jedis.class));
+        when(this.redisManager.jedisPool().getResource().get("party:" + party)).thenReturn(Document.MAPPER.writeValueAsString(party));
+
+        this.partyProvider.addPlayerToParty(partyId, player);
+
+        assertTrue(party.members().contains(player));
     }
 }
