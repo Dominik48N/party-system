@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.redis.RedisManager;
@@ -24,6 +25,7 @@ import com.github.dominik48n.party.user.UserMock;
 import java.util.Optional;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -64,5 +66,17 @@ public class PartyProviderTest {
 
         final Optional<UUID> result = this.partyProvider.getPartyFromPlayer(partyId);
         assertEquals(partyId, result.orElse(null));
+    }
+
+    @Test
+    public void testCreateParty() throws JsonProcessingException {
+        final UUID leader = UUID.randomUUID();
+        final int maxMembers = 12;
+
+        final Party party = this.partyProvider.createParty(leader, maxMembers);
+
+        assertNotNull(party);
+        assertEquals(leader, party.leader());
+        assertEquals(maxMembers, party.maxMembers());
     }
 }
