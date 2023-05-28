@@ -96,4 +96,18 @@ public class PartyProviderTest {
 
         assertTrue(party.members().contains(player));
     }
+
+    @Test
+    public void testRemovePlayerFromParty() throws JsonProcessingException {
+        final UUID partyId = UUID.randomUUID();
+        final UUID player = UUID.randomUUID();
+        final Party party = new Party(partyId, UUID.randomUUID(), new ArrayList<>(), 2);
+
+        when(this.redisManager.jedisPool().getResource()).thenReturn(mock(Jedis.class));
+        when(this.redisManager.jedisPool().getResource().get("party:" + partyId)).thenReturn(Document.MAPPER.writeValueAsString(party));
+
+        this.partyProvider.removePlayerFromParty(partyId, player, "Dominik48N");
+
+        assertFalse(party.members().contains(player));
+    }
 }
