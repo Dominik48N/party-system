@@ -36,6 +36,7 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 public class PartyProviderTest {
 
@@ -141,5 +142,19 @@ public class PartyProviderTest {
 
         this.partyProvider.sendMessageToParty(party, messageKey, replacements);
         verify(this.redisManager, times(members.size())).publish(eq(RedisMessageSub.CHANNEL), any(Document.class));
+    }
+
+    @Test
+    public void testPartyDelete() {
+        final UUID partyId = UUID.randomUUID();
+        final Jedis jedis = mock(Jedis.class);
+        final JedisPool jedisPool = mock(JedisPool.class);
+
+        when(this.redisManager.jedisPool()).thenReturn(jedisPool);
+        when(jedisPool.getResource()).thenReturn(jedis);
+
+        this.partyProvider.deleteParty(partyId);
+
+        verify(jedis).del("party:" + partyId);
     }
 }
