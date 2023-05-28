@@ -20,6 +20,9 @@ Once the plugin is installed and configured, players can create parties using th
 ## Permissions
 There is the permission `party.updates` to get a message when there is a new version of the party system.
 
+You can adjust the member limit for a party leader with the permission `party.members.limit.<limit>`. **The value must be between 0 and 1,000.** If a player does not have a limit permission, the default member limit is taken from the config.
+
+
 ## API
 The Party API is a Java library that provides an interface for managing parties of players. It includes methods for creating, joining, and leaving parties, as well as sending messages to party members and connecting parties to servers.
 

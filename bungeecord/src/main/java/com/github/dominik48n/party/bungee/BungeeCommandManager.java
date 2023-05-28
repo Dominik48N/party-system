@@ -17,6 +17,7 @@
 package com.github.dominik48n.party.bungee;
 
 import com.github.dominik48n.party.command.CommandManager;
+import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 public class BungeeCommandManager extends Command implements TabExecutor {
 
     private final @NotNull UserManager<ProxiedPlayer> userManager;
+    private final @NotNull MessageConfig messageConfig;
     final @NotNull CommandManager commandManager;
 
     public BungeeCommandManager(final @NotNull UserManager<ProxiedPlayer> userManager, final @NotNull PartyBungeePlugin plugin) {
@@ -51,6 +53,7 @@ public class BungeeCommandManager extends Command implements TabExecutor {
             }
         };
         this.userManager = userManager;
+        this.messageConfig = plugin.config().messageConfig();
     }
 
     @Override
@@ -60,7 +63,13 @@ public class BungeeCommandManager extends Command implements TabExecutor {
             return;
         }
 
-        this.commandManager.execute(this.userManager.getOrCreatePlayer(player), args);
+        this.userManager.getPlayer(player).ifPresentOrElse(
+                partyPlayer -> this.commandManager.execute(partyPlayer, args),
+                () -> BungeeCommandManager.this.userManager.sendMessageToLocalUser(
+                        player.getUniqueId(),
+                        this.messageConfig.getMessage("command.user_not_loaded")
+                )
+        );
     }
 
     @Override

@@ -63,11 +63,19 @@ public interface PartyProvider {
     /**
      * Changes the leader of a party.
      *
-     * @param partyId   the {@link UUID} of the party
-     * @param oldLeader the {@link UUID} of the current party leader
-     * @param newLeader the {@link UUID} of the new party leader
+     * @param partyId    the {@link UUID} of the party
+     * @param oldLeader  the {@link UUID} of the current party leader
+     * @param newLeader  the {@link UUID} of the new party leader
+     * @param maxMembers the new limit of members (must be between 0 and 1,000!)
+     *
+     * @throws IllegalArgumentException if {@code maxMembers} isn't between 0 and 1,000!
      */
-    void changePartyLeader(final @NotNull UUID partyId, final @NotNull UUID oldLeader, final @NotNull UUID newLeader) throws JsonProcessingException;
+    void changePartyLeader(
+            final @NotNull UUID partyId,
+            final @NotNull UUID oldLeader,
+            final @NotNull UUID newLeader,
+            final int maxMembers
+    ) throws JsonProcessingException, IllegalArgumentException;
 
     /**
      * Gets the party associated with a given ID.
@@ -81,11 +89,14 @@ public interface PartyProvider {
     /**
      * Creates a new party with the given leader.
      *
-     * @param leader the {@link UUID} of the party leader
+     * @param leader     the {@link UUID} of the party leader
+     * @param maxMembers limit of party members (can't be negative!)
      *
      * @return the new {@link Party}
+     *
+     * @throws IllegalArgumentException if {@code maxMembers} is negative
      */
-    @NotNull Party createParty(final @NotNull UUID leader) throws JsonProcessingException;
+    @NotNull Party createParty(final @NotNull UUID leader, final int maxMembers) throws JsonProcessingException, IllegalArgumentException;
 
     /**
      * Sends a message to all members and leader of a party.

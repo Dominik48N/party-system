@@ -38,17 +38,12 @@ public abstract class UserManager<TUser> {
         this.redisManager = redisManager;
     }
 
-    public @NotNull PartyPlayer createPlayer(final @NotNull TUser user) {
-        return new User<>(user, this);
+    void cachePlayer(final @NotNull TUser user, final @NotNull PartyPlayer player) {
+        this.cachedPlayers.put(user, player);
     }
 
-    public @NotNull PartyPlayer getOrCreatePlayer(final @NotNull TUser user) {
-        PartyPlayer player = this.cachedPlayers.get(user);
-        if (player == null) {
-            player = this.createPlayer(user);
-            this.cachedPlayers.put(user, player);
-        }
-        return player;
+    public @NotNull Optional<PartyPlayer> getPlayer(final @NotNull TUser user) {
+        return Optional.ofNullable(this.cachedPlayers.get(user));
     }
 
     public @NotNull Optional<PartyPlayer> userFromCache(final @NotNull UUID playerId) {
@@ -71,6 +66,8 @@ public abstract class UserManager<TUser> {
     public abstract void connectToServer(final @NotNull UUID uniqueId, final @NotNull String serverName);
 
     protected abstract void sendMessage(final @NotNull TUser user, final @NotNull Component component);
+
+    protected abstract int memberLimit(final @NotNull TUser user);
 
     protected abstract @NotNull String playerName(final @NotNull TUser user);
 

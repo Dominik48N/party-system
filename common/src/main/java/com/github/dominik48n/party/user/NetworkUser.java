@@ -27,6 +27,7 @@ public class NetworkUser<TUser> implements PartyPlayer {
     private final @NotNull UserManager<TUser> userManager;
     private final @NotNull UUID uniqueId;
     private final @NotNull String name;
+    private final int memberLimit;
 
     private @Nullable UUID partyId;
 
@@ -35,6 +36,7 @@ public class NetworkUser<TUser> implements PartyPlayer {
         this.uniqueId = player.uniqueId();
         this.name = player.name();
         this.partyId = player.partyId().orElse(null);
+        this.memberLimit = player.memberLimit();
     }
 
     @Override
@@ -45,6 +47,11 @@ public class NetworkUser<TUser> implements PartyPlayer {
     @Override
     public @NotNull String name() {
         return this.name;
+    }
+
+    @Override
+    public int memberLimit() {
+        return this.memberLimit;
     }
 
     @Override

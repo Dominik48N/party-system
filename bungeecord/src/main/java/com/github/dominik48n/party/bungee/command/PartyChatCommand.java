@@ -18,6 +18,7 @@ package com.github.dominik48n.party.bungee.command;
 
 import com.github.dominik48n.party.command.ChatCommand;
 import com.github.dominik48n.party.command.CommandManager;
+import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.user.UserManager;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -29,11 +30,17 @@ public class PartyChatCommand extends Command {
 
     private final @NotNull UserManager<ProxiedPlayer> userManager;
     private final @NotNull ChatCommand chatCommand;
+    private final @NotNull MessageConfig messageConfig;
 
-    public PartyChatCommand(final @NotNull CommandManager commandManager, final @NotNull UserManager<ProxiedPlayer> userManager) {
+    public PartyChatCommand(
+            final @NotNull CommandManager commandManager,
+            final @NotNull UserManager<ProxiedPlayer> userManager,
+            final @NotNull MessageConfig messageConfig
+    ) {
         super("p");
         this.chatCommand = new ChatCommand(commandManager);
         this.userManager = userManager;
+        this.messageConfig = messageConfig;
     }
 
     @Override
@@ -43,6 +50,12 @@ public class PartyChatCommand extends Command {
             return;
         }
 
-        this.chatCommand.execute(this.userManager.getOrCreatePlayer(player), args);
+        this.userManager.getPlayer(player).ifPresentOrElse(
+                partyPlayer -> this.chatCommand.execute(partyPlayer, args),
+                () -> this.userManager.sendMessageToLocalUser(
+                        player.getUniqueId(),
+                        PartyChatCommand.this.messageConfig.getMessage("command.user_not_loaded")
+                )
+        );
     }
 }

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.user.UserManager;
 import com.github.dominik48n.party.user.User;
+import com.github.dominik48n.party.velocity.PartyVelocityPlugin;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
@@ -29,14 +30,29 @@ import org.jetbrains.annotations.NotNull;
 public class OnlinePlayersListener {
 
     private final @NotNull UserManager<Player> userManager;
+    private final @NotNull PartyVelocityPlugin plugin;
 
-    public OnlinePlayersListener(final @NotNull UserManager<Player> userManager) {
+    public OnlinePlayersListener(final @NotNull UserManager<Player> userManager, final @NotNull PartyVelocityPlugin plugin) {
         this.userManager = userManager;
+        this.plugin = plugin;
     }
 
     @Subscribe
-    public void handlePostLogin(final PostLoginEvent event) throws JsonProcessingException {
-        PartyAPI.get().onlinePlayerProvider().login(new User<>(event.getPlayer(), this.userManager));
+    public void handlePostLogin(final PostLoginEvent event) {
+        /*
+         * The login is executed asynchronously to the login thread, since
+         * some queries are made during the login, which could take a little
+         * longer depending on what other plugins are on the server. Therefore,
+         * this is done asynchronously so as not to burden the login process.
+         */
+        this.plugin.server().getScheduler().buildTask(this.plugin, () -> {
+            final User<Player> user = new User<>(event.getPlayer(), OnlinePlayersListener.this.userManager);
+            try {
+                PartyAPI.get().onlinePlayerProvider().login(user);
+            } catch (final JsonProcessingException e) {
+                OnlinePlayersListener.this.plugin.logger().error("Failed to login player " + event.getPlayer().getUniqueId() + ".", e);
+            }
+        }).schedule();
     }
 
     @Subscribe

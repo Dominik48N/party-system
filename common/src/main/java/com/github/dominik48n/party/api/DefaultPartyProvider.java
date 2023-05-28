@@ -25,6 +25,8 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.redis.RedisSwitchServerSub;
 import com.github.dominik48n.party.user.UserManager;
+import com.github.dominik48n.party.util.Constants;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Optional;
@@ -103,8 +105,13 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     public void changePartyLeader(
             final @NotNull UUID partyId,
             final @NotNull UUID oldLeader,
-            final @NotNull UUID newLeader
+            final @NotNull UUID newLeader,
+            final int maxMembers
     ) throws JsonProcessingException {
+        Preconditions.checkArgument(
+                maxMembers >= 0 && maxMembers <= Constants.MAXIMUM_MEMBER_LIMIT,
+                "maxMembers cannot be negative!"
+        );
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             final String json = jedis.get("party:" + partyId);
             if (json == null) return; // Party isn't exist.
@@ -112,7 +119,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
             final Party party = Document.MAPPER.readValue(json, Party.class);
             party.members().remove(newLeader);
             party.members().add(oldLeader);
-            jedis.set("party:" + partyId, Document.MAPPER.writeValueAsString(new Party(partyId, newLeader, party.members())));
+            jedis.set("party:" + partyId, Document.MAPPER.writeValueAsString(new Party(partyId, newLeader, party.members(), maxMembers)));
         }
     }
 
@@ -128,14 +135,15 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     }
 
     @Override
-    public @NotNull Party createParty(final @NotNull UUID leader) throws JsonProcessingException {
+    public @NotNull Party createParty(final @NotNull UUID leader, final int maxMembers) throws JsonProcessingException, IllegalArgumentException {
+        Preconditions.checkArgument(maxMembers >= 0, "maxMembers cannot be negative!");
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             UUID partyId;
             do {
                 partyId = UUID.randomUUID();
             } while (jedis.exists("party:" + partyId));
 
-            final Party party = new Party(partyId, leader, Lists.newArrayList());
+            final Party party = new Party(partyId, leader, Lists.newArrayList(), maxMembers);
             jedis.set("party:" + partyId, Document.MAPPER.writeValueAsString(party));
             return party;
         }

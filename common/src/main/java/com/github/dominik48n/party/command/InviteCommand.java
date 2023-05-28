@@ -78,7 +78,7 @@ public class InviteCommand extends PartyCommand {
         if (party.isEmpty()) {
             final Party createdParty;
             try {
-                createdParty = PartyAPI.get().createParty(player.uniqueId());
+                createdParty = PartyAPI.get().createParty(player.uniqueId(), player.memberLimit());
                 if (!PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), createdParty.id())) {
                     player.sendMessage("general.error");
                     PartyAPI.get().deleteParty(createdParty.id());
@@ -91,8 +91,15 @@ public class InviteCommand extends PartyCommand {
 
             player.partyId(createdParty.id());
             player.sendMessage("command.invite.created_party");
+
+            party = Optional.of(createdParty);
         } else if (!party.get().isLeader(player.uniqueId())) {
             player.sendMessage("command.invite.not_leader");
+            return;
+        }
+
+        if (this.config.useMemberLimit() && party.get().members().size() >= party.get().maxMembers()) {
+            player.sendMessage("command.invite.limit", party.get().maxMembers());
             return;
         }
 

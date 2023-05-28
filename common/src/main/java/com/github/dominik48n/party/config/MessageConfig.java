@@ -85,10 +85,12 @@ public class MessageConfig {
                                 .append("sent", "%prefix% <green>You sent a party request to <gradient:#d896ff:#be29ec>{0}</gradient>.")
                                 .append("received", "%prefix% <green>You received a party request from <gradient:#d896ff:#be29ec>{0}</gradient>. " +
                                         "<dark_gray>[<green><click:run_command:/party accept {0}>Accept</click></green>] | " +
-                                        "[<red><click:run_command:/party deny {0}>Decline</click></red>]"))
+                                        "[<red><click:run_command:/party deny {0}>Decline</click></red>]")
+                                .append("limit", "%prefix% <red>You would exceed the member limit of {0} with the invitation, which is why you cannot invite anyone."))
                         .append("accept", new Document()
                                 .append("already", "%prefix% <red>You are already in a party.")
                                 .append("no_request", "%prefix% <red>You either didn't receive a party request or it has expired.")
+                                .append("limit", "%prefix% <red>The party has reached its member limit, so you can't join.")
                                 .append("joined", "%prefix% <green>You joined the party."))
                         .append("deny", new Document()
                                 .append("no_request", "%prefix% <red>You either didn't receive a party request or it has expired.")
@@ -110,12 +112,18 @@ public class MessageConfig {
                                 .append("promote", "%prefix% <red>Usage: /party promote <player>")
                                 .append("kick", "%prefix% <red>Usage: /party kick <player>")
                                 .append("chat", "%prefix% <red>Usage: /p <message>"))
+                        .append("list", new Document()
+                                .append("without_member_limit", "%prefix% <gold>Party information<newline>" +
+                                        " <gray>Leader<dark_gray>: <gradient:#940000:#c30101>{0}<newline>" +
+                                        " <gray>Members<dark_gray>: <color:#d896ff>{1}")
+                                .append("member_limit", "%prefix% <gold>Party information<newline>" +
+                                        " <gray>Leader<dark_gray>: <gradient:#940000:#c30101>{0}<newline>" +
+                                        " <gray>Members ({2}/{3}) <dark_gray>: <color:#d896ff>{1}")
+                        )
                         .append("leave", "%prefix% <red>You left the party.")
                         .append("not_in_party", "%prefix% <red>You are not in a party.")
                         .append("not_in_your_party", "%prefix% <red>The player is not in your party.")
-                        .append("list", "%prefix% <gold>Party information<newline>" +
-                                " <gray>Leader<dark_gray>: <gradient:#940000:#c30101>{0}<newline>" +
-                                " <gray>Members<dark_gray>: <color:#d896ff>{1}")
+                        .append("user_not_loaded", "%prefix% <red>Your data has not yet been fully loaded, please wait a moment.")
                         .append("help", "%prefix% <gold>Party management<newline>" +
                                 " <yellow>/party invite <player> <gray>Invites a player to the party<newline>" +
                                 " <yellow>/party accept <player> <gray>Accepts a request<newline>" +

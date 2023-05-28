@@ -16,37 +16,30 @@
 
 package com.github.dominik48n.party.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class User<TUser> implements PartyPlayer {
+public class UserMock implements PartyPlayer {
 
-    private final @NotNull UserManager<TUser> userManager;
-    private final @NotNull TUser user;
     private final @NotNull UUID uniqueId;
     private final @NotNull String name;
-    private final int memberLimit;
-
+    private final @NotNull UserManager<UserMock> userManager;
     private @Nullable UUID partyId;
 
-    public User(final @NotNull TUser user, final @NotNull UserManager<TUser> userManager) {
-        this.user = user;
+    public UserMock(
+            final @NotNull UUID uniqueId,
+            final @NotNull String name,
+            final @NotNull UserManager<UserMock> userManager
+    ) {
+        this.uniqueId = uniqueId;
+        this.name = name;
         this.userManager = userManager;
-        this.uniqueId = userManager.playerUUID(user);
-        this.name = userManager.playerName(user);
-        this.memberLimit = userManager.memberLimit(this.user);
-        try {
-            this.partyId = PartyAPI.get().getPartyFromPlayer(this.uniqueId).orElse(null);
-        } catch (final JsonProcessingException e) {
-            this.partyId = null;
-        }
+        this.partyId = null;
 
-        userManager.cachePlayer(user, this);
+        this.userManager.cachePlayer(this, this);
     }
 
     @Override
@@ -61,7 +54,7 @@ public class User<TUser> implements PartyPlayer {
 
     @Override
     public int memberLimit() {
-        return this.memberLimit;
+        return this.userManager.memberLimit(this);
     }
 
     @Override
@@ -76,6 +69,6 @@ public class User<TUser> implements PartyPlayer {
 
     @Override
     public void sendMessage(final @NotNull String messageKey, final @NotNull Object... replacements) {
-        this.userManager.sendMessage(this.user, this.userManager.messageConfig().getMessage(messageKey, replacements));
+        this.userManager.sendMessage(this.uniqueId, this.userManager.messageConfig().getMessage(messageKey, replacements));
     }
 }
