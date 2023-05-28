@@ -27,7 +27,7 @@ public class ChatCommand {
 
     private final @NotNull CommandManager commandManager;
 
-    public ChatCommand(final @NotNull CommandManager commandManager) {
+    ChatCommand(final @NotNull CommandManager commandManager) {
         this.commandManager = commandManager;
     }
 

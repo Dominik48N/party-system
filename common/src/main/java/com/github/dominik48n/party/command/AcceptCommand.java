@@ -28,7 +28,7 @@ public class AcceptCommand extends PartyCommand {
 
     private final @NotNull PartyConfig config;
 
-    public AcceptCommand(final @NotNull PartyConfig config) {
+    AcceptCommand(final @NotNull PartyConfig config) {
         this.config = config;
     }
 
