@@ -41,10 +41,12 @@ public class OnlinePlayersListener implements Listener {
 
     @EventHandler
     public void handlePostLogin(final PostLoginEvent event) {
-        // The login is executed asynchronously to the login thread, since
-        // some queries are made during the login, which could take a little
-        // longer depending on what other plugins are on the server. Therefore,
-        // this is done asynchronously so as not to burden the login process.
+        /*
+         * The login is executed asynchronously to the login thread, since
+         * some queries are made during the login, which could take a little
+         * longer depending on what other plugins are on the server. Therefore,
+         * this is done asynchronously so as not to burden the login process.
+         */
         this.plugin.getProxy().getScheduler().runAsync(this.plugin, () -> {
             final User<ProxiedPlayer> user = new User<>(event.getPlayer(), OnlinePlayersListener.this.userManager);
             try {
