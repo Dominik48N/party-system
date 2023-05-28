@@ -24,6 +24,8 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
 import com.github.dominik48n.party.user.UserMock;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
@@ -109,5 +111,22 @@ public class PartyProviderTest {
         this.partyProvider.removePlayerFromParty(partyId, player, "Dominik48N");
 
         assertFalse(party.members().contains(player));
+    }
+
+    @Test
+    public void testPartyLeaderChange() throws JsonProcessingException {
+        final UUID partyId = UUID.randomUUID();
+        final UUID oldLeader = UUID.randomUUID();
+        final UUID newLeader = UUID.randomUUID();
+        final Party party = new Party(partyId, oldLeader, List.of(oldLeader), 64);
+
+        when(this.redisManager.jedisPool().getResource()).thenReturn(mock(Jedis.class));
+        when(this.redisManager.jedisPool().getResource().get("party:" + partyId)).thenReturn(Document.MAPPER.writeValueAsString(party));
+
+        this.partyProvider.changePartyLeader(partyId, oldLeader, newLeader, 32);
+
+        assertEquals(newLeader, party.leader());
+        assertFalse(party.members().contains(newLeader));
+        assertTrue(party.members().contains(oldLeader));
     }
 }
