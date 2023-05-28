@@ -109,7 +109,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
             final int maxMembers
     ) throws JsonProcessingException {
         Preconditions.checkArgument(
-                maxMembers >= 0 && maxMembers < Constants.MAXIMUM_MEMBER_LIMIT,
+                maxMembers >= 0 && maxMembers <= Constants.MAXIMUM_MEMBER_LIMIT,
                 "maxMembers cannot be negative!"
         );
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
