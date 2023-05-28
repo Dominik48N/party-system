@@ -21,6 +21,7 @@ import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.user.UserManager;
 import com.github.dominik48n.party.user.UserMock;
 import java.util.ArrayList;
@@ -32,8 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
 import redis.clients.jedis.Jedis;
 
@@ -128,5 +128,18 @@ public class PartyProviderTest {
         assertEquals(newLeader, party.leader());
         assertFalse(party.members().contains(newLeader));
         assertTrue(party.members().contains(oldLeader));
+    }
+
+    @Test
+    public void testSendMessageToParty() {
+        final Party party = mock(Party.class);
+        final List<UUID> members = Arrays.asList(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+        when(party.allMembers()).thenReturn(members);
+
+        final String messageKey = "test.party.message";
+        final Object[] replacements = {"github.com/Dominik48N", 3500L, 5.3D, 10};
+
+        this.partyProvider.sendMessageToParty(party, messageKey, replacements);
+        verify(this.redisManager, times(members.size())).publish(eq(RedisMessageSub.CHANNEL), any(Document.class));
     }
 }
