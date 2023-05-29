@@ -90,4 +90,20 @@ public class OnlinePlayerProviderTest {
         assertTrue(result.isPresent());
         assertEquals(partyPlayer, result.get());
     }
+
+    @Test
+    public void testGetByUsernameNotFound() throws JsonProcessingException {
+        when(this.jedis.keys("party_player:*")).thenReturn(new HashSet<>());
+
+        final Optional<PartyPlayer> result = this.onlinePlayerProvider.get(this.username);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testGetByUniqueIdNotFound() throws JsonProcessingException {
+        when(this.jedis.get(this.playerKey)).thenReturn(null);
+
+        final Optional<PartyPlayer> result = this.onlinePlayerProvider.get(this.uniqueId);
+        assertTrue(result.isEmpty());
+    }
 }
