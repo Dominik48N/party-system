@@ -31,8 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -127,12 +126,34 @@ public class OnlinePlayerProviderTest {
 
     @Test
     public void testGetByUniqueIdsNotFound() throws JsonProcessingException {
-        final List<UUID> uniqueIds = Collections.singletonList(uniqueId);
+        final List<UUID> uniqueIds = Collections.singletonList(this.uniqueId);
         final String[] keys = {this.playerKey};
         final String[] jsonValues = {null};
         when(this.jedis.mget(keys)).thenReturn(List.of(jsonValues));
 
         final Map<UUID, PartyPlayer> result = this.onlinePlayerProvider.get(uniqueIds);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testGetAll() throws JsonProcessingException {
+        final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
+
+        final Set<String> keys = new HashSet<>();
+        keys.add(this.playerKey);
+        when(this.jedis.keys("party_player:*")).thenReturn(keys);
+        when(this.jedis.get(this.playerKey)).thenReturn(Document.MAPPER.writeValueAsString(partyPlayer));
+
+        final List<PartyPlayer> result = this.onlinePlayerProvider.all();
+        assertEquals(1, result.size());
+        assertTrue(result.contains(partyPlayer));
+    }
+
+    @Test
+    public void testGetAllNotFound() throws JsonProcessingException {
+        when(this.jedis.keys("party_player:*")).thenReturn(new HashSet<>());
+
+        final List<PartyPlayer> result = this.onlinePlayerProvider.all();
         assertTrue(result.isEmpty());
     }
 }
