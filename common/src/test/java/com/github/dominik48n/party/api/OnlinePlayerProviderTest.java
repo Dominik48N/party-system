@@ -76,9 +76,18 @@ public class OnlinePlayerProviderTest {
         when(this.jedis.get(this.playerKey)).thenReturn(Document.MAPPER.writeValueAsString(partyPlayer));
 
         final Optional<PartyPlayer> result = this.onlinePlayerProvider.get(username);
-
         assertTrue(result.isPresent());
         assertEquals(partyPlayer, result.get());
     }
 
+    @Test
+    public void testGetByUniqueId() throws JsonProcessingException {
+        final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
+
+        when(this.jedis.get(this.playerKey)).thenReturn(Document.MAPPER.writeValueAsString(partyPlayer));
+
+        final Optional<PartyPlayer> result = this.onlinePlayerProvider.get(this.uniqueId);
+        assertTrue(result.isPresent());
+        assertEquals(partyPlayer, result.get());
+    }
 }
