@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -155,5 +155,35 @@ public class OnlinePlayerProviderTest {
 
         final List<PartyPlayer> result = this.onlinePlayerProvider.all();
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testLogin() throws JsonProcessingException {
+        final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
+
+        this.onlinePlayerProvider.login(partyPlayer);
+
+        verify(this.jedis).set(this.playerKey, Document.MAPPER.writeValueAsString(partyPlayer));
+    }
+
+    @Test
+    public void testLogoutPlayerLoggedIn() throws JsonProcessingException {
+        final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
+        when(this.jedis.get(this.playerKey)).thenReturn(Document.MAPPER.writeValueAsString(partyPlayer));
+
+        this.onlinePlayerProvider.logout(this.uniqueId);
+
+        verify(this.jedis).get(this.playerKey);
+        verify(this.jedis).del(this.playerKey);
+    }
+
+    @Test
+    public void testLogoutPlayerNotLoggedIn() {
+        when(this.jedis.get(this.playerKey)).thenReturn(null);
+
+        this.onlinePlayerProvider.logout(this.uniqueId);
+
+        verify(this.jedis).get(this.playerKey);
+        verify(this.jedis, never()).del(this.playerKey);
     }
 }
