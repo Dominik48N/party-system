@@ -13,6 +13,7 @@ The PartySystem is a plugin for BungeeCord and Velocity that allows players to c
 * Place the plugin in your server's plugins directory.
 * Restart the server.
 * Configure the plugin in `config.json`.
+* Restart the server again.
 
 ## Usage
 Once the plugin is installed and configured, players can create parties using the `/party` command. From there, they can invite other players to join their party, and when the party leader joins a game, the party members are automatically taken with them.
