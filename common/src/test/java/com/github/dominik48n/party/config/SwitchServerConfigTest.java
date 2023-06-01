@@ -86,4 +86,5 @@ public class SwitchServerConfigTest {
                 .append("enable", enable)
                 .append("regex", stringList, Document::addJsonConsumer);
     }
+
 }

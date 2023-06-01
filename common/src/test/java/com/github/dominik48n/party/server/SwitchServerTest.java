@@ -23,6 +23,7 @@ import com.github.dominik48n.party.api.PartyProvider;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.SwitchServerConfig;
 import com.github.dominik48n.party.user.UserManager;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,18 +59,18 @@ class SwitchServerTest {
     private PartyProvider partyProvider;
 
     @BeforeEach
-    void setUp() throws IllegalAccessException {
+    public void setUp() throws IllegalAccessException {
         setPartyProvider();
         switchServer = createSwitchServer();
     }
 
     @Test
-    void handleServerConnected() throws JsonProcessingException {
-        String user = "USER";
-        String serverName = "Lobby3";
-        UUID leaderUUID = UUID.randomUUID();
-        UUID partyUuid = UUID.randomUUID();
-        Party party = createParty(partyUuid, leaderUUID);
+    public void handleServerConnected() throws JsonProcessingException {
+        final String user = "USER";
+        final String serverName = "Lobby3";
+        final UUID leaderUUID = UUID.randomUUID();
+        final UUID partyUuid = UUID.randomUUID();
+        final Party party = createParty(partyUuid, leaderUUID);
 
         when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
         when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
@@ -87,12 +88,12 @@ class SwitchServerTest {
     }
 
     @Test
-    void handleServerConnectedFailBecauseNotMatchWhiteList() throws JsonProcessingException {
-        String user = "USER";
-        String serverName = "Lobby2";
-        UUID leaderUUID = UUID.randomUUID();
-        UUID partyUuid = UUID.randomUUID();
-        Party party = createParty(partyUuid, leaderUUID);
+    public void handleServerConnectedFailBecauseNotMatchWhiteList() throws JsonProcessingException {
+        final String user = "USER";
+        final String serverName = "Lobby2";
+        final UUID leaderUUID = UUID.randomUUID();
+        final UUID partyUuid = UUID.randomUUID();
+        final Party party = createParty(partyUuid, leaderUUID);
 
         when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
         when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
@@ -110,12 +111,12 @@ class SwitchServerTest {
     }
 
     @Test
-    void handleServerConnectedDisableWhiteList() throws JsonProcessingException {
-        String user = "USER";
-        String serverName = "Lobby3";
-        UUID leaderUUID = UUID.randomUUID();
-        UUID partyUuid = UUID.randomUUID();
-        Party party = createParty(partyUuid, leaderUUID);
+    public void handleServerConnectedDisableWhiteList() throws JsonProcessingException {
+        final String user = "USER";
+        final String serverName = "Lobby3";
+        final UUID leaderUUID = UUID.randomUUID();
+        final UUID partyUuid = UUID.randomUUID();
+        final Party party = createParty(partyUuid, leaderUUID);
 
         when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
         when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
@@ -133,12 +134,12 @@ class SwitchServerTest {
     }
 
     @Test
-    void handleServerConnectedDisableBlackList() throws JsonProcessingException {
-        String user = "USER";
-        String serverName = "Lobby3";
-        UUID leaderUUID = UUID.randomUUID();
-        UUID partyUuid = UUID.randomUUID();
-        Party party = createParty(partyUuid, leaderUUID);
+    public void handleServerConnectedDisableBlackList() throws JsonProcessingException {
+        final String user = "USER";
+        final String serverName = "Lobby3";
+        final UUID leaderUUID = UUID.randomUUID();
+        final UUID partyUuid = UUID.randomUUID();
+        final Party party = createParty(partyUuid, leaderUUID);
 
         when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
         when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
@@ -157,12 +158,12 @@ class SwitchServerTest {
 
 
     @Test
-    void handleServerConnectedNotPartyLeader() throws JsonProcessingException {
-        String user = "USER";
-        String serverName = "Lobby3";
-        UUID leaderUUID = UUID.randomUUID();
-        UUID partyUuid = UUID.randomUUID();
-        Party party = createParty(partyUuid, leaderUUID);
+    public void handleServerConnectedNotPartyLeader() throws JsonProcessingException {
+        final String user = "USER";
+        final String serverName = "Lobby3";
+        final UUID leaderUUID = UUID.randomUUID();
+        final UUID partyUuid = UUID.randomUUID();
+        final Party party = createParty(partyUuid, leaderUUID);
 
         when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
         when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
@@ -176,12 +177,12 @@ class SwitchServerTest {
     }
 
     @Test
-    public void expectError() throws JsonProcessingException {
-        String user = "USER";
-        String serverName = "Lobby3";
-        UUID leaderUUID = UUID.randomUUID();
-        UUID partyUuid = UUID.randomUUID();
-        Party party = createParty(partyUuid, leaderUUID);
+    public void expectJsonProcessingException() throws JsonProcessingException {
+        final String user = "USER";
+        final String serverName = "Lobby3";
+        final UUID leaderUUID = UUID.randomUUID();
+        final UUID partyUuid = UUID.randomUUID();
+        final Party party = createParty(partyUuid, leaderUUID);
 
         when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
         when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
@@ -200,15 +201,15 @@ class SwitchServerTest {
         partyProviderField.setAccessible(false);
     }
 
-    private SwitchServer<String> createSwitchServer() {
+    private @NotNull SwitchServer<String> createSwitchServer() {
         return new SwitchServer<>(userManager, switchServerConfig) {
             @Override
-            public void logJsonProcessingException(JsonProcessingException jsonProcessingException) { }
+            public void logJsonProcessingException(final @NotNull JsonProcessingException jsonProcessingException) { }
         };
     }
 
-    //Mockito can not Mock final classes.
-    private Party createParty(UUID partyUuid, UUID leaderUUID) {
-        return new Party(partyUuid, leaderUUID, of(UUID.randomUUID()), 2);
+    // Mockito can not Mock final classes.
+    private @NotNull Party createParty(final @NotNull UUID partyId, final @NotNull UUID leader) {
+        return new Party(partyId, leader, of(UUID.randomUUID()), 2);
     }
 }
