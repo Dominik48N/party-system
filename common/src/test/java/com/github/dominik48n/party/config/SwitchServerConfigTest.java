@@ -18,15 +18,16 @@ package com.github.dominik48n.party.config;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import static com.github.dominik48n.party.config.Document.stringCollector;
 import static java.util.Collections.emptyList;
 import static java.util.List.of;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 
 public class SwitchServerConfigTest {
 
@@ -48,10 +49,10 @@ public class SwitchServerConfigTest {
         Document result = config.toDocument();
 
         // Assert
-        Document serverWhiteListDocument = result.getDocument("server_white_list");
+        Document serverWhiteListDocument = result.getDocument("server_whitelist");
         assertTrue(serverWhiteListDocument.getBoolean("enable", false));
         assertEquals(whiteRegex, serverWhiteListDocument.getList("regex", emptyList(), stringCollector()));
-        Document serverBlackListDocument = result.getDocument("server_black_list");
+        Document serverBlackListDocument = result.getDocument("server_blacklist");
         assertFalse(serverBlackListDocument.getBoolean("enable", true));
         assertEquals(blackRegex, serverBlackListDocument.getList("regex", emptyList(), stringCollector()));
     }
@@ -74,8 +75,8 @@ public class SwitchServerConfigTest {
         boolean blackEnable = false;
 
         Document document = new Document()
-                .append("server_white_list", createDocumentWith(whiteEnable, whiteRegex))
-                .append("server_black_list", createDocumentWith(blackEnable, blackRegex));
+                .append("server_whitelist", createDocumentWith(whiteEnable, whiteRegex))
+                .append("server_blacklist", createDocumentWith(blackEnable, blackRegex));
 
         return SwitchServerConfig.fromDocument(document);
     }

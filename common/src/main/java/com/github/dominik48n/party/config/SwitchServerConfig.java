@@ -10,7 +10,7 @@ public class SwitchServerConfig {
     private final ConfigList whiteList;
     private final ConfigList blackList;
 
-    private SwitchServerConfig(final @NotNull ConfigList whiteList,final @NotNull  ConfigList blackList) {
+    private SwitchServerConfig(final @NotNull ConfigList whiteList, final @NotNull ConfigList blackList) {
         this.whiteList = whiteList;
         this.blackList = blackList;
     }
@@ -33,15 +33,15 @@ public class SwitchServerConfig {
 
     static @NotNull SwitchServerConfig fromDocument(final @NotNull Document document) {
         return new SwitchServerConfig(
-                ConfigList.of(document.getDocument("server_white_list")),
-                ConfigList.of(document.getDocument("server_black_list"))
+                ConfigList.of(document.getDocument("server_whitelist")),
+                ConfigList.of(document.getDocument("server_blacklist"))
         );
     }
 
     @NotNull Document toDocument() {
         return new Document()
-                .append("server_white_list", this.whiteList.toDocument())
-                .append("server_black_list", this.blackList.toDocument());
+                .append("server_whitelist", this.whiteList.toDocument())
+                .append("server_blacklist", this.blackList.toDocument());
     }
 
     private record ConfigList(boolean enable, List<String> stringList) {
