@@ -16,9 +16,10 @@
 
 package com.github.dominik48n.party.config;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
-import org.jetbrains.annotations.NotNull;
 
 public class ProxyPluginConfig {
 
@@ -32,6 +33,7 @@ public class ProxyPluginConfig {
     private final @NotNull MessageConfig messageConfig;
     private final @NotNull RedisConfig redisConfig;
     private final @NotNull PartyConfig partyConfig;
+    private final @NotNull SwitchServerConfig serverSwitchConfig;
 
     private final boolean updateChecker;
 
@@ -43,6 +45,7 @@ public class ProxyPluginConfig {
         this.redisConfig = RedisConfig.fromDocument(document.getDocument("redis"));
         this.messageConfig = MessageConfig.fromDocument(document.getDocument("messages"));
         this.partyConfig = PartyConfig.fromDocument(document.getDocument("party"));
+        this.serverSwitchConfig = SwitchServerConfig.fromDocument(document.getDocument("switch_server"));
 
         this.updateChecker = document.getBoolean("update_checker", true);
     }
@@ -58,6 +61,9 @@ public class ProxyPluginConfig {
     public @NotNull PartyConfig partyConfig() {
         return this.partyConfig;
     }
+    public @NotNull SwitchServerConfig serverSwitchConfig() {
+        return this.serverSwitchConfig;
+    }
 
     public boolean updateChecker() {
         return this.updateChecker;
@@ -69,6 +75,7 @@ public class ProxyPluginConfig {
                 .append("redis", this.redisConfig.toDocument())
                 .append("party", this.partyConfig.toDocument())
                 .append("messages", this.messageConfig.toDocument())
+                .append("switch_server", this.serverSwitchConfig.toDocument())
                 .writeToFile(file);
     }
 }
