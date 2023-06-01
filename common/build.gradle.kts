@@ -19,7 +19,13 @@ dependencies {
 
     testImplementation("net.kyori:adventure-api:4.13.1")
     testImplementation("net.kyori:adventure-text-minimessage:4.13.1")
-    testImplementation("org.mockito:mockito-all:1.10.19")
+    testImplementation("com.google.guava:guava:31.1-jre")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
+    testImplementation("org.mockito:mockito-core:5.3.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
