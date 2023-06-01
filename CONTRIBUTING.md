@@ -11,6 +11,8 @@ Thank you for considering contributing to PartySystem! Before you start, please 
 ## Code Style
 Please follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) for all code contributions. This will help maintain consistency across the project.
 
+Please note that whenever you access variables or methods from the same class, you always use `this.` do. Otherwise, you simply orientate yourself to the code style you find.
+
 ## Annotations
 Please always use `org.jetbrains.annotations.NotNull` and `java.util.Optional<T>`. If Optional is not an option, please use `org.jetbrains.annotations.Nullable`.
 
