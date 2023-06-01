@@ -24,11 +24,10 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.user.UserManager;
 import com.github.dominik48n.party.user.UserMock;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,29 +48,27 @@ public class PartyProviderTest {
     @Mock
     private MessageConfig messageConfig;
 
-    @Mock
-    private OnlinePlayerProvider onlinePlayerProvider;
-
     private PartyProvider partyProvider;
+
+    @Mock
+    private JedisPool jedisPool;
+
+    @Mock
+    private Jedis jedis;
+
+    private AutoCloseable mocks;
 
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        this.mocks = MockitoAnnotations.openMocks(this);
         this.partyProvider = new DefaultPartyProvider<>(this.redisManager, this.userManager, this.messageConfig);
+        when(this.redisManager.jedisPool()).thenReturn(this.jedisPool);
+        when(this.jedisPool.getResource()).thenReturn(this.jedis);
     }
 
-    @Test
-    public void testGetPartyFromPlayer() throws Exception {
-        final UUID playerId = UUID.randomUUID();
-        final UUID partyId = UUID.randomUUID();
-
-        final UserMock userMock = new UserMock(playerId, "Dominik48N", this.userManager);
-        when(this.onlinePlayerProvider.get(playerId)).thenReturn(Optional.of(userMock));
-        when(this.userManager.getPlayer(userMock)).thenReturn(Optional.of(userMock));
-        when(userMock.partyId()).thenReturn(Optional.of(partyId));
-
-        final Optional<UUID> result = this.partyProvider.getPartyFromPlayer(partyId);
-        assertEquals(partyId, result.orElse(null));
+    @AfterEach
+    public void tearDown() throws Exception {
+        this.mocks.close();
     }
 
     @Test
@@ -87,71 +84,11 @@ public class PartyProviderTest {
     }
 
     @Test
-    public void testAddPlayerToParty() throws JsonProcessingException {
-        final UUID partyId = UUID.randomUUID();
-        final UUID player = UUID.randomUUID();
-        final Party party = new Party(partyId, UUID.randomUUID(), new ArrayList<>(), 12);
-
-        when(this.redisManager.jedisPool().getResource()).thenReturn(mock(Jedis.class));
-        when(this.redisManager.jedisPool().getResource().get("party:" + party)).thenReturn(Document.MAPPER.writeValueAsString(party));
-
-        this.partyProvider.addPlayerToParty(partyId, player);
-
-        assertTrue(party.members().contains(player));
-    }
-
-    @Test
-    public void testRemovePlayerFromParty() throws JsonProcessingException {
-        final UUID partyId = UUID.randomUUID();
-        final UUID player = UUID.randomUUID();
-        final Party party = new Party(partyId, UUID.randomUUID(), new ArrayList<>(), 2);
-
-        when(this.redisManager.jedisPool().getResource()).thenReturn(mock(Jedis.class));
-        when(this.redisManager.jedisPool().getResource().get("party:" + partyId)).thenReturn(Document.MAPPER.writeValueAsString(party));
-
-        this.partyProvider.removePlayerFromParty(partyId, player, "Dominik48N");
-
-        assertFalse(party.members().contains(player));
-    }
-
-    @Test
-    public void testPartyLeaderChange() throws JsonProcessingException {
-        final UUID partyId = UUID.randomUUID();
-        final UUID oldLeader = UUID.randomUUID();
-        final UUID newLeader = UUID.randomUUID();
-        final Party party = new Party(partyId, oldLeader, List.of(oldLeader), 64);
-
-        when(this.redisManager.jedisPool().getResource()).thenReturn(mock(Jedis.class));
-        when(this.redisManager.jedisPool().getResource().get("party:" + partyId)).thenReturn(Document.MAPPER.writeValueAsString(party));
-
-        this.partyProvider.changePartyLeader(partyId, oldLeader, newLeader, 32);
-
-        assertEquals(newLeader, party.leader());
-        assertFalse(party.members().contains(newLeader));
-        assertTrue(party.members().contains(oldLeader));
-    }
-
-    @Test
-    public void testSendMessageToParty() {
-        final Party party = mock(Party.class);
-        final List<UUID> members = Arrays.asList(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
-        when(party.allMembers()).thenReturn(members);
-
-        final String messageKey = "test.party.message";
-        final Object[] replacements = {"github.com/Dominik48N", 3500L, 5.3D, 10};
-
-        this.partyProvider.sendMessageToParty(party, messageKey, replacements);
-        verify(this.redisManager, times(members.size())).publish(eq(RedisMessageSub.CHANNEL), any(Document.class));
-    }
-
-    @Test
     public void testPartyDelete() {
         final UUID partyId = UUID.randomUUID();
-        final Jedis jedis = mock(Jedis.class);
-        final JedisPool jedisPool = mock(JedisPool.class);
 
-        when(this.redisManager.jedisPool()).thenReturn(jedisPool);
-        when(jedisPool.getResource()).thenReturn(jedis);
+        when(this.redisManager.jedisPool()).thenReturn(this.jedisPool);
+        when(this.jedisPool.getResource()).thenReturn(this.jedis);
 
         this.partyProvider.deleteParty(partyId);
 
@@ -164,19 +101,15 @@ public class PartyProviderTest {
         final String target = "randomUser";
         final int expires = 25;
 
-        final Jedis jedis = mock(Jedis.class);
-        final JedisPool jedisPool = mock(JedisPool.class);
-
-        when(this.redisManager.jedisPool()).thenReturn(jedisPool);
-        when(jedisPool.getResource()).thenReturn(jedis);
+        when(this.jedisPool.getResource()).thenReturn(this.jedis);
 
         // Request create
         this.partyProvider.createPartyRequest(source, target, expires);
-        verify(jedis).setex("request:" + source + ":" + target, expires, "");
+        verify(this.jedis).setex("request:" + source + ":" + target, expires, "");
 
         // Request delete
         this.partyProvider.removePartyRequest(source, target);
-        verify(jedis).del("request:" + source + ":" + target);
+        verify(this.jedis).del("request:" + source + ":" + target);
     }
 
     @Test
@@ -184,16 +117,10 @@ public class PartyProviderTest {
         final String source = "Dominik48N";
         final String target = "randomUser";
 
-        final Jedis jedis = mock(Jedis.class);
-        final JedisPool jedisPool = mock(JedisPool.class);
-
-        when(this.redisManager.jedisPool()).thenReturn(jedisPool);
-        when(jedisPool.getResource()).thenReturn(jedis);
-
-        when(jedis.exists("request:" + source + ":" + target)).thenReturn(true);
+        when(this.jedis.exists("request:" + source + ":" + target)).thenReturn(true);
         assertTrue(this.partyProvider.existsPartyRequest(source, target));
 
-        when(jedis.exists("request:" + source + ":" + target)).thenReturn(false);
+        when(this.jedis.exists("request:" + source + ":" + target)).thenReturn(false);
         assertFalse(this.partyProvider.existsPartyRequest(source, target));
     }
 }

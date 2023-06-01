@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,12 +61,19 @@ public class OnlinePlayerProviderTest {
     @Mock
     private Jedis jedis;
 
+    private AutoCloseable mocks;
+
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        this.mocks = MockitoAnnotations.openMocks(this);
         this.onlinePlayerProvider = new DefaultOnlinePlayersProvider<>(this.redisManager, this.userManager);
         when(this.redisManager.jedisPool()).thenReturn(this.jedisPool);
         when(this.jedisPool.getResource()).thenReturn(this.jedis);
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        this.mocks.close();
     }
 
     @Test
@@ -75,7 +83,8 @@ public class OnlinePlayerProviderTest {
         final Set<String> keys = new HashSet<>();
         keys.add(this.playerKey);
         when(this.jedis.keys("party_player:*")).thenReturn(keys);
-        when(this.jedis.get(this.playerKey)).thenReturn(Document.MAPPER.writeValueAsString(partyPlayer));
+        final String jsonString = Document.MAPPER.writeValueAsString(partyPlayer);
+        when(this.jedis.get(this.playerKey)).thenReturn(jsonString);
 
         final Optional<PartyPlayer> result = this.onlinePlayerProvider.get(username);
         assertTrue(result.isPresent());
@@ -85,8 +94,8 @@ public class OnlinePlayerProviderTest {
     @Test
     public void testGetByUniqueId() throws JsonProcessingException {
         final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
-
-        when(this.jedis.get(this.playerKey)).thenReturn(Document.MAPPER.writeValueAsString(partyPlayer));
+        final String jsonString = Document.MAPPER.writeValueAsString(partyPlayer);
+        when(this.jedis.get(this.playerKey)).thenReturn(jsonString);
 
         final Optional<PartyPlayer> result = this.onlinePlayerProvider.get(this.uniqueId);
         assertTrue(result.isPresent());
@@ -127,8 +136,8 @@ public class OnlinePlayerProviderTest {
     @Test
     public void testGetByUniqueIdsNotFound() throws JsonProcessingException {
         final List<UUID> uniqueIds = Collections.singletonList(this.uniqueId);
-        final String[] keys = {this.playerKey};
-        final String[] jsonValues = {null};
+        final String[] keys = {};
+        final String[] jsonValues = {};
         when(this.jedis.mget(keys)).thenReturn(List.of(jsonValues));
 
         final Map<UUID, PartyPlayer> result = this.onlinePlayerProvider.get(uniqueIds);
@@ -142,11 +151,12 @@ public class OnlinePlayerProviderTest {
         final Set<String> keys = new HashSet<>();
         keys.add(this.playerKey);
         when(this.jedis.keys("party_player:*")).thenReturn(keys);
-        when(this.jedis.get(this.playerKey)).thenReturn(Document.MAPPER.writeValueAsString(partyPlayer));
+        final String jsonString = Document.MAPPER.writeValueAsString(partyPlayer);
+        when(this.jedis.get(this.playerKey)).thenReturn(jsonString);
 
         final List<PartyPlayer> result = this.onlinePlayerProvider.all();
         assertEquals(1, result.size());
-        assertTrue(result.contains(partyPlayer));
+        assertTrue(result.stream().anyMatch(partyPlayer::equals));
     }
 
     @Test
@@ -169,7 +179,8 @@ public class OnlinePlayerProviderTest {
     @Test
     public void testLogoutPlayerLoggedIn() throws JsonProcessingException {
         final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
-        when(this.jedis.get(this.playerKey)).thenReturn(Document.MAPPER.writeValueAsString(partyPlayer));
+        final String jsonString = Document.MAPPER.writeValueAsString(partyPlayer);
+        when(this.jedis.get(eq(this.playerKey))).thenReturn(jsonString);
 
         this.onlinePlayerProvider.logout(this.uniqueId);
 

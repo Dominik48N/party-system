@@ -19,6 +19,7 @@ package com.github.dominik48n.party.config;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,11 @@ public class ProxyPluginConfigTest {
     void setUp() {
         this.testFile = new File("testFile.json");
         this.proxyPluginConfig = new ProxyPluginConfig();
+    }
+
+    @AfterEach
+    public void deleteFile() {
+        if (this.testFile != null) this.testFile.deleteOnExit();
     }
 
     @Test

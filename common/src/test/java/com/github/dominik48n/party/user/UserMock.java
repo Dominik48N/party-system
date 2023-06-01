@@ -71,4 +71,16 @@ public class UserMock implements PartyPlayer {
     public void sendMessage(final @NotNull String messageKey, final @NotNull Object... replacements) {
         this.userManager.sendMessage(this.uniqueId, this.userManager.messageConfig().getMessage(messageKey, replacements));
     }
+
+    @Override
+    public boolean equals(final @Nullable Object obj) {
+        if (!(obj instanceof final PartyPlayer player)) return false;
+        if (!player.name().equals(this.name)) return false;
+        if (!player.uniqueId().equals(this.uniqueId)) return false;
+        if (player.partyId().isPresent()) {
+            if (this.partyId == null) return false;
+            if (!player.partyId().get().equals(this.partyId)) return false;
+        } else if (this.partyId != null) return false;
+        return player.memberLimit() == this.memberLimit();
+    }
 }
