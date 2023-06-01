@@ -22,23 +22,21 @@ import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.SwitchServerConfig;
 import com.github.dominik48n.party.user.UserManager;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import static com.github.dominik48n.party.api.PartyAPI.get;
 
 public abstract class SwitchServer<TUser> {
 
     private final @NotNull UserManager<TUser> userManager;
-    private final @NotNull SwitchServerConfig switchServerConfig;
+    private final @NotNull SwitchServerConfig config;
 
     public SwitchServer(@NotNull UserManager<TUser> userManager, @NotNull SwitchServerConfig switchServerConfig) {
         this.userManager = userManager;
-        this.switchServerConfig = switchServerConfig;
+        this.config = switchServerConfig;
     }
 
     public abstract void logJsonProcessingException(JsonProcessingException jsonProcessingException);
@@ -77,8 +75,9 @@ public abstract class SwitchServer<TUser> {
 
     private boolean allowServerSwitch(String serverName) {
         //Regex Pattern could be expensive. Maybe cache results.
-        if (switchServerConfig.blackEnable() && match(switchServerConfig.blackPatternList(), serverName)) {
-            return switchServerConfig.whiteEnable() && match(this.switchServerConfig.whitePatternList(), serverName);
+        if (config.blackEnable() &&
+                match(config.blackPatternList(), serverName)) {
+            return config.whiteEnable() && match(this.config.whitePatternList(), serverName);
         }
 
         return true;
