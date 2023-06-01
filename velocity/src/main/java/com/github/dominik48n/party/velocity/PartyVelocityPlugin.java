@@ -32,13 +32,14 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 @Plugin(
         id = "party-system",
@@ -97,7 +98,7 @@ public class PartyVelocityPlugin {
         this.redisManager.subscribes(userManager);
 
         this.server.getEventManager().register(this, new OnlinePlayersListener(userManager, this));
-        this.server.getEventManager().register(this, new SwitchServerListener(userManager, this.logger));
+        this.server.getEventManager().register(this, new SwitchServerListener(userManager, this.config.serverSwitchConfig(), this.logger));
         this.server.getCommandManager().register(
                 this.server.getCommandManager().metaBuilder("party").aliases("p").plugin(this).build(),
                 new VelocityCommandManager(userManager, this)

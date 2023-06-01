@@ -25,15 +25,16 @@ import com.github.dominik48n.party.bungee.listener.UpdateCheckerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.util.UpdateChecker;
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class PartyBungeePlugin extends Plugin {
 
@@ -81,7 +82,7 @@ public class PartyBungeePlugin extends Plugin {
         final BungeeCommandManager bungeeCommandManager = new BungeeCommandManager(userManager, this);
 
         this.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(userManager, this));
-        this.getProxy().getPluginManager().registerListener(this, new SwitchServerListener(userManager, this.getLogger()));
+        this.getProxy().getPluginManager().registerListener(this, new SwitchServerListener(userManager, this.config.serverSwitchConfig(), this.getLogger()));
 
         this.getProxy().getPluginManager().registerCommand(
                 this,
