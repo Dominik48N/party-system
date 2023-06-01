@@ -1,7 +1,6 @@
 package com.github.dominik48n.party.config;
 
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
