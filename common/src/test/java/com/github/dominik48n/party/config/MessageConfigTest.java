@@ -29,9 +29,9 @@ public class MessageConfigTest {
 
     @Test
     public void testFromDocument() {
+        final String prefix = "<gray>[<gradient:#d896ff:#be29ec>PartySystem</gradient>]";
         final Document document = mock(Document.class);
-        when(document.getString("prefix", "<gray>[<gradient:#d896ff:#be29ec>Party</gradient>]"))
-                .thenReturn("<gray>[<gradient:#d896ff:#be29ec>PartySystem</gradient>]");
+        when(document.getString("prefix", "<gray>[<gradient:#d896ff:#be29ec>Party</gradient>]")).thenReturn(prefix);
         when(document.getDocument("general")).thenReturn(mock(Document.class));
         when(document.getDocument("party")).thenReturn(mock(Document.class));
         when(document.getDocument("command")).thenReturn(mock(Document.class));
@@ -39,14 +39,14 @@ public class MessageConfigTest {
         final MessageConfig config = MessageConfig.fromDocument(document);
 
         assertNotNull(config);
-        assertEquals("<gray>[<gradient:#d896ff:#be29ec>PartySystem</gradient>]", config.prefix());
+        assertEquals(prefix, config.prefix());
     }
 
     @Test
     public void testGetMessage() {
         final MessageConfig config = new MessageConfig();
-        config.messages().put("test", new MessageFormat("<dark_red>{0}</dark_red>"));
-        final String expected = "<dark_red>Hello</dark_red>";
+        config.messages().put("test", new MessageFormat("<dark_red>{0}"));
+        final String expected = "<dark_red>Hello";
 
         final Component message = config.getMessage("test", "Hello");
 

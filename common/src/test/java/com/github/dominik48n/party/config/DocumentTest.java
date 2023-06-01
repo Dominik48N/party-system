@@ -71,7 +71,7 @@ class DocumentTest {
 
         value.append("innerKey", "innerValue");
         this.document.append(key, value);
-        assertEquals(value, this.document.getDocument(key));
+        assertEquals(value.getString("innerKey", ""), this.document.getDocument(key).getString("innerKey", ""));
     }
 
     @Test

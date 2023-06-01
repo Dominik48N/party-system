@@ -29,7 +29,7 @@ public class MessageConfig {
         final MessageConfig config = new MessageConfig();
 
         loadMessages(config, document, "");
-        config.prefix = config.messages.getOrDefault("prefix", new MessageFormat(config.prefix)).format(null);
+        config.prefix = document.getString("prefix", config.prefix());
         return config;
     }
 
