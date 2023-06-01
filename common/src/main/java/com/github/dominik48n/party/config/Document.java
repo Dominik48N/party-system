@@ -21,22 +21,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.user.UserDeserializer;
 import com.github.dominik48n.party.user.UserSerializer;
 import com.google.common.collect.Sets;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.StreamSupport;
 
 public class Document {
 
@@ -87,6 +90,24 @@ public class Document {
         return this;
     }
 
+    <T> @NotNull Document append(final @NotNull String key,
+                                 final @NotNull List<T> list,
+                                 final @NotNull BiConsumer<T, ArrayNode> addJsonNodeConsumer) {
+        final ArrayNode jsonNodes = this.objectNode.putArray(key);
+        list.forEach(item -> addJsonNodeConsumer.accept(item, jsonNodes));
+        return this;
+    }
+
+    <T> @NotNull List<T> getList(final @NotNull String key,
+                                 final @NotNull List<T> defaultValue,
+                                 final @NotNull Collector<JsonNode, List<T>, List<T>> collector) {
+        return this.contains(key) ? toList(key, collector) : defaultValue;
+    }
+
+    private <T> @NotNull List<T> toList(@NotNull String key, @NotNull Collector<JsonNode, List<T>, List<T>> collector) {
+        return StreamSupport.stream(this.objectNode.withArray(key).spliterator(), false).collect(collector);
+    }
+
     public @NotNull String getString(final @NotNull String key, final @NotNull String defaultValue) {
         return this.contains(key) ? this.objectNode.get(key).asText() : defaultValue;
     }
@@ -129,4 +150,21 @@ public class Document {
     private boolean contains(final @NotNull String key) {
         return this.objectNode.has(key);
     }
+
+    static void addJsonConsumer(final @NotNull String value, final @NotNull ArrayNode arrayNode) {
+        arrayNode.add(value);
+    }
+
+    static @NotNull Collector<JsonNode, List<String>, List<String>> stringCollector() {
+        Supplier<List<String>> supplier = ArrayList::new;
+        BiConsumer<List<String>, JsonNode> accumulator = (stringList, jsonNode) -> stringList.add(jsonNode.asText());
+        BinaryOperator<List<String>> combiner = Document::stringListCombiner;
+        return Collector.of(supplier, accumulator, combiner);
+    }
+
+    private static @NotNull List<String> stringListCombiner(final @NotNull List<String> stringListOne, final @NotNull List<String> stringListTwo) {
+        stringListOne.addAll(stringListTwo);
+        return stringListOne;
+    }
+
 }
