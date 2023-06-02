@@ -64,7 +64,7 @@ public class OnlinePlayerProviderTest {
     private AutoCloseable mocks;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.mocks = MockitoAnnotations.openMocks(this);
         this.onlinePlayerProvider = new DefaultOnlinePlayersProvider<>(this.redisManager, this.userManager);
         when(this.redisManager.jedisPool()).thenReturn(this.jedisPool);
@@ -72,12 +72,12 @@ public class OnlinePlayerProviderTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         this.mocks.close();
     }
 
     @Test
-    public void testGetByUsername() throws JsonProcessingException {
+    void testGetByUsername() throws JsonProcessingException {
         final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
 
         final Set<String> keys = new HashSet<>();
@@ -92,7 +92,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testGetByUniqueId() throws JsonProcessingException {
+    void testGetByUniqueId() throws JsonProcessingException {
         final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
         final String jsonString = Document.MAPPER.writeValueAsString(partyPlayer);
         when(this.jedis.get(this.playerKey)).thenReturn(jsonString);
@@ -103,7 +103,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testGetByUsernameNotFound() throws JsonProcessingException {
+    void testGetByUsernameNotFound() throws JsonProcessingException {
         when(this.jedis.keys("party_player:*")).thenReturn(new HashSet<>());
 
         final Optional<PartyPlayer> result = this.onlinePlayerProvider.get(this.username);
@@ -111,7 +111,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testGetByUniqueIdNotFound() throws JsonProcessingException {
+    void testGetByUniqueIdNotFound() throws JsonProcessingException {
         when(this.jedis.get(this.playerKey)).thenReturn(null);
 
         final Optional<PartyPlayer> result = this.onlinePlayerProvider.get(this.uniqueId);
@@ -119,7 +119,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testGetByUniqueIds() throws JsonProcessingException {
+    void testGetByUniqueIds() throws JsonProcessingException {
         final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
 
         final List<UUID> uniqueIds = Collections.singletonList(this.uniqueId);
@@ -134,7 +134,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testGetByUniqueIdsNotFound() throws JsonProcessingException {
+    void testGetByUniqueIdsNotFound() throws JsonProcessingException {
         final List<UUID> uniqueIds = Collections.singletonList(this.uniqueId);
         final String[] keys = {};
         final String[] jsonValues = {};
@@ -145,7 +145,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testGetAll() throws JsonProcessingException {
+    void testGetAll() throws JsonProcessingException {
         final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
 
         final Set<String> keys = new HashSet<>();
@@ -160,7 +160,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testGetAllNotFound() throws JsonProcessingException {
+    void testGetAllNotFound() throws JsonProcessingException {
         when(this.jedis.keys("party_player:*")).thenReturn(new HashSet<>());
 
         final List<PartyPlayer> result = this.onlinePlayerProvider.all();
@@ -168,7 +168,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testLogin() throws JsonProcessingException {
+    void testLogin() throws JsonProcessingException {
         final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
 
         this.onlinePlayerProvider.login(partyPlayer);
@@ -177,7 +177,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testLogoutPlayerLoggedIn() throws JsonProcessingException {
+    void testLogoutPlayerLoggedIn() throws JsonProcessingException {
         final PartyPlayer partyPlayer = new UserMock(this.uniqueId, this.username, this.userManager);
         final String jsonString = Document.MAPPER.writeValueAsString(partyPlayer);
         when(this.jedis.get(eq(this.playerKey))).thenReturn(jsonString);
@@ -189,7 +189,7 @@ public class OnlinePlayerProviderTest {
     }
 
     @Test
-    public void testLogoutPlayerNotLoggedIn() {
+    void testLogoutPlayerNotLoggedIn() {
         when(this.jedis.get(this.playerKey)).thenReturn(null);
 
         this.onlinePlayerProvider.logout(this.uniqueId);

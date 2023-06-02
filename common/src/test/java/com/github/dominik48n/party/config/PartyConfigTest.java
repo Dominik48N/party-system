@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 public class PartyConfigTest {
 
     @Test
-    public void testFromDocument() {
+    void testFromDocument() {
         final Document document = new Document()
                 .append("request_expires", 60)
                 .append("use_member_limit", false)
@@ -36,7 +36,7 @@ public class PartyConfigTest {
     }
 
     @Test
-    public void testToDocument() {
+    void testToDocument() {
         final PartyConfig partyConfig = new PartyConfig(30, false, 10);
         final Document document = partyConfig.toDocument();
 

@@ -59,7 +59,7 @@ public class PartyProviderTest {
     private AutoCloseable mocks;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.mocks = MockitoAnnotations.openMocks(this);
         this.partyProvider = new DefaultPartyProvider<>(this.redisManager, this.userManager, this.messageConfig);
         when(this.redisManager.jedisPool()).thenReturn(this.jedisPool);
@@ -67,12 +67,12 @@ public class PartyProviderTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         this.mocks.close();
     }
 
     @Test
-    public void testCreateParty() throws JsonProcessingException {
+    void testCreateParty() throws JsonProcessingException {
         final UUID leader = UUID.randomUUID();
         final int maxMembers = 12;
 
@@ -84,7 +84,7 @@ public class PartyProviderTest {
     }
 
     @Test
-    public void testPartyDelete() {
+    void testPartyDelete() {
         final UUID partyId = UUID.randomUUID();
 
         when(this.redisManager.jedisPool()).thenReturn(this.jedisPool);
@@ -96,7 +96,7 @@ public class PartyProviderTest {
     }
 
     @Test
-    public void testCreateAndDeletePartyRequest() {
+    void testCreateAndDeletePartyRequest() {
         final String source = "Dominik48N";
         final String target = "randomUser";
         final int expires = 25;
@@ -113,7 +113,7 @@ public class PartyProviderTest {
     }
 
     @Test
-    public void testExistsPartyRequest() {
+    void testExistsPartyRequest() {
         final String source = "Dominik48N";
         final String target = "randomUser";
 

@@ -36,7 +36,7 @@ public class ProxyPluginConfigTest {
     }
 
     @AfterEach
-    public void deleteFile() {
+    void deleteFile() {
         if (this.testFile != null) this.testFile.deleteOnExit();
     }
 
