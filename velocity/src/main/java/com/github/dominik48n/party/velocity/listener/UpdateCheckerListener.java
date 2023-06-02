@@ -54,7 +54,7 @@ public class UpdateCheckerListener {
 
         this.plugin.server().getScheduler().buildTask(this.plugin, () -> {
             try {
-                final String latestVersion = UpdateChecker.latestVersion(UpdateChecker.OWNER, UpdateChecker.REPOSITORY);
+                final String latestVersion = UpdateChecker.latestVersion(Constants.GITHUB_OWNER, Constants.GITHUB_REPOSITORY);
                 if (latestVersion.equals(UpdateCheckerListener.this.currentVersion)) return;
 
                 player.sendMessage(UpdateCheckerListener.this.messageConfig.getMessage("general.updates.new_version"));

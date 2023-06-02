@@ -27,9 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class UpdateChecker {
 
-    public static final @NotNull String OWNER = "Dominik48N";
-    public static final @NotNull String REPOSITORY = "party-system";
-
     /**
      * Retrieves the latest version of a GitHub repository's release.
      *

@@ -47,7 +47,7 @@ public class UpdateCheckerListener implements Listener {
 
         this.plugin.getProxy().getScheduler().runAsync(this.plugin, () -> {
             try {
-                final String latestVersion = UpdateChecker.latestVersion(UpdateChecker.OWNER, UpdateChecker.REPOSITORY);
+                final String latestVersion = UpdateChecker.latestVersion(Constants.GITHUB_OWNER, Constants.GITHUB_REPOSITORY);
                 if (latestVersion.equals(UpdateCheckerListener.this.plugin.getDescription().getVersion())) return;
 
                 final Component message = UpdateCheckerListener.this.messageConfig.getMessage("general.updates.new_version");
