@@ -29,7 +29,6 @@ public class UpdateChecker {
 
     public static final @NotNull String OWNER = "Dominik48N";
     public static final @NotNull String REPOSITORY = "party-system";
-    public static final @NotNull String PERMISSION = "party.updates";
 
     /**
      * Retrieves the latest version of a GitHub repository's release.
