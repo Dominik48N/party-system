@@ -44,7 +44,7 @@ public class SwitchServerListener extends SwitchServer<Player> {
     }
 
     @Override
-    public void logJsonProcessingException(JsonProcessingException jsonProcessingException) {
+    public void logJsonProcessingException(final @NotNull JsonProcessingException jsonProcessingException) {
         this.logger.error("Failed to get party.", jsonProcessingException);
     }
 }

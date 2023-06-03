@@ -47,7 +47,7 @@ public class SwitchServerListener extends SwitchServer<ProxiedPlayer> implements
     }
 
     @Override
-    public void logJsonProcessingException(JsonProcessingException jsonProcessingException) {
+    public void logJsonProcessingException(final @NotNull JsonProcessingException jsonProcessingException) {
         this.logger.log(Level.SEVERE, "Failed to get party.", jsonProcessingException);
     }
 }

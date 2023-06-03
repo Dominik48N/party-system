@@ -156,9 +156,9 @@ public class Document {
     }
 
     static @NotNull Collector<JsonNode, List<String>, List<String>> stringCollector() {
-        Supplier<List<String>> supplier = ArrayList::new;
-        BiConsumer<List<String>, JsonNode> accumulator = (stringList, jsonNode) -> stringList.add(jsonNode.asText());
-        BinaryOperator<List<String>> combiner = Document::stringListCombiner;
+        final Supplier<List<String>> supplier = ArrayList::new;
+        final BiConsumer<List<String>, JsonNode> accumulator = (stringList, jsonNode) -> stringList.add(jsonNode.asText());
+        final BinaryOperator<List<String>> combiner = Document::stringListCombiner;
         return Collector.of(supplier, accumulator, combiner);
     }
 

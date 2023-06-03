@@ -92,35 +92,35 @@ class DocumentTest {
     }
 
     @Test
-    public void testAppendAndGetList() {
-        List<String> list = of("Value1", "Value2", "Value3");
+    void testAppendAndGetList() {
+        final List<String> list = of("Value1", "Value2", "Value3");
 
-        document.append("key", list, Document::addJsonConsumer);
+        this.document.append("key", list, Document::addJsonConsumer);
 
-        List<String> retrievedList = document.getList("key", new ArrayList<>(), Document.stringCollector());
+        List<String> retrievedList = this.document.getList("key", new ArrayList<>(), Document.stringCollector());
 
         assertEquals(list, retrievedList);
     }
 
     @Test
-    public void testAddJsonConsumer() {
-        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.withExactBigDecimals(false));
+    void testAddJsonConsumer() {
+        final ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.withExactBigDecimals(false));
         Document.addJsonConsumer("Value", arrayNode);
 
         assertEquals("Value", arrayNode.get(0).asText());
     }
 
     @Test
-    public void testStringCollector() {
-        Collector<JsonNode, List<String>, List<String>> collector = Document.stringCollector();
+    void testStringCollector() {
+        final Collector<JsonNode, List<String>, List<String>> collector = Document.stringCollector();
 
-        List<String> stringList1 = new ArrayList<>();
+        final List<String> stringList1 = new ArrayList<>();
         stringList1.add("Value1");
 
-        List<String> stringList2 = new ArrayList<>();
+        final List<String> stringList2 = new ArrayList<>();
         stringList2.add("Value2");
 
-        List<String> combinedList = collector.combiner().apply(stringList1, stringList2);
+        final List<String> combinedList = collector.combiner().apply(stringList1, stringList2);
 
         assertTrue(combinedList.containsAll(stringList1));
         assertTrue(combinedList.containsAll(stringList2));
@@ -128,23 +128,23 @@ class DocumentTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testStringListCombiner() throws InvocationTargetException, IllegalAccessException {
-        List<String> stringList1 = new ArrayList<>();
+    void testStringListCombiner() throws InvocationTargetException, IllegalAccessException {
+        final List<String> stringList1 = new ArrayList<>();
         stringList1.add("Value1");
 
-        List<String> stringList2 = new ArrayList<>();
+        final List<String> stringList2 = new ArrayList<>();
         stringList2.add("Value2");
 
-        Optional<Method> stringListCombiner = ReflectionUtils.findMethod(Document.class,
+        final Optional<Method> stringListCombiner = ReflectionUtils.findMethod(Document.class,
                 "stringListCombiner",
                 List.class, List.class
         );
 
         assertTrue(stringListCombiner.isPresent());
 
-        Method method = stringListCombiner.get();
+        final Method method = stringListCombiner.get();
         method.setAccessible(true);
-        List<String> result = (List<String>) method.invoke(null, stringList1, stringList2);
+        final List<String> result = (List<String>) method.invoke(null, stringList1, stringList2);
         method.setAccessible(false);
 
         assertTrue(result.containsAll(stringList1));

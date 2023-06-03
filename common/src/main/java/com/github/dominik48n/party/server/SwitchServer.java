@@ -34,37 +34,35 @@ public abstract class SwitchServer<TUser> {
     private final @NotNull UserManager<TUser> userManager;
     private final @NotNull SwitchServerConfig config;
 
-    public SwitchServer(@NotNull UserManager<TUser> userManager, @NotNull SwitchServerConfig switchServerConfig) {
+    public SwitchServer(final @NotNull  UserManager<TUser> userManager, final @NotNull  SwitchServerConfig switchServerConfig) {
         this.userManager = userManager;
         this.config = switchServerConfig;
     }
 
-    public abstract void logJsonProcessingException(JsonProcessingException jsonProcessingException);
+    public abstract void logJsonProcessingException(@NotNull final JsonProcessingException jsonProcessingException);
 
-    protected void handleServerConnected(TUser user, String serverName) {
-        userManager.getPlayer(user)
+    protected void handleServerConnected(final @NotNull TUser user, final @NotNull String serverName) {
+        this.userManager.getPlayer(user)
                 .flatMap(this::handlePartyPlayer)//Get party first
                 .filter(party -> allowServerSwitch(serverName))//Then check regex. Could be more expensive.
                 .ifPresent(party -> connectPartyToServer(serverName, party));
     }
 
-    private static void connectPartyToServer(String serverName, Party party) {
+    private static void connectPartyToServer(final @NotNull String serverName, final @NotNull Party party) {
         get().connectPartyToServer(party, serverName);
     }
 
-    @NotNull
-    private Optional<Party> handlePartyPlayer(PartyPlayer player) {
+    private @NotNull Optional<Party> handlePartyPlayer(final @NotNull PartyPlayer player) {
         return player.partyId()
                 .flatMap(this::getParty)
                 .filter(party -> isPartyLeader(player, party));
     }
 
-    private static boolean isPartyLeader(PartyPlayer player, Party party) {
+    private static boolean isPartyLeader(final @NotNull PartyPlayer player, final @NotNull Party party) {
         return party.isLeader(player.uniqueId());
     }
 
-    @NotNull
-    private Optional<Party> getParty(UUID uuid) {
+    private @NotNull Optional<Party> getParty(UUID uuid) {
         try {
             return get().getParty(uuid);
         } catch (JsonProcessingException jsonProcessingException) {
@@ -75,9 +73,9 @@ public abstract class SwitchServer<TUser> {
 
     private boolean allowServerSwitch(String serverName) {
         //Regex Pattern could be expensive. Maybe cache results.
-        if (config.blackEnable() &&
-                match(config.blackPatternList(), serverName)) {
-            return config.whiteEnable() && match(this.config.whitePatternList(), serverName);
+        if (this.config.blackEnable() &&
+                match(this.config.blackPatternList(), serverName)) {
+            return this.config.whiteEnable() && match(this.config.whitePatternList(), serverName);
         }
 
         return true;

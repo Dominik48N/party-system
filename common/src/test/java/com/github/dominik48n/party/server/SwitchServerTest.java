@@ -59,150 +59,150 @@ class SwitchServerTest {
     private PartyProvider partyProvider;
 
     @BeforeEach
-    public void setUp() throws IllegalAccessException {
+    void setUp() throws IllegalAccessException {
         setPartyProvider();
         switchServer = createSwitchServer();
     }
 
     @Test
-    public void handleServerConnected() throws JsonProcessingException {
+    void handleServerConnected() throws JsonProcessingException {
         final String user = "USER";
         final String serverName = "Lobby3";
         final UUID leaderUUID = UUID.randomUUID();
         final UUID partyUuid = UUID.randomUUID();
         final Party party = createParty(partyUuid, leaderUUID);
 
-        when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
-        when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
-        when(partyPlayer.uniqueId()).thenReturn(leaderUUID);
-        when(partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
+        when(this.userManager.getPlayer(user)).thenReturn(Optional.of(this.partyPlayer));
+        when(this.partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
+        when(this.partyPlayer.uniqueId()).thenReturn(leaderUUID);
+        when(this.partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
 
-        when(switchServerConfig.blackEnable()).thenReturn(true);
-        when(switchServerConfig.blackPatternList()).thenReturn(of(Pattern.compile("^Lobby.*")));
-        when(switchServerConfig.whiteEnable()).thenReturn(true);
-        when(switchServerConfig.whitePatternList()).thenReturn(of(Pattern.compile("Lobby3")));
+        when(this.switchServerConfig.blackEnable()).thenReturn(true);
+        when(this.switchServerConfig.blackPatternList()).thenReturn(of(Pattern.compile("^Lobby.*")));
+        when(this.switchServerConfig.whiteEnable()).thenReturn(true);
+        when(this.switchServerConfig.whitePatternList()).thenReturn(of(Pattern.compile("Lobby3")));
 
-        switchServer.handleServerConnected(user, serverName);
+        this.switchServer.handleServerConnected(user, serverName);
 
-        verify(partyProvider).connectPartyToServer(party, serverName);
+        verify(this.partyProvider).connectPartyToServer(party, serverName);
     }
 
     @Test
-    public void handleServerConnectedFailBecauseNotMatchWhiteList() throws JsonProcessingException {
+    void handleServerConnectedFailBecauseNotMatchWhiteList() throws JsonProcessingException {
         final String user = "USER";
         final String serverName = "Lobby2";
         final UUID leaderUUID = UUID.randomUUID();
         final UUID partyUuid = UUID.randomUUID();
         final Party party = createParty(partyUuid, leaderUUID);
 
-        when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
-        when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
-        when(partyPlayer.uniqueId()).thenReturn(leaderUUID);
-        when(partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
+        when(this.userManager.getPlayer(user)).thenReturn(Optional.of(this.partyPlayer));
+        when(this.partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
+        when(this.partyPlayer.uniqueId()).thenReturn(leaderUUID);
+        when(this.partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
 
-        when(switchServerConfig.blackEnable()).thenReturn(true);
-        when(switchServerConfig.blackPatternList()).thenReturn(of(Pattern.compile("^Lobby.*")));
-        when(switchServerConfig.whiteEnable()).thenReturn(true);
-        when(switchServerConfig.whitePatternList()).thenReturn(of(Pattern.compile("Lobby3")));
+        when(this.switchServerConfig.blackEnable()).thenReturn(true);
+        when(this.switchServerConfig.blackPatternList()).thenReturn(of(Pattern.compile("^Lobby.*")));
+        when(this.switchServerConfig.whiteEnable()).thenReturn(true);
+        when(this.switchServerConfig.whitePatternList()).thenReturn(of(Pattern.compile("Lobby3")));
 
-        switchServer.handleServerConnected(user, serverName);
+        this.switchServer.handleServerConnected(user, serverName);
 
-        verify(partyProvider, never()).connectPartyToServer(any(), any());
+        verify(this.partyProvider, never()).connectPartyToServer(any(), any());
     }
 
     @Test
-    public void handleServerConnectedDisableWhiteList() throws JsonProcessingException {
+    void handleServerConnectedDisableWhiteList() throws JsonProcessingException {
         final String user = "USER";
         final String serverName = "Lobby3";
         final UUID leaderUUID = UUID.randomUUID();
         final UUID partyUuid = UUID.randomUUID();
         final Party party = createParty(partyUuid, leaderUUID);
 
-        when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
-        when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
-        when(partyPlayer.uniqueId()).thenReturn(leaderUUID);
-        when(partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
+        when(this.userManager.getPlayer(user)).thenReturn(Optional.of(this.partyPlayer));
+        when(this.partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
+        when(this.partyPlayer.uniqueId()).thenReturn(leaderUUID);
+        when(this.partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
 
-        when(switchServerConfig.blackEnable()).thenReturn(true);
-        when(switchServerConfig.blackPatternList()).thenReturn(of(Pattern.compile("^Lobby.*")));
-        when(switchServerConfig.whiteEnable()).thenReturn(false);
+        when(this.switchServerConfig.blackEnable()).thenReturn(true);
+        when(this.switchServerConfig.blackPatternList()).thenReturn(of(Pattern.compile("^Lobby.*")));
+        when(this.switchServerConfig.whiteEnable()).thenReturn(false);
 
-        switchServer.handleServerConnected(user, serverName);
+        this.switchServer.handleServerConnected(user, serverName);
 
-        verify(partyProvider, never()).connectPartyToServer(any(), any());
-        verify(switchServerConfig, never()).whitePatternList();
+        verify(this.partyProvider, never()).connectPartyToServer(any(), any());
+        verify(this.switchServerConfig, never()).whitePatternList();
     }
 
     @Test
-    public void handleServerConnectedDisableBlackList() throws JsonProcessingException {
+    void handleServerConnectedDisableBlackList() throws JsonProcessingException {
         final String user = "USER";
         final String serverName = "Lobby3";
         final UUID leaderUUID = UUID.randomUUID();
         final UUID partyUuid = UUID.randomUUID();
         final Party party = createParty(partyUuid, leaderUUID);
 
-        when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
-        when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
-        when(partyPlayer.uniqueId()).thenReturn(leaderUUID);
-        when(partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
+        when(this.userManager.getPlayer(user)).thenReturn(Optional.of(this.partyPlayer));
+        when(this.partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
+        when(this.partyPlayer.uniqueId()).thenReturn(leaderUUID);
+        when(this.partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
 
-        when(switchServerConfig.blackEnable()).thenReturn(false);
+        when(this.switchServerConfig.blackEnable()).thenReturn(false);
 
-        switchServer.handleServerConnected(user, serverName);
+        this.switchServer.handleServerConnected(user, serverName);
 
-        verify(partyProvider).connectPartyToServer(party, serverName);
-        verify(switchServerConfig, never()).blackPatternList();
-        verify(switchServerConfig, never()).whiteEnable();
-        verify(switchServerConfig, never()).whitePatternList();
+        verify(this.partyProvider).connectPartyToServer(party, serverName);
+        verify(this.switchServerConfig, never()).blackPatternList();
+        verify(this.switchServerConfig, never()).whiteEnable();
+        verify(this.switchServerConfig, never()).whitePatternList();
     }
 
 
     @Test
-    public void handleServerConnectedNotPartyLeader() throws JsonProcessingException {
+    void handleServerConnectedNotPartyLeader() throws JsonProcessingException {
         final String user = "USER";
         final String serverName = "Lobby3";
         final UUID leaderUUID = UUID.randomUUID();
         final UUID partyUuid = UUID.randomUUID();
         final Party party = createParty(partyUuid, leaderUUID);
 
-        when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
-        when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
-        when(partyPlayer.uniqueId()).thenReturn(UUID.randomUUID());
-        when(partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
+        when(this.userManager.getPlayer(user)).thenReturn(Optional.of(this.partyPlayer));
+        when(this.partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
+        when(this.partyPlayer.uniqueId()).thenReturn(UUID.randomUUID());
+        when(this.partyProvider.getParty(partyUuid)).thenReturn(Optional.of(party));
 
-        switchServer.handleServerConnected(user, serverName);
+        this.switchServer.handleServerConnected(user, serverName);
 
-        verify(partyProvider, never()).connectPartyToServer(party, serverName);
-        verify(switchServerConfig, never()).blackEnable();
+        verify(this.partyProvider, never()).connectPartyToServer(party, serverName);
+        verify(this.switchServerConfig, never()).blackEnable();
     }
 
     @Test
-    public void expectJsonProcessingException() throws JsonProcessingException {
+    void expectJsonProcessingException() throws JsonProcessingException {
         final String user = "USER";
         final String serverName = "Lobby3";
         final UUID leaderUUID = UUID.randomUUID();
         final UUID partyUuid = UUID.randomUUID();
         final Party party = createParty(partyUuid, leaderUUID);
 
-        when(userManager.getPlayer(user)).thenReturn(Optional.of(partyPlayer));
-        when(partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
-        when(partyProvider.getParty(partyUuid)).thenThrow(JsonProcessingException.class);
+        when(this.userManager.getPlayer(user)).thenReturn(Optional.of(this.partyPlayer));
+        when(this.partyPlayer.partyId()).thenReturn(Optional.of(partyUuid));
+        when(this.partyProvider.getParty(partyUuid)).thenThrow(JsonProcessingException.class);
 
-        switchServer.handleServerConnected(user, serverName);
+        this.switchServer.handleServerConnected(user, serverName);
 
-        verify(partyProvider, never()).connectPartyToServer(party, serverName);
+        verify(this.partyProvider, never()).connectPartyToServer(party, serverName);
     }
 
     private void setPartyProvider() throws IllegalAccessException {
         Field partyProviderField = ReflectionUtils.findFields(PartyAPI.class, field -> field.getType().equals(PartyProvider.class),
                 TOP_DOWN).get(0);
         partyProviderField.setAccessible(true);
-        partyProviderField.set(null, partyProvider);
+        partyProviderField.set(null, this.partyProvider);
         partyProviderField.setAccessible(false);
     }
 
     private @NotNull SwitchServer<String> createSwitchServer() {
-        return new SwitchServer<>(userManager, switchServerConfig) {
+        return new SwitchServer<>(this.userManager, this.switchServerConfig) {
             @Override
             public void logJsonProcessingException(final @NotNull JsonProcessingException jsonProcessingException) { }
         };

@@ -16,6 +16,7 @@
 
 package com.github.dominik48n.party.config;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -38,36 +39,36 @@ public class SwitchServerConfigTest {
 
     @BeforeEach
     void setUp() {
-        this.config = createConfig(whiteRegex, blackRegex);
+        this.config = createConfig(this.whiteRegex, this.blackRegex);
     }
 
     @Test
-    public void testToDocument() {
+    void testToDocument() {
         // Arrange
 
         // Act
-        Document result = config.toDocument();
+        final Document result = this.config.toDocument();
 
         // Assert
-        Document serverWhiteListDocument = result.getDocument("server_whitelist");
+        final Document serverWhiteListDocument = result.getDocument("server_whitelist");
         assertTrue(serverWhiteListDocument.getBoolean("enable", false));
-        assertEquals(whiteRegex, serverWhiteListDocument.getList("regex", emptyList(), stringCollector()));
-        Document serverBlackListDocument = result.getDocument("server_blacklist");
+        assertEquals(this.whiteRegex, serverWhiteListDocument.getList("regex", emptyList(), stringCollector()));
+        final Document serverBlackListDocument = result.getDocument("server_blacklist");
         assertFalse(serverBlackListDocument.getBoolean("enable", true));
-        assertEquals(blackRegex, serverBlackListDocument.getList("regex", emptyList(), stringCollector()));
+        assertEquals(this.blackRegex, serverBlackListDocument.getList("regex", emptyList(), stringCollector()));
     }
 
     @Test
-    public void testFromDocument() {
+    void testFromDocument() {
         // Arrange
 
         // Act
 
         // Assert
-        assertTrue(config.whiteEnable());
-        assertLinesMatch(Stream.of("Lobby1", "Lobby2"), config.whitePatternList().stream().map(Pattern::toString));
-        assertFalse(config.blackEnable());
-        assertLinesMatch(Stream.of("PrivateServer"), config.blackPatternList().stream().map(Pattern::toString));
+        assertTrue(this.config.whiteEnable());
+        assertLinesMatch(Stream.of("Lobby1", "Lobby2"), this.config.whitePatternList().stream().map(Pattern::toString));
+        assertFalse(this.config.blackEnable());
+        assertLinesMatch(Stream.of("PrivateServer"), this.config.blackPatternList().stream().map(Pattern::toString));
     }
 
     private SwitchServerConfig createConfig(List<String> whiteRegex, List<String> blackRegex) {
@@ -81,7 +82,7 @@ public class SwitchServerConfigTest {
         return SwitchServerConfig.fromDocument(document);
     }
 
-    private Document createDocumentWith(boolean enable, List<String> stringList)  {
+    private @NotNull Document createDocumentWith(final boolean enable, final @NotNull List<String> stringList)  {
         return new Document()
                 .append("enable", enable)
                 .append("regex", stringList, Document::addJsonConsumer);
