@@ -39,7 +39,7 @@ public abstract class SwitchServer<TUser> {
         this.config = switchServerConfig;
     }
 
-    public abstract void logJsonProcessingException(@NotNull final JsonProcessingException jsonProcessingException);
+    public abstract void logJsonProcessingException(final @NotNull JsonProcessingException jsonProcessingException);
 
     protected void handleServerConnected(final @NotNull TUser user, final @NotNull String serverName) {
         this.userManager.getPlayer(user)
@@ -55,11 +55,7 @@ public abstract class SwitchServer<TUser> {
     private @NotNull Optional<Party> handlePartyPlayer(final @NotNull PartyPlayer player) {
         return player.partyId()
                 .flatMap(this::getParty)
-                .filter(party -> isPartyLeader(player, party));
-    }
-
-    private static boolean isPartyLeader(final @NotNull PartyPlayer player, final @NotNull Party party) {
-        return party.isLeader(player.uniqueId());
+                .filter(party -> party.isLeader(player.uniqueId()));
     }
 
     private @NotNull Optional<Party> getParty(UUID uuid) {

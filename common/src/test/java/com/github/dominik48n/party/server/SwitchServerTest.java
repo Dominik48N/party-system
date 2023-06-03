@@ -60,8 +60,8 @@ class SwitchServerTest {
 
     @BeforeEach
     void setUp() throws IllegalAccessException {
-        setPartyProvider();
-        switchServer = createSwitchServer();
+        this.setPartyProvider();
+        this.switchServer = this.createSwitchServer();
     }
 
     @Test
