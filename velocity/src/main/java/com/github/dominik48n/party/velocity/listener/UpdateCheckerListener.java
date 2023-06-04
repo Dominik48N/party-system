@@ -17,6 +17,7 @@
 package com.github.dominik48n.party.velocity.listener;
 
 import com.github.dominik48n.party.config.MessageConfig;
+import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.util.UpdateChecker;
 import com.github.dominik48n.party.velocity.PartyVelocityPlugin;
 import com.velocitypowered.api.event.PostOrder;
@@ -49,11 +50,11 @@ public class UpdateCheckerListener {
     @Subscribe(order = PostOrder.LAST)
     public void handlePostLogin(final PostLoginEvent event) {
         final Player player = event.getPlayer();
-        if (!player.hasPermission(UpdateChecker.PERMISSION)) return;
+        if (!player.hasPermission(Constants.UPDATE_CHECKER_PERMISSION)) return;
 
         this.plugin.server().getScheduler().buildTask(this.plugin, () -> {
             try {
-                final String latestVersion = UpdateChecker.latestVersion(UpdateChecker.OWNER, UpdateChecker.REPOSITORY);
+                final String latestVersion = UpdateChecker.latestVersion(Constants.GITHUB_OWNER, Constants.GITHUB_REPOSITORY);
                 if (latestVersion.equals(UpdateCheckerListener.this.currentVersion)) return;
 
                 player.sendMessage(UpdateCheckerListener.this.messageConfig.getMessage("general.updates.new_version"));

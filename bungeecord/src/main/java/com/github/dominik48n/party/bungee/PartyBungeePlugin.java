@@ -24,6 +24,7 @@ import com.github.dominik48n.party.bungee.listener.SwitchServerListener;
 import com.github.dominik48n.party.bungee.listener.UpdateCheckerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.util.UpdateChecker;
 import java.io.File;
 import java.io.IOException;
@@ -101,7 +102,7 @@ public class PartyBungeePlugin extends Plugin {
         final String currentVersion = this.getDescription().getVersion();
         this.getProxy().getScheduler().schedule(this, () -> {
             try {
-                final String latestVersion = UpdateChecker.latestVersion(UpdateChecker.OWNER, UpdateChecker.REPOSITORY);
+                final String latestVersion = UpdateChecker.latestVersion(Constants.GITHUB_OWNER, Constants.GITHUB_REPOSITORY);
                 if (latestVersion.equals(currentVersion)) return; // Up to date :)
 
                 PartyBungeePlugin.this.getLogger().log(Level.INFO, "There is a new version of the party system: {0}", new Object[] {latestVersion});

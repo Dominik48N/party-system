@@ -20,6 +20,7 @@ import com.github.dominik48n.party.api.DefaultPartyProvider;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.util.UpdateChecker;
 import com.github.dominik48n.party.velocity.listener.OnlinePlayersListener;
 import com.github.dominik48n.party.velocity.listener.SwitchServerListener;
@@ -115,7 +116,7 @@ public class PartyVelocityPlugin {
         final String currentVersion = "@version@";
         this.server.getScheduler().buildTask(this, () -> {
             try {
-                final String latestVersion = UpdateChecker.latestVersion(UpdateChecker.OWNER, UpdateChecker.REPOSITORY);
+                final String latestVersion = UpdateChecker.latestVersion(Constants.GITHUB_OWNER, Constants.GITHUB_REPOSITORY);
                 if (latestVersion.equals(currentVersion)) return; // Up to date :)
 
                 PartyVelocityPlugin.this.logger.info("There is a new version of the party system: {}", latestVersion);
