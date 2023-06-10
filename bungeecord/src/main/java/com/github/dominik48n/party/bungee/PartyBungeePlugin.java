@@ -46,6 +46,7 @@ public class PartyBungeePlugin extends Plugin {
     private @Nullable BungeeAudiences audiences = null;
 
     private @Nullable DefaultPartyProvider<ProxiedPlayer> partyProvider;
+    private @Nullable PartyChatCommand partyChatCommand;
 
     @Override
     public void onEnable() {
@@ -88,10 +89,8 @@ public class PartyBungeePlugin extends Plugin {
         this.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(userManager, this));
         this.getProxy().getPluginManager().registerListener(this, new SwitchServerListener(userManager, this.getLogger()));
 
-        this.getProxy().getPluginManager().registerCommand(
-                this,
-                new PartyChatCommand(bungeeCommandManager.commandManager, userManager, this.config().messageConfig())
-        );
+        this.partyChatCommand = new PartyChatCommand(bungeeCommandManager.commandManager, userManager, this.config().messageConfig());
+        this.getProxy().getPluginManager().registerCommand(this, this.partyChatCommand);
         this.getProxy().getPluginManager().registerCommand(this, bungeeCommandManager);
 
         if (this.config.updateChecker()) this.registerUpdateChecker();
@@ -158,5 +157,6 @@ public class PartyBungeePlugin extends Plugin {
     void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
         this.databaseAdapter = databaseAdapter;
         if (this.partyProvider != null) this.partyProvider.databaseAdapter(databaseAdapter);
+        if (this.partyChatCommand != null) this.partyChatCommand.databaseAdapter(databaseAdapter);
     }
 }

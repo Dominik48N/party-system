@@ -69,6 +69,7 @@ public class VelocityCommandManager implements RawCommand {
                             plugin.logger().info("The connection to the database has been established.");
 
                             VelocityCommandManager.this.commandManager.addToggleCommand(databaseAdapter);
+                            VelocityCommandManager.this.chatCommand.databaseAdapter(databaseAdapter);
                         } catch (final Exception e) {
                             plugin.logger().error(
                                     "The connection to the database could not be established, which is why the party settings cannot be activated.",

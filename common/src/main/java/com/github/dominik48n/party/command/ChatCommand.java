@@ -20,12 +20,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.database.DatabaseAdapter;
+import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ChatCommand {
 
     private final @NotNull CommandManager commandManager;
+
+    private @Nullable DatabaseAdapter databaseAdapter;
 
     public ChatCommand(final @NotNull CommandManager commandManager) {
         this.commandManager = commandManager;
@@ -55,7 +62,14 @@ public class ChatCommand {
                 return;
             }
 
-            PartyAPI.get().sendMessageToParty(party.get(), "party.chat", player.name(), message);
+            final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                    this.databaseAdapter.getPlayersWithEnabledSetting(party.get().allMembers(), DatabaseSettingsType.CHAT) :
+                    party.get().allMembers();
+            PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.chat", player.name(), message);
         });
+    }
+
+    public void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.databaseAdapter = databaseAdapter;
     }
 }
