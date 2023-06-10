@@ -20,6 +20,7 @@ import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,5 +50,13 @@ public class ToggleCommand extends PartyCommand {
         final boolean value = this.databaseAdapter.getSettingValue(player.uniqueId(), type.get());
         this.databaseAdapter.toggleSetting(player.uniqueId(), type.get(), !value);
         player.sendMessage("command.toggle." + type.get().name().toLowerCase() + "." + (value ? "disabled" : "enabled"));
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(final @NotNull String[] args) {
+        if (args.length != 1) return super.tabComplete(args);
+
+        final String search = args[0].toLowerCase();
+        return Arrays.stream(DatabaseSettingsType.values()).map(type -> type.name().toLowerCase()).filter(s -> s.startsWith(search)).toList();
     }
 }

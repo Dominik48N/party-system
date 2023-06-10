@@ -17,10 +17,15 @@
 package com.github.dominik48n.party.command;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import java.util.Collections;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class PartyCommand {
 
     public abstract void execute(final @NotNull PartyPlayer player, final @NotNull String[] args);
 
+    public @NotNull List<String> tabComplete(final @NotNull String[] args) {
+        return Collections.emptyList();
+    }
 }

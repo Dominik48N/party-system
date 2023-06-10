@@ -21,8 +21,8 @@ import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.Lists;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,9 +63,18 @@ public abstract class CommandManager {
     }
 
     public @NotNull List<String> tabComplete(final @NotNull String[] args) {
-        if (args.length != 1) return Lists.newArrayList();
-        final String search = args[0].toLowerCase();
-        return this.commands.keySet().stream().filter(s -> s.startsWith(search)).toList();
+        if (args.length == 0) return Collections.emptyList();
+
+        if (args.length == 1) {
+            final String search = args[0].toLowerCase();
+            return this.commands.keySet().stream().filter(s -> s.startsWith(search)).toList();
+        }
+
+        final PartyCommand command = this.commands.get(args[0].toLowerCase());
+        if (command == null) return Collections.emptyList();
+
+        final String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
+        return command.tabComplete(commandArgs);
     }
 
     public abstract void runAsynchronous(final @NotNull Runnable runnable);
