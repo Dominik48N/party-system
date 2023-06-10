@@ -17,16 +17,11 @@
 package com.github.dominik48n.party.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
-import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.redis.RedisManager;
-import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.user.UserManager;
 import com.github.dominik48n.party.user.UserMock;
-import java.util.Arrays;
 import java.util.UUID;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
