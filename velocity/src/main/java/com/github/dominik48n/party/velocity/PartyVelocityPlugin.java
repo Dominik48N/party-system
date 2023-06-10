@@ -60,6 +60,8 @@ public class PartyVelocityPlugin {
     private @NotNull ProxyPluginConfig config;
     private @Nullable RedisManager redisManager;
 
+    private @Nullable DefaultPartyProvider<Player> partyProvider;
+
     @Inject
     public PartyVelocityPlugin(final @NotNull ProxyServer server, final @NotNull Logger logger, final @NotNull @DataDirectory Path dataFolder) {
         this.server = server;
@@ -95,7 +97,7 @@ public class PartyVelocityPlugin {
         }
 
         final VelocityUserManager userManager = new VelocityUserManager(this.redisManager, this.config, this.server, this.logger);
-        new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
+        this.partyProvider = new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
 
         this.redisManager.subscribes(userManager);
 
@@ -170,6 +172,7 @@ public class PartyVelocityPlugin {
 
     void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
         this.databaseAdapter = databaseAdapter;
+        if (this.partyProvider != null) this.partyProvider.databaseAdapter(databaseAdapter);
     }
 
     @NotNull RedisManager redisManager() {

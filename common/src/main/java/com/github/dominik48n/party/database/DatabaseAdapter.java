@@ -19,6 +19,7 @@ package com.github.dominik48n.party.database;
 import com.github.dominik48n.party.config.DatabaseConfig;
 import com.github.dominik48n.party.database.mongo.MongoAdapter;
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +40,8 @@ public interface DatabaseAdapter extends AutoCloseable {
     }
 
     void connect();
+
+    @NotNull List<UUID> getPlayersWithEnabledSetting(final @NotNull List<UUID> players, final @NotNull DatabaseSettingsType type);
 
     boolean getSettingValue(final @NotNull UUID uniqueId, final @NotNull DatabaseSettingsType type);
 

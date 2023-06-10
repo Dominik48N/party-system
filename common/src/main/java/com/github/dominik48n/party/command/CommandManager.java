@@ -49,6 +49,12 @@ public abstract class CommandManager {
         Optional.ofNullable(this.commands.get("invite")).ifPresent(partyCommand -> {
             if (partyCommand instanceof final InviteCommand command) command.databaseAdapter(databaseAdapter);
         });
+        Optional.ofNullable(this.commands.get("accept")).ifPresent(partyCommand -> {
+            if (partyCommand instanceof final AcceptCommand command) command.databaseAdapter(databaseAdapter);
+        });
+        Optional.ofNullable(this.commands.get("leave")).ifPresent(partyCommand -> {
+            if (partyCommand instanceof final LeaveCommand command) command.databaseAdapter(databaseAdapter);
+        });
     }
 
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {

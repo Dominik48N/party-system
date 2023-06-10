@@ -20,10 +20,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.database.DatabaseAdapter;
+import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class LeaveCommand extends PartyCommand {
+
+    private @Nullable DatabaseAdapter databaseAdapter;
 
     @Override
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
@@ -57,12 +64,19 @@ public class LeaveCommand extends PartyCommand {
                         return;
                     }
 
-                    PartyAPI.get().sendMessageToMembers(party.get(), "party.left", player.name());
+                    final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                            this.databaseAdapter.getPlayersWithEnabledSetting(party.get().members(), DatabaseSettingsType.NOTIFICATIONS) :
+                            party.get().members();
+                    PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
+
                     PartyAPI.get().sendMessageToMembers(party.get(), "party.new_leader", target.get().name());
                 } else this.deleteParty(party.get(), player);
             } else {
                 party.get().members().remove(player.uniqueId());
-                PartyAPI.get().sendMessageToParty(party.get(), "party.left", player.name());
+                final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                        this.databaseAdapter.getPlayersWithEnabledSetting(party.get().allMembers(), DatabaseSettingsType.NOTIFICATIONS) :
+                        party.get().allMembers();
+                PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
             }
 
             try {
@@ -75,6 +89,10 @@ public class LeaveCommand extends PartyCommand {
 
         player.partyId(null);
         player.sendMessage("command.leave");
+    }
+
+    void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.databaseAdapter = databaseAdapter;
     }
 
     private void deleteParty(final @NotNull Party party, final @NotNull PartyPlayer player) {

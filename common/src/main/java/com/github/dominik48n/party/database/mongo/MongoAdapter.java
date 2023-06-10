@@ -27,6 +27,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +49,30 @@ public class MongoAdapter implements DatabaseAdapter {
     public void connect() {
         this.mongoClient = MongoClients.create(this.mongoConfig.uri());
         this.mongoDatabase = this.mongoClient.getDatabase(this.mongoConfig.database());
+    }
+
+    @Override
+    public @NotNull List<UUID> getPlayersWithEnabledSetting(final @NotNull List<UUID> players, final @NotNull DatabaseSettingsType type) {
+        final FindIterable<Document> cursor = this.getCollection("settings")
+                .find(Filters.in("unique_id", players.stream().map(UUID::toString).toList()))
+                .cursorType(CursorType.NonTailable);
+        final String typeName = type.name();
+
+        final List<UUID> uuids = new ArrayList<>(players);
+        for (final Document document : cursor) {
+            if (!document.containsKey(typeName) || document.getBoolean(typeName, true)) continue;
+
+            final UUID uniqueId;
+            try {
+                uniqueId = UUID.fromString(document.getString("unique_id"));
+            } catch (final IllegalArgumentException ignored) {
+                // We ignore the error at this point so as not to break the whole query.
+                // A document seems to have been added to the collection that does not belong to the party system.
+                continue;
+            }
+            uuids.remove(uniqueId);
+        }
+        return uuids;
     }
 
     @Override

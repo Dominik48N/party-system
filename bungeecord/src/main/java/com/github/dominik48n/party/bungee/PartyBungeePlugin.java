@@ -45,6 +45,8 @@ public class PartyBungeePlugin extends Plugin {
     private @Nullable RedisManager redisManager = null;
     private @Nullable BungeeAudiences audiences = null;
 
+    private @Nullable DefaultPartyProvider<ProxiedPlayer> partyProvider;
+
     @Override
     public void onEnable() {
         final File configFile = new File(this.getDataFolder(), ProxyPluginConfig.FILE_NAME);
@@ -77,7 +79,7 @@ public class PartyBungeePlugin extends Plugin {
         this.audiences = BungeeAudiences.create(this);
 
         final BungeeUserManager userManager = new BungeeUserManager(this);
-        new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
+        this.partyProvider = new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
 
         this.redisManager.subscribes(userManager);
 
@@ -155,5 +157,6 @@ public class PartyBungeePlugin extends Plugin {
 
     void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
         this.databaseAdapter = databaseAdapter;
+        if (this.partyProvider != null) this.partyProvider.databaseAdapter(databaseAdapter);
     }
 }
