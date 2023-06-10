@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":api"))
     implementation("redis.clients:jedis:4.3.2")
     implementation("org.mongodb:mongo-java-driver:3.12.14")
+    implementation("com.zaxxer:HikariCP:5.0.1")
 
     testImplementation("net.kyori:adventure-api:4.13.1")
     testImplementation("net.kyori:adventure-text-minimessage:4.13.1")

@@ -20,14 +20,15 @@ import com.github.dominik48n.party.database.DatabaseType;
 import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
-public record DatabaseConfig(boolean enabled, @NotNull DatabaseType type, @NotNull MongoConfig mongoConfig) {
+public record DatabaseConfig(boolean enabled, @NotNull DatabaseType type, @NotNull MongoConfig mongoConfig, @NotNull SQLConfig sqlConfig) {
 
     static @NotNull DatabaseConfig fromDocument(final @NotNull Document document) {
         final String typeName = document.getString("type", DatabaseType.MONGODB.name());
         return new DatabaseConfig(
                 document.getBoolean("enabled", false),
                 Arrays.stream(DatabaseType.values()).filter(type -> type.name().equalsIgnoreCase(typeName)).findAny().orElse(DatabaseType.UNKNOWN),
-                MongoConfig.fromDocument(document.getDocument("mongodb"))
+                MongoConfig.fromDocument(document.getDocument("mongodb")),
+                SQLConfig.fromDocument(document.getDocument("sql"))
         );
     }
 
@@ -35,10 +36,11 @@ public record DatabaseConfig(boolean enabled, @NotNull DatabaseType type, @NotNu
         return new Document()
                 .append("enabled", this.enabled)
                 .append("type", this.type.name())
-                .append("mongodb", this.mongoConfig.toDocument());
+                .append("mongodb", this.mongoConfig.toDocument())
+                .append("sql", this.sqlConfig.toDocument());
     }
 
-    public static record MongoConfig(@NotNull String uri, @NotNull String database, @NotNull String collectionPrefix) {
+    public record MongoConfig(@NotNull String uri, @NotNull String database, @NotNull String collectionPrefix) {
 
         private static @NotNull MongoConfig fromDocument(final @NotNull Document document) {
             return new MongoConfig(
@@ -50,6 +52,59 @@ public record DatabaseConfig(boolean enabled, @NotNull DatabaseType type, @NotNu
 
         private @NotNull Document toDocument() {
             return new Document().append("uri", this.uri).append("database", this.database).append("collection_prefix", this.collectionPrefix);
+        }
+    }
+
+    public record SQLConfig(
+            @NotNull String hostname,
+            int port,
+            @NotNull String username,
+            @NotNull String password,
+            @NotNull String database,
+            @NotNull PoolConfig poolConfig
+    ) {
+
+        private static @NotNull SQLConfig fromDocument(final @NotNull Document document) {
+            return new SQLConfig(
+                    document.getString("hostname", "127.0.0.1"),
+                    document.getInt("port", 5432),
+                    document.getString("username", "party"),
+                    document.getString("password", "topsecret"),
+                    document.getString("database", "party"),
+                    PoolConfig.fromDocument(document.getDocument("pool"))
+            );
+        }
+
+        private @NotNull Document toDocument() {
+            return new Document()
+                    .append("hostname", this.hostname)
+                    .append("port", this.port)
+                    .append("username", this.username)
+                    .append("password", this.password)
+                    .append("database", this.database)
+                    .append("pool", this.poolConfig.toDocument());
+        }
+
+        public record PoolConfig(int maxPoolSize, int minIdle, long connectionTimeout, long idleTimeout, long maxLife) {
+
+            private static @NotNull PoolConfig fromDocument(final @NotNull Document document) {
+                return new PoolConfig(
+                        document.getInt("max_pool_size", 5),
+                        document.getInt("minimum_idle", 5),
+                        document.getLong("connection_timeout", 10000L),
+                        document.getLong("idle_timeout", 600000L),
+                        document.getLong("max_lifetime", 1800000L)
+                );
+            }
+
+            private @NotNull Document toDocument() {
+                return new Document()
+                        .append("max_pool_size", this.maxPoolSize)
+                        .append("minimum_idle", this.minIdle)
+                        .append("connection_timeout", this.connectionTimeout)
+                        .append("idle_timeout", this.idleTimeout)
+                        .append("max_lifetime", this.maxLife);
+            }
         }
     }
 }
