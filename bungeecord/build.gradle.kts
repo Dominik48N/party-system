@@ -36,6 +36,8 @@ tasks.shadowJar {
     relocate("com.google.gson", "${project.group}.libs.gson")
     relocate("org.bson", "${project.group}.libs.bson")
     relocate("com.mongodb", "${project.group}.libs.mongodb")
+    relocate("com.postgresql", "${project.group}.libs.postgresql")
+    relocate("com.zaxxer.hikari", "${project.group}.libs.hikari")
 }
 
 tasks.processResources {

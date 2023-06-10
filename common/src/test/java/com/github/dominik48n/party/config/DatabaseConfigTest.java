@@ -27,7 +27,8 @@ public class DatabaseConfigTest {
             collectionPrefix = "",
             hostname = "0.0.0.0",
             username = "partysystem",
-            password = "github.com/Dominik48N/party-system";
+            password = "github.com/Dominik48N/party-system",
+            tablePrefix = "test_";
     private final int port = 3306, maxPoolSize = 10, minIdle = 8;
     private final long connectionTimeOut = 8000L, idleTimeout = 300000L, maxLifetime = 1500000L;
 
@@ -46,6 +47,7 @@ public class DatabaseConfigTest {
                         .append("username", this.username)
                         .append("password", this.password)
                         .append("database", this.database)
+                        .append("table_prefix", this.tablePrefix)
                         .append("pool", new Document()
                                 .append("max_pool_size", this.maxPoolSize)
                                 .append("minimum_idle", this.minIdle)
@@ -68,6 +70,7 @@ public class DatabaseConfigTest {
         assertEquals(config.sqlConfig().username(), this.username);
         assertEquals(config.sqlConfig().password(), this.password);
         assertEquals(config.sqlConfig().database(), this.database);
+        assertEquals(config.sqlConfig().tablePrefix(), this.tablePrefix);
 
         assertEquals(config.sqlConfig().poolConfig().maxPoolSize(), this.maxPoolSize);
         assertEquals(config.sqlConfig().poolConfig().minIdle(), this.minIdle);
@@ -88,6 +91,7 @@ public class DatabaseConfigTest {
                 this.username,
                 this.password,
                 this.database,
+                this.tablePrefix,
                 new DatabaseConfig.SQLConfig.PoolConfig(
                         this.maxPoolSize,
                         this.minIdle,
@@ -112,6 +116,7 @@ public class DatabaseConfigTest {
         assertEquals(sqlDocument.getString("username", "no_value"), this.username);
         assertEquals(sqlDocument.getString("password", "no_value"), this.password);
         assertEquals(sqlDocument.getString("database", "no_value"), this.database);
+        assertEquals(sqlDocument.getString("table_prefix", "no_value"), this.tablePrefix);
 
         final Document poolDocument = sqlDocument.getDocument("pool");
         assertEquals(poolDocument.getInt("max_pool_size", 3), this.maxPoolSize);
