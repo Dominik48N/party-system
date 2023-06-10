@@ -27,6 +27,8 @@ tasks.shadowJar {
     relocate("org.json", "${project.group}.libs.json")
     relocate("com.fasterxml.jackson", "${project.group}.libs.jackson")
     relocate("com.google.common.collect", "${project.group}.libs.commons.google.collect")
+    relocate("org.bson", "${project.group}.libs.bson")
+    relocate("com.mongodb", "${project.group}.libs.mongodb")
 }
 
 blossom {

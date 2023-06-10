@@ -34,6 +34,8 @@ tasks.shadowJar {
     relocate("org.slf4j", "${project.group}.libs.slf4j")
     relocate("com.fasterxml.jackson", "${project.group}.libs.jackson")
     relocate("com.google.gson", "${project.group}.libs.gson")
+    relocate("org.bson", "${project.group}.libs.bson")
+    relocate("com.mongodb", "${project.group}.libs.mongodb")
 }
 
 tasks.processResources {
