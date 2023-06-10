@@ -53,7 +53,7 @@ public class MongoAdapter implements DatabaseAdapter {
 
     @Override
     public @NotNull List<UUID> getPlayersWithEnabledSetting(final @NotNull List<UUID> players, final @NotNull DatabaseSettingsType type) {
-        final FindIterable<Document> cursor = this.getCollection("settings")
+        final FindIterable<Document> cursor = this.settingsCollection()
                 .find(Filters.in("unique_id", players.stream().map(UUID::toString).toList()))
                 .cursorType(CursorType.NonTailable);
         final String typeName = type.name();
@@ -77,7 +77,7 @@ public class MongoAdapter implements DatabaseAdapter {
 
     @Override
     public boolean getSettingValue(final @NotNull UUID uniqueId, final @NotNull DatabaseSettingsType type) {
-        final FindIterable<Document> cursor = this.getCollection("settings")
+        final FindIterable<Document> cursor = this.settingsCollection()
                 .find(Filters.eq("unique_id", uniqueId.toString()))
                 .cursorType(CursorType.NonTailable);
 
@@ -87,7 +87,7 @@ public class MongoAdapter implements DatabaseAdapter {
 
     @Override
     public void toggleSetting(final @NotNull UUID uniqueId, final @NotNull DatabaseSettingsType type, final boolean value) {
-        this.getCollection("settings").updateOne(
+        this.settingsCollection().updateOne(
                 Filters.eq("unique_id", uniqueId.toString()),
                 new Document()
                         .append("$setOnInsert", new Document("unique_id", uniqueId.toString()))
@@ -96,9 +96,9 @@ public class MongoAdapter implements DatabaseAdapter {
         );
     }
 
-    private @NotNull MongoCollection<Document> getCollection(final @NotNull String name) {
+    private @NotNull MongoCollection<Document> settingsCollection() {
         if (this.mongoDatabase == null) throw new IllegalStateException("MongoDB Database isn't initialized.");
-        return this.mongoDatabase.getCollection(this.mongoConfig.collectionPrefix() + name);
+        return this.mongoDatabase.getCollection(this.mongoConfig.collectionPrefix() + "settings");
     }
 
     @Override
