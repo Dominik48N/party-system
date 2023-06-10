@@ -19,8 +19,10 @@ package com.github.dominik48n.party.bungee;
 import com.github.dominik48n.party.command.CommandManager;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
+import java.util.logging.Level;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -54,6 +56,31 @@ public class BungeeCommandManager extends Command implements TabExecutor {
         };
         this.userManager = userManager;
         this.messageConfig = plugin.config().messageConfig();
+
+        if (plugin.config().databaseConfig().enabled()) {
+            DatabaseAdapter.createFromConfig(plugin.config().databaseConfig()).ifPresentOrElse(
+                    databaseAdapter -> {
+                        plugin.databaseAdapter(databaseAdapter);
+
+                        plugin.getLogger().info("Connect to " + plugin.config().databaseConfig().type().name() + "...");
+                        try {
+                            databaseAdapter.connect();
+                            plugin.getLogger().info("The connection to the database has been established.");
+
+                            BungeeCommandManager.this.commandManager.addToggleCommand(databaseAdapter);
+                        } catch (final Exception e) {
+                            plugin.getLogger().log(
+                                    Level.SEVERE,
+                                    "The connection to the database could not be established, which is why the party settings cannot be activated.",
+                                    e
+                            );
+                        }
+                    },
+                    () -> plugin.getLogger().warning(
+                            "An unsupported database system was specified, which is why the party settings cannot be activated."
+                    )
+            );
+        } else plugin.getLogger().warning("The database support is deactivated, which is why the settings cannot be activated.");
     }
 
     @Override

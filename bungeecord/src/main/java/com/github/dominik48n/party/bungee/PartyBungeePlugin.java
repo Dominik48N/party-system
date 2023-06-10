@@ -23,6 +23,7 @@ import com.github.dominik48n.party.bungee.listener.OnlinePlayersListener;
 import com.github.dominik48n.party.bungee.listener.SwitchServerListener;
 import com.github.dominik48n.party.bungee.listener.UpdateCheckerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.util.UpdateChecker;
@@ -40,6 +41,7 @@ public class PartyBungeePlugin extends Plugin {
 
     private @NotNull ProxyPluginConfig config = new ProxyPluginConfig();
 
+    private @Nullable DatabaseAdapter databaseAdapter = null;
     private @Nullable RedisManager redisManager = null;
     private @Nullable BungeeAudiences audiences = null;
 
@@ -125,6 +127,16 @@ public class PartyBungeePlugin extends Plugin {
             this.getLogger().info("Close connection to redis...");
             this.redisManager.close();
         } else this.getLogger().warning("The connection to redis is not closed, because the redis manager is not initialized.");
+
+        if (this.databaseAdapter != null) {
+            this.getLogger().info("Closing connection to database...");
+            try {
+                this.databaseAdapter.close();
+                this.getLogger().info("Closed database connection!");
+            } catch (final Exception e) {
+                this.getLogger().log(Level.SEVERE, "Failed to close database connection.", e);
+            }
+        }
     }
 
     public @NotNull ProxyPluginConfig config() {
@@ -139,5 +151,9 @@ public class PartyBungeePlugin extends Plugin {
     public @NotNull BungeeAudiences audiences() {
         if (this.audiences == null) throw new IllegalStateException("Audience isn't initialized.");
         return this.audiences;
+    }
+
+    void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.databaseAdapter = databaseAdapter;
     }
 }

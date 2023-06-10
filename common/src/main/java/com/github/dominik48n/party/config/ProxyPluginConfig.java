@@ -61,6 +61,10 @@ public class ProxyPluginConfig {
         return this.partyConfig;
     }
 
+    public @NotNull DatabaseConfig databaseConfig() {
+        return this.databaseConfig;
+    }
+
     public boolean updateChecker() {
         return this.updateChecker;
     }

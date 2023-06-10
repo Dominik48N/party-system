@@ -18,25 +18,33 @@ package com.github.dominik48n.party.command;
 
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class CommandManager {
 
-    private final @NotNull Map<String, PartyCommand> commands = ImmutableBiMap.of(
-            "invite", new InviteCommand(this.config().partyConfig()),
-            "accept", new AcceptCommand(this.config().partyConfig()),
-            "deny", new DenyCommand(),
-            "list", new ListCommand(this.config().partyConfig()),
-            "leave", new LeaveCommand(),
-            "promote", new PromoteCommand(),
-            "kick", new KickCommand(this.redisManager())
+    private final @NotNull Map<String, PartyCommand> commands = new HashMap<>(
+            ImmutableBiMap.of(
+                    "invite", new InviteCommand(this.config().partyConfig()),
+                    "accept", new AcceptCommand(this.config().partyConfig()),
+                    "deny", new DenyCommand(),
+                    "list", new ListCommand(this.config().partyConfig()),
+                    "leave", new LeaveCommand(),
+                    "promote", new PromoteCommand(),
+                    "kick", new KickCommand(this.redisManager())
+            )
     );
+
+    public void addToggleCommand(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.commands.put("toggle", new ToggleCommand(databaseAdapter));
+    }
 
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
         if (args.length == 0) {

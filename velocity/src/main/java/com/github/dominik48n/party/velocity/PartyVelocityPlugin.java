@@ -19,6 +19,7 @@ package com.github.dominik48n.party.velocity;
 import com.github.dominik48n.party.api.DefaultPartyProvider;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.util.UpdateChecker;
@@ -55,6 +56,7 @@ public class PartyVelocityPlugin {
     private final @NotNull Logger logger;
     private final @NotNull Path dataFolder;
 
+    private @Nullable DatabaseAdapter databaseAdapter;
     private @NotNull ProxyPluginConfig config;
     private @Nullable RedisManager redisManager;
 
@@ -142,6 +144,16 @@ public class PartyVelocityPlugin {
             this.logger.info("Close connection to redis...");
             this.redisManager.close();
         } else this.logger.warn("The connection to redis is not closed, because the redis manager is not initialized.");
+
+        if (this.databaseAdapter != null) {
+            this.logger.info("Closing connection to database...");
+            try {
+                this.databaseAdapter.close();
+                this.logger.info("Closed database connection!");
+            } catch (final Exception e) {
+                this.logger.error("Failed to close database connection.", e);
+            }
+        }
     }
 
     public @NotNull ProxyPluginConfig config() {
@@ -154,6 +166,10 @@ public class PartyVelocityPlugin {
 
     public @NotNull Logger logger() {
         return this.logger;
+    }
+
+    void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.databaseAdapter = databaseAdapter;
     }
 
     @NotNull RedisManager redisManager() {

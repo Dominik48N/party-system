@@ -16,10 +16,31 @@
 
 package com.github.dominik48n.party.database;
 
-public interface DatabaseAdapter {
+import com.github.dominik48n.party.config.DatabaseConfig;
+import com.github.dominik48n.party.database.mongo.MongoAdapter;
+import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
+import java.util.Optional;
+import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
+
+public interface DatabaseAdapter extends AutoCloseable {
+
+    static @NotNull Optional<DatabaseAdapter> createFromConfig(final @NotNull DatabaseConfig config) {
+        if (!config.enabled()) return Optional.empty();
+
+        final DatabaseAdapter databaseAdapter;
+        switch (config.type()) {
+            case MONGODB -> databaseAdapter = new MongoAdapter(config.mongoConfig());
+            default -> {
+                return Optional.empty();
+            }
+        }
+        return Optional.of(databaseAdapter);
+    }
 
     void connect();
 
-    void disconnect();
+    boolean getSettingValue(final @NotNull UUID uniqueId, final @NotNull DatabaseSettingsType type);
 
+    void toggleSetting(final @NotNull UUID uniqueId, final @NotNull DatabaseSettingsType type, final boolean value);
 }
