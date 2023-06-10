@@ -53,7 +53,7 @@ public class ToggleCommand extends PartyCommand {
     }
 
     @Override
-    public @NotNull List<String> tabComplete(final @NotNull String[] args) {
+    @NotNull List<String> tabComplete(final @NotNull String[] args) {
         if (args.length != 1) return super.tabComplete(args);
 
         final String search = args[0].toLowerCase();

@@ -25,7 +25,7 @@ public abstract class PartyCommand {
 
     public abstract void execute(final @NotNull PartyPlayer player, final @NotNull String[] args);
 
-    public @NotNull List<String> tabComplete(final @NotNull String[] args) {
+    @NotNull List<String> tabComplete(final @NotNull String[] args) {
         return Collections.emptyList();
     }
 }
