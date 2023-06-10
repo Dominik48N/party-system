@@ -86,7 +86,8 @@ public class MessageConfig {
                                 .append("received", "%prefix% <green>You received a party request from <gradient:#d896ff:#be29ec>{0}</gradient>. " +
                                         "<dark_gray>[<green><click:run_command:/party accept {0}>Accept</click></green>] | " +
                                         "[<red><click:run_command:/party deny {0}>Decline</click></red>]")
-                                .append("limit", "%prefix% <red>You would exceed the member limit of {0} with the invitation, which is why you cannot invite anyone."))
+                                .append("limit", "%prefix% <red>You would exceed the member limit of {0} with the invitation, which is why you cannot invite anyone.")
+                                .append("disabled_requests", "%prefix% <red>The player does not want to receive party requests."))
                         .append("accept", new Document()
                                 .append("already", "%prefix% <red>You are already in a party.")
                                 .append("no_request", "%prefix% <red>You either didn't receive a party request or it has expired.")

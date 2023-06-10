@@ -21,12 +21,17 @@ import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.PartyConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
+import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class InviteCommand extends PartyCommand {
 
     private final @NotNull PartyConfig config;
+
+    private @Nullable DatabaseAdapter databaseAdapter;
 
     InviteCommand(final @NotNull PartyConfig config) {
         this.config = config;
@@ -65,6 +70,11 @@ public class InviteCommand extends PartyCommand {
 
         if (PartyAPI.get().existsPartyRequest(player.name(), name)) {
             player.sendMessage("command.invite.already_invited");
+            return;
+        }
+
+        if (this.databaseAdapter != null && !this.databaseAdapter.getSettingValue(target.get().uniqueId(), DatabaseSettingsType.REQUESTS)) {
+            player.sendMessage("command.invite.disabled_requests");
             return;
         }
 
@@ -107,5 +117,9 @@ public class InviteCommand extends PartyCommand {
 
         player.sendMessage("command.invite.sent", name);
         target.get().sendMessage("command.invite.received", player.name());
+    }
+
+    void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.databaseAdapter = databaseAdapter;
     }
 }

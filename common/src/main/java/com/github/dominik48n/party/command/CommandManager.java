@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class CommandManager {
@@ -44,6 +45,10 @@ public abstract class CommandManager {
 
     public void addToggleCommand(final @NotNull DatabaseAdapter databaseAdapter) {
         this.commands.put("toggle", new ToggleCommand(databaseAdapter));
+
+        Optional.ofNullable(this.commands.get("invite")).ifPresent(partyCommand -> {
+            if (partyCommand instanceof final InviteCommand command) command.databaseAdapter(databaseAdapter);
+        });
     }
 
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
