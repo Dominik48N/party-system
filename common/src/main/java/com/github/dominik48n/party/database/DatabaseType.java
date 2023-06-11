@@ -23,6 +23,7 @@ public enum DatabaseType {
 
     /* SQL */
     POSTGRE_SQL,
+    MARIADB,
     MYSQL,
 
     /* Others */

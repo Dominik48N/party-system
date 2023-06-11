@@ -52,7 +52,7 @@ public class SqlAdapter implements DatabaseAdapter {
 
         config.setJdbcUrl(String.format(
                 "jdbc:%s://%s:%s/%s",
-                this.databaseType == DatabaseType.POSTGRE_SQL ? "postgresql" : "mysql",
+                this.databaseType == DatabaseType.POSTGRE_SQL ? "postgresql" : this.databaseType == DatabaseType.MARIADB ? "mariadb" : "mysql",
                 this.sqlConfig.hostname(),
                 this.sqlConfig.port(),
                 this.sqlConfig.database()
@@ -66,7 +66,12 @@ public class SqlAdapter implements DatabaseAdapter {
         config.setIdleTimeout(this.sqlConfig.poolConfig().idleTimeout());
         config.setMaxLifetime(this.sqlConfig.poolConfig().maxLife());
 
-        config.setDriverClassName(databaseType == DatabaseType.POSTGRE_SQL ? "org.postgresql.Driver" : "com.mysql.cj.jdbc.Driver");
+        config.setDriverClassName(switch (this.databaseType) {
+            case POSTGRE_SQL -> "org.postgresql.Driver";
+            case MARIADB -> "org.mariadb.jdbc.Driver";
+            case MYSQL -> "com.mysql.cj.jdbc.Driver";
+            default -> "";
+        });
 
         this.dataSource = new HikariDataSource(config);
         try {
