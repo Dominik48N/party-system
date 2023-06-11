@@ -50,9 +50,13 @@ public class SqlAdapter implements DatabaseAdapter {
     public void connect() {
         final HikariConfig config = new HikariConfig();
 
-        config.setJdbcUrl("jdbc:" + (this.databaseType == DatabaseType.POSTGRE_SQL ? "postgresql" : "mysql") + "://" +
-                this.sqlConfig.hostname() + ":" + this.sqlConfig.port() + "/" + this.sqlConfig.database()
-        );
+        config.setJdbcUrl(String.format(
+                "jdbc:%s://%s:%s/%s",
+                this.databaseType == DatabaseType.POSTGRE_SQL ? "postgresql" : "mysql",
+                this.sqlConfig.hostname(),
+                this.sqlConfig.port(),
+                this.sqlConfig.database()
+        ));
         config.setUsername(this.sqlConfig.username());
         config.setPassword(this.sqlConfig.password());
 
