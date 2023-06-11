@@ -85,7 +85,7 @@ public class SqlAdapter implements DatabaseAdapter {
                 for (final DatabaseSettingsType settingsType : DatabaseSettingsType.values()) {
                     tableCreateCommand.append(",").append(settingsType.name().toLowerCase()).append(" BOOLEAN NOT NULL DEFAULT true");
                 }
-            } else if (this.databaseType == DatabaseType.MYSQL) {
+            } else if (this.databaseType == DatabaseType.MARIADB || this.databaseType == DatabaseType.MYSQL) {
                 for (final DatabaseSettingsType settingsType : DatabaseSettingsType.values()) {
                     tableCreateCommand.append(",").append(settingsType.name().toLowerCase()).append(" INT(1) NOT NULL DEFAULT '0'");
                 }
@@ -116,7 +116,8 @@ public class SqlAdapter implements DatabaseAdapter {
                 while (resultSet.next()) {
                     boolean disabled = false;
                     if (this.databaseType == DatabaseType.POSTGRE_SQL && !resultSet.getBoolean(settingColumn)) disabled = true;
-                    else if (this.databaseType == DatabaseType.MYSQL && resultSet.getInt(settingColumn) == 1) disabled = true;
+                    else if ((this.databaseType == DatabaseType.MYSQL || this.databaseType == DatabaseType.MARIADB) && resultSet.getInt(settingColumn) == 1)
+                        disabled = true;
 
                     if (disabled) continue;
 
@@ -173,7 +174,7 @@ public class SqlAdapter implements DatabaseAdapter {
             if (this.databaseType == DatabaseType.POSTGRE_SQL) {
                 statement.setBoolean(2, value);
                 statement.setBoolean(3, value);
-            } else if (this.databaseType == DatabaseType.MYSQL) {
+            } else if (this.databaseType == DatabaseType.MYSQL || this.databaseType == DatabaseType.MARIADB) {
                 statement.setInt(2, value ? 0 : 1);
                 statement.setInt(3, value ? 0 : 1);
             }
