@@ -7,6 +7,7 @@ The PartySystem is a plugin for BungeeCord and Velocity that allows players to c
 * Automatic synchronization of party members across multiple servers
 * Support for BungeeCord and Velocity proxy servers
 * Redis-based communication for multi-proxy support
+* Party Settings (Requests, Join/Quit Notifications, Party Chat)
 
 ## Installation
 * Download the latest release of the PartySystem plugin.
@@ -23,6 +24,16 @@ There is the permission `party.updates` to get a message when there is a new ver
 
 You can adjust the member limit for a party leader with the permission `party.members.limit.<limit>`. **The value must be between 0 and 1,000.** If a player does not have a limit permission, the default member limit is taken from the config.
 
+## Database
+A database system is not required to use the party system. But if you want to use the feature that players can set themselves whether they want to receive party requests, join/quit messages and party chat messages, you have to use a database system.
+
+Four database systems are currently supported.
+* [MongoDB](https://www.mongodb.com)
+* [PostgreSQL](https://www.postgresql.org)
+* [MariaDB](https://mariadb.org)
+* [MySQL](https://www.mysql.com/de/)
+
+In order to use a supported database system, you have to go to the `database` sub-item in `config.json`. Then you have to set `enabled` to `true` and enter a supported database system under `type`. Finally, enter the connection data for your selected database system and restart the proxy.
 
 ## API
 The Party API is a Java library that provides an interface for managing parties of players. It includes methods for creating, joining, and leaving parties, as well as sending messages to party members and connecting parties to servers.
