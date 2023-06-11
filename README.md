@@ -31,7 +31,7 @@ Four database systems are currently supported.
 * [MongoDB](https://www.mongodb.com)
 * [PostgreSQL](https://www.postgresql.org)
 * [MariaDB](https://mariadb.org)
-* [MySQL](https://www.mysql.com/de/)
+* [MySQL](https://www.mysql.com/)
 
 In order to use a supported database system, you have to go to the `database` sub-item in `config.json`. Then you have to set `enabled` to `true` and enter a supported database system under `type`. Finally, enter the connection data for your selected database system and restart the proxy.
 
