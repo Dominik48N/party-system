@@ -33,7 +33,7 @@ public interface DatabaseAdapter extends AutoCloseable {
         final DatabaseAdapter databaseAdapter;
         switch (config.type()) {
             case MONGODB -> databaseAdapter = new MongoAdapter(config.mongoConfig());
-            case POSTGRE_SQL, MYSQL -> databaseAdapter = new SqlAdapter(config.sqlConfig(), config.type());
+            case POSTGRESQL, MYSQL -> databaseAdapter = new SqlAdapter(config.sqlConfig(), config.type());
             default -> {
                 return Optional.empty();
             }

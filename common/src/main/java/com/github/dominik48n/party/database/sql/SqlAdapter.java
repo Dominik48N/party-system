@@ -52,7 +52,7 @@ public class SqlAdapter implements DatabaseAdapter {
 
         config.setJdbcUrl(String.format(
                 "jdbc:%s://%s:%s/%s",
-                this.databaseType == DatabaseType.POSTGRE_SQL ? "postgresql" : this.databaseType == DatabaseType.MARIADB ? "mariadb" : "mysql",
+                this.databaseType == DatabaseType.POSTGRESQL ? "postgresql" : this.databaseType == DatabaseType.MARIADB ? "mariadb" : "mysql",
                 this.sqlConfig.hostname(),
                 this.sqlConfig.port(),
                 this.sqlConfig.database()
@@ -67,7 +67,7 @@ public class SqlAdapter implements DatabaseAdapter {
         config.setMaxLifetime(this.sqlConfig.poolConfig().maxLife());
 
         config.setDriverClassName(switch (this.databaseType) {
-            case POSTGRE_SQL -> "org.postgresql.Driver";
+            case POSTGRESQL -> "org.postgresql.Driver";
             case MARIADB -> "org.mariadb.jdbc.Driver";
             case MYSQL -> "com.mysql.cj.jdbc.Driver";
             default -> "";
@@ -81,7 +81,7 @@ public class SqlAdapter implements DatabaseAdapter {
                     .append(this.settingsTable())
                     .append("(unique_id VARCHAR(36) NOT NULL PRIMARY KEY");
 
-            if (this.databaseType == DatabaseType.POSTGRE_SQL) {
+            if (this.databaseType == DatabaseType.POSTGRESQL) {
                 for (final DatabaseSettingsType settingsType : DatabaseSettingsType.values()) {
                     tableCreateCommand.append(",").append(settingsType.name().toLowerCase()).append(" BOOLEAN NOT NULL DEFAULT true");
                 }
@@ -115,7 +115,7 @@ public class SqlAdapter implements DatabaseAdapter {
             try (final ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     boolean disabled = false;
-                    if (this.databaseType == DatabaseType.POSTGRE_SQL && !resultSet.getBoolean(settingColumn)) disabled = true;
+                    if (this.databaseType == DatabaseType.POSTGRESQL && !resultSet.getBoolean(settingColumn)) disabled = true;
                     else if ((this.databaseType == DatabaseType.MYSQL || this.databaseType == DatabaseType.MARIADB) && resultSet.getInt(settingColumn) == 1)
                         disabled = true;
 
@@ -150,7 +150,7 @@ public class SqlAdapter implements DatabaseAdapter {
 
             try (final ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    if (this.databaseType == DatabaseType.POSTGRE_SQL) return resultSet.getBoolean(settingColumn);
+                    if (this.databaseType == DatabaseType.POSTGRESQL) return resultSet.getBoolean(settingColumn);
 
                     return resultSet.getInt(settingColumn) != 1;
                 }
@@ -171,7 +171,7 @@ public class SqlAdapter implements DatabaseAdapter {
                         "ON DUPLICATE KEY UPDATE " + settingColumn + " = ?"
         )) {
             statement.setString(1, uniqueId.toString());
-            if (this.databaseType == DatabaseType.POSTGRE_SQL) {
+            if (this.databaseType == DatabaseType.POSTGRESQL) {
                 statement.setBoolean(2, value);
                 statement.setBoolean(3, value);
             } else if (this.databaseType == DatabaseType.MYSQL || this.databaseType == DatabaseType.MARIADB) {

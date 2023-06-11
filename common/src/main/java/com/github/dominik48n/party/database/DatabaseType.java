@@ -22,7 +22,7 @@ public enum DatabaseType {
     MONGODB,
 
     /* SQL */
-    POSTGRE_SQL,
+    POSTGRESQL,
     MARIADB,
     MYSQL,
 

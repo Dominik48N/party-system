@@ -36,7 +36,7 @@ public class DatabaseConfigTest {
     void testFromDocument() {
         final Document document = new Document()
                 .append("enabled", true)
-                .append("type", DatabaseType.POSTGRE_SQL.name())
+                .append("type", DatabaseType.POSTGRESQL.name())
                 .append("mongodb", new Document()
                         .append("uri", this.uri)
                         .append("database", this.database)
@@ -59,7 +59,7 @@ public class DatabaseConfigTest {
         final DatabaseConfig config = DatabaseConfig.fromDocument(document);
 
         assertTrue(config.enabled());
-        assertEquals(config.type().name(), DatabaseType.POSTGRE_SQL.name());
+        assertEquals(config.type().name(), DatabaseType.POSTGRESQL.name());
 
         assertEquals(config.mongoConfig().uri(), this.uri);
         assertEquals(config.mongoConfig().database(), this.database);
@@ -81,7 +81,7 @@ public class DatabaseConfigTest {
 
     @Test
     void testToDocument() {
-        final DatabaseConfig config = new DatabaseConfig(true, DatabaseType.POSTGRE_SQL, new DatabaseConfig.MongoConfig(
+        final DatabaseConfig config = new DatabaseConfig(true, DatabaseType.POSTGRESQL, new DatabaseConfig.MongoConfig(
                 this.uri,
                 this.database,
                 this.collectionPrefix
@@ -103,7 +103,7 @@ public class DatabaseConfigTest {
         final Document document = config.toDocument();
 
         assertTrue(document.getBoolean("enabled", false));
-        assertEquals(DatabaseType.POSTGRE_SQL.name(), document.getString("type", DatabaseType.UNKNOWN.name()));
+        assertEquals(DatabaseType.POSTGRESQL.name(), document.getString("type", DatabaseType.UNKNOWN.name()));
 
         final Document mongoDocument = document.getDocument("mongodb");
         assertEquals(mongoDocument.getString("uri", "no_value"), this.uri);
