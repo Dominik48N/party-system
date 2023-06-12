@@ -59,7 +59,7 @@ public class RedisManager extends JedisPubSub {
      * Disconnects this RedisManager from the Redis server.
      */
     public void close() {
-        this.unsubscribe();
+        super.unsubscribe();
         this.jedisPool.destroy();
     }
 
