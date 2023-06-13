@@ -54,11 +54,11 @@ public class MongoAdapter implements DatabaseAdapter {
 
     @Override
     public @NotNull List<UUID> getPlayersWithEnabledSetting(final @NotNull List<UUID> players, final @NotNull DatabaseSettingsType type) {
+        final String typeName = type.name();
         final FindIterable<Document> cursor = this.settingsCollection()
                 .find(Filters.in("unique_id", players.stream().map(UUID::toString).toList()))
                 .cursorType(CursorType.NonTailable)
-                .projection(Projections.include("unique_id"));
-        final String typeName = type.name();
+                .projection(Projections.include("unique_id", typeName));
 
         final List<UUID> uuids = new ArrayList<>(players);
         for (final Document document : cursor) {
