@@ -27,7 +27,7 @@ dependencies {
 tasks.shadowJar {
     relocate("net.kyori", "${project.group}.libs.kyori")
     relocate("org.jetbrains", "${project.group}.libs.jetbrains")
-    relocate("redis.clients", "${project.group}.libs.redis")
+    relocate("redis.clients.jedis", "${project.group}.libs.redis")
     relocate("org.apache.commons.pool2", "${project.group}.libs.commons.pool2")
     relocate("org.intellij.lang", "${project.group}.libs.intellij.lang")
     relocate("org.json", "${project.group}.libs.json")
@@ -36,7 +36,7 @@ tasks.shadowJar {
     relocate("com.google.gson", "${project.group}.libs.gson")
     relocate("org.bson", "${project.group}.libs.bson")
     relocate("com.mongodb", "${project.group}.libs.mongodb")
-    relocate("com.postgresql", "${project.group}.libs.postgresql")
+    relocate("org.postgresql", "${project.group}.libs.postgresql")
     relocate("com.zaxxer.hikari", "${project.group}.libs.hikari")
 }
 
