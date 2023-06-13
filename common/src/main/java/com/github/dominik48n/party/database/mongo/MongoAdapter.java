@@ -26,6 +26,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.UpdateOptions;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,8 @@ public class MongoAdapter implements DatabaseAdapter {
     public @NotNull List<UUID> getPlayersWithEnabledSetting(final @NotNull List<UUID> players, final @NotNull DatabaseSettingsType type) {
         final FindIterable<Document> cursor = this.settingsCollection()
                 .find(Filters.in("unique_id", players.stream().map(UUID::toString).toList()))
-                .cursorType(CursorType.NonTailable);
+                .cursorType(CursorType.NonTailable)
+                .projection(Projections.include("unique_id"));
         final String typeName = type.name();
 
         final List<UUID> uuids = new ArrayList<>(players);
@@ -79,7 +81,8 @@ public class MongoAdapter implements DatabaseAdapter {
     public boolean getSettingValue(final @NotNull UUID uniqueId, final @NotNull DatabaseSettingsType type) {
         final FindIterable<Document> cursor = this.settingsCollection()
                 .find(Filters.eq("unique_id", uniqueId.toString()))
-                .cursorType(CursorType.NonTailable);
+                .cursorType(CursorType.NonTailable)
+                .projection(Projections.include(type.name()));
 
         final Document document = cursor.first();
         return document == null || document.getBoolean(type.name(), true);
