@@ -31,7 +31,6 @@ tasks.shadowJar {
     relocate("com.mongodb", "${project.group}.libs.mongodb")
     relocate("org.postgresql", "${project.group}.libs.postgresql")
     relocate("com.zaxxer.hikari", "${project.group}.libs.hikari")
-    relocate("com.google", "${project.group}.libs.google")
 }
 
 blossom {
