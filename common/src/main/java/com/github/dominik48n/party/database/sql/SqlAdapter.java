@@ -144,7 +144,7 @@ public class SqlAdapter implements DatabaseAdapter {
 
         final String settingColumn = type.name().toLowerCase();
         try (final PreparedStatement statement = this.connection.prepareStatement(
-                "SELECT " + settingColumn + " FROM " + settingsTable() + " WHERE unique_id = ?"
+                "SELECT " + settingColumn + " FROM " + this.settingsTable() + " WHERE unique_id = ?"
         )) {
             statement.setString(1, uniqueId.toString());
 
