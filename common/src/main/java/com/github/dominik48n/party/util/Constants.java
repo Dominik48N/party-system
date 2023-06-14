@@ -23,4 +23,8 @@ public class Constants {
     public static final @NotNull String MEMBER_LIMIT_PERMISSION_PREFIX = "party.members.limit.";
     public static final int MAXIMUM_MEMBER_LIMIT = 1000;
 
+    public static final @NotNull String UPDATE_CHECKER_PERMISSION = "party.updates";
+    public static final @NotNull String GITHUB_OWNER = "Dominik48N";
+    public static final @NotNull String GITHUB_REPOSITORY = "party-system";
+
 }

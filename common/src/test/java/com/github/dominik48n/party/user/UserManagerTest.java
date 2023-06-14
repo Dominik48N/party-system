@@ -32,12 +32,12 @@ public class UserManagerTest {
 
     @SuppressWarnings("unchecked")
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.userManager = Mockito.mock(UserManager.class);
     }
 
     @Test
-    public void testGetPlayer() {
+    void testGetPlayer() {
         final UserMock userMock = new UserMock(UUID.randomUUID(), "Dominik48N", this.userManager);
 
         final PartyPlayer expectedPlayer = Mockito.mock(PartyPlayer.class);
@@ -49,7 +49,7 @@ public class UserManagerTest {
     }
 
     @Test
-    public void testUserFromCache() {
+    void testUserFromCache() {
         final UUID playerId = UUID.randomUUID();
 
         final PartyPlayer expectedPlayer = Mockito.mock(PartyPlayer.class);
@@ -61,7 +61,7 @@ public class UserManagerTest {
     }
 
     @Test
-    public void testRemovePlayerFromCache() {
+    void testRemovePlayerFromCache() {
         final UserMock userMock = new UserMock(UUID.randomUUID(), "Dominik48N", this.userManager);
 
         this.userManager.removePlayerFromCache(userMock);
@@ -69,7 +69,7 @@ public class UserManagerTest {
     }
 
     @Test
-    public void testSendMessage() {
+    void testSendMessage() {
         final UUID uniqueId = UUID.randomUUID();
         final Component component = Component.text("Test Message");
 

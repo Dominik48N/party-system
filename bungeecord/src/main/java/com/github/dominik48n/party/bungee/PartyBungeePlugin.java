@@ -24,6 +24,7 @@ import com.github.dominik48n.party.bungee.listener.SwitchServerListener;
 import com.github.dominik48n.party.bungee.listener.UpdateCheckerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.util.UpdateChecker;
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +45,8 @@ public class PartyBungeePlugin extends Plugin {
 
     @Override
     public void onEnable() {
-        final File configFile = new File(this.getDataFolder(), ProxyPluginConfig.FILE_NAME);
-        this.getDataFolder().mkdirs();
+        final File configFile = new File(super.getDataFolder(), ProxyPluginConfig.FILE_NAME);
+        super.getDataFolder().mkdirs();
         try {
             this.config = ProxyPluginConfig.fromFile(configFile);
         } catch (final IOException e) {
@@ -53,15 +54,15 @@ public class PartyBungeePlugin extends Plugin {
                 this.config = new ProxyPluginConfig();
                 this.config.writeToFile(configFile);
             } catch (final IOException e1) {
-                this.getLogger().log(Level.SEVERE, "Failed to write configuration file.", e);
+                super.getLogger().log(Level.SEVERE, "Failed to write configuration file.", e);
             }
         }
 
         try {
             this.redisManager = new RedisManager(this.config.redisConfig());
-            this.getLogger().info("The connection to Redis has been established.");
+            super.getLogger().info("The connection to Redis has been established.");
         } catch (final Exception e) {
-            this.getLogger().log(
+            super.getLogger().log(
                     Level.SEVERE,
                     "The connection to redis could not be established. The party system is therefore not fully loaded.",
                     e
@@ -80,14 +81,14 @@ public class PartyBungeePlugin extends Plugin {
 
         final BungeeCommandManager bungeeCommandManager = new BungeeCommandManager(userManager, this);
 
-        this.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(userManager, this));
-        this.getProxy().getPluginManager().registerListener(this, new SwitchServerListener(userManager, this.config.serverSwitchConfig(), this.getLogger()));
+        super.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(userManager, this));
+        super.getProxy().getPluginManager().registerListener(this, new SwitchServerListener(userManager, this.config.serverSwitchConfig(), super.getLogger()));
 
-        this.getProxy().getPluginManager().registerCommand(
+        super.getProxy().getPluginManager().registerCommand(
                 this,
                 new PartyChatCommand(bungeeCommandManager.commandManager, userManager, this.config().messageConfig())
         );
-        this.getProxy().getPluginManager().registerCommand(this, bungeeCommandManager);
+        super.getProxy().getPluginManager().registerCommand(this, bungeeCommandManager);
 
         if (this.config.updateChecker()) this.registerUpdateChecker();
     }
@@ -99,31 +100,35 @@ public class PartyBungeePlugin extends Plugin {
      */
     private void registerUpdateChecker() {
         final String currentVersion = this.getDescription().getVersion();
-        this.getProxy().getScheduler().schedule(this, () -> {
+        super.getProxy().getScheduler().schedule(this, () -> {
             try {
-                final String latestVersion = UpdateChecker.latestVersion(UpdateChecker.OWNER, UpdateChecker.REPOSITORY);
+                final String latestVersion = UpdateChecker.latestVersion(Constants.GITHUB_OWNER, Constants.GITHUB_REPOSITORY);
                 if (latestVersion.equals(currentVersion)) return; // Up to date :)
 
-                PartyBungeePlugin.this.getLogger().log(Level.INFO, "There is a new version of the party system: {0}", new Object[] {latestVersion});
+                PartyBungeePlugin.super.getLogger().log(
+                        Level.INFO,
+                        "There is a new version of the party system: {0}",
+                        new Object[] {latestVersion}
+                );
             } catch (final IOException | InterruptedException e) {
-                PartyBungeePlugin.this.getLogger().log(Level.SEVERE, "Failed to check latest PartySystem version.", e);
+                PartyBungeePlugin.super.getLogger().log(Level.SEVERE, "Failed to check latest PartySystem version.", e);
             }
         }, 1L, 24L * 60L * 60L, TimeUnit.SECONDS); // Call 1 second after start and daily thereafter.
 
-        this.getProxy().getPluginManager().registerListener(this, new UpdateCheckerListener(this, this.config().messageConfig()));
+        super.getProxy().getPluginManager().registerListener(this, new UpdateCheckerListener(this, this.config().messageConfig()));
     }
 
     @Override
     public void onDisable() {
-        for (final ProxiedPlayer player : this.getProxy().getPlayers()) {
+        for (final ProxiedPlayer player : super.getProxy().getPlayers()) {
             PartyAPI.get().onlinePlayerProvider().logout(player.getUniqueId());
             PartyAPI.get().clearPartyRequest(player.getName());
         }
 
         if (this.redisManager != null) {
-            this.getLogger().info("Close connection to redis...");
+            super.getLogger().info("Close connection to redis...");
             this.redisManager.close();
-        } else this.getLogger().warning("The connection to redis is not closed, because the redis manager is not initialized.");
+        } else super.getLogger().warning("The connection to redis is not closed, because the redis manager is not initialized.");
     }
 
     public @NotNull ProxyPluginConfig config() {

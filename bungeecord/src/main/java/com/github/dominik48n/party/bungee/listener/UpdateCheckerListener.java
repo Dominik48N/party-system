@@ -18,6 +18,7 @@ package com.github.dominik48n.party.bungee.listener;
 
 import com.github.dominik48n.party.bungee.PartyBungeePlugin;
 import com.github.dominik48n.party.config.MessageConfig;
+import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.util.UpdateChecker;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -42,11 +43,11 @@ public class UpdateCheckerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePostLogin(final PostLoginEvent event) {
         final ProxiedPlayer player = event.getPlayer();
-        if (!player.hasPermission(UpdateChecker.PERMISSION)) return;
+        if (!player.hasPermission(Constants.UPDATE_CHECKER_PERMISSION)) return;
 
         this.plugin.getProxy().getScheduler().runAsync(this.plugin, () -> {
             try {
-                final String latestVersion = UpdateChecker.latestVersion(UpdateChecker.OWNER, UpdateChecker.REPOSITORY);
+                final String latestVersion = UpdateChecker.latestVersion(Constants.GITHUB_OWNER, Constants.GITHUB_REPOSITORY);
                 if (latestVersion.equals(UpdateCheckerListener.this.plugin.getDescription().getVersion())) return;
 
                 final Component message = UpdateCheckerListener.this.messageConfig.getMessage("general.updates.new_version");

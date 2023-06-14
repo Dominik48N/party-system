@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 public class MessageConfigTest {
 
     @Test
-    public void testFromDocument() {
+    void testFromDocument() {
         final String prefix = "<gray>[<gradient:#d896ff:#be29ec>PartySystem</gradient>]";
         final Document document = mock(Document.class);
         when(document.getString("prefix", "<gray>[<gradient:#d896ff:#be29ec>Party</gradient>]")).thenReturn(prefix);
@@ -43,7 +43,7 @@ public class MessageConfigTest {
     }
 
     @Test
-    public void testGetMessage() {
+    void testGetMessage() {
         final MessageConfig config = new MessageConfig();
         config.messages().put("test", new MessageFormat("<dark_red>{0}"));
         final String expected = "<dark_red>Hello";

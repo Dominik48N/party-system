@@ -27,7 +27,7 @@ import java.util.UUID;
 public class UserSerializationDeserializationTest {
 
     @Test
-    public void testUserSerializationDeserialization() throws IOException {
+    void testUserSerializationDeserialization() throws IOException {
         final PartyPlayer player = new UserDeserializer.DeserializedUser(
                 UUID.randomUUID(),
                 "Dominik48N",
