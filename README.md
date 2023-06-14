@@ -35,4 +35,4 @@ For more detailed information about the API and its methods, please refer to the
 Contributions to the PartySystem plugin are welcome! If you would like to contribute, please follow the guidelines in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 ## License
-The PartySystem plugin is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for more information.
+The PartySystem plugin is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). See the [LICENSE](LICENSE) file for more information.
