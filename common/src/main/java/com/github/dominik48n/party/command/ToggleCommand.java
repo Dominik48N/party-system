@@ -28,7 +28,7 @@ public class ToggleCommand extends PartyCommand {
 
     private final @NotNull DatabaseAdapter databaseAdapter;
 
-    public ToggleCommand(final @NotNull DatabaseAdapter databaseAdapter) {
+    ToggleCommand(final @NotNull DatabaseAdapter databaseAdapter) {
         this.databaseAdapter = databaseAdapter;
     }
 
