@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.github.dominik48n.party.command;
+package com.github.dominik48n.party.database;
 
-import com.github.dominik48n.party.api.player.PartyPlayer;
-import java.util.Collections;
-import java.util.List;
-import org.jetbrains.annotations.NotNull;
+public enum DatabaseType {
 
-public abstract class PartyCommand {
+    /* MongoDB */
+    MONGODB,
 
-    public abstract void execute(final @NotNull PartyPlayer player, final @NotNull String[] args);
+    /* SQL */
+    POSTGRESQL,
+    MARIADB,
+    MYSQL,
 
-    @NotNull List<String> tabComplete(final @NotNull String[] args) {
-        return Collections.emptyList();
-    }
+    /* Others */
+    UNKNOWN;
 }

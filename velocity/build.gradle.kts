@@ -22,11 +22,15 @@ dependencies {
 }
 
 tasks.shadowJar {
-    relocate("redis.clients", "${project.group}.libs.redis")
+    relocate("redis.clients.jedis", "${project.group}.libs.redis")
     relocate("org.apache.commons.pool2", "${project.group}.libs.commons.pool2")
     relocate("org.json", "${project.group}.libs.json")
     relocate("com.fasterxml.jackson", "${project.group}.libs.jackson")
     relocate("com.google.common.collect", "${project.group}.libs.commons.google.collect")
+    relocate("org.bson", "${project.group}.libs.bson")
+    relocate("com.mongodb", "${project.group}.libs.mongodb")
+    relocate("org.postgresql", "${project.group}.libs.postgresql")
+    relocate("com.zaxxer.hikari", "${project.group}.libs.hikari")
 }
 
 blossom {

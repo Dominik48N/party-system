@@ -27,13 +27,17 @@ dependencies {
 tasks.shadowJar {
     relocate("net.kyori", "${project.group}.libs.kyori")
     relocate("org.jetbrains", "${project.group}.libs.jetbrains")
-    relocate("redis.clients", "${project.group}.libs.redis")
+    relocate("redis.clients.jedis", "${project.group}.libs.redis")
     relocate("org.apache.commons.pool2", "${project.group}.libs.commons.pool2")
     relocate("org.intellij.lang", "${project.group}.libs.intellij.lang")
     relocate("org.json", "${project.group}.libs.json")
     relocate("org.slf4j", "${project.group}.libs.slf4j")
     relocate("com.fasterxml.jackson", "${project.group}.libs.jackson")
     relocate("com.google.gson", "${project.group}.libs.gson")
+    relocate("org.bson", "${project.group}.libs.bson")
+    relocate("com.mongodb", "${project.group}.libs.mongodb")
+    relocate("org.postgresql", "${project.group}.libs.postgresql")
+    relocate("com.zaxxer.hikari", "${project.group}.libs.hikari")
 }
 
 tasks.processResources {

@@ -20,6 +20,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.Document;
+import com.github.dominik48n.party.database.DatabaseAdapter;
+import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.NetworkUser;
 import com.github.dominik48n.party.user.UserManager;
@@ -39,6 +41,8 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
 
     private final @NotNull RedisManager redisManager;
     private final @NotNull UserManager<TUser> userManager;
+
+    private @Nullable DatabaseAdapter databaseAdapter;
 
     public DefaultOnlinePlayersProvider(final @NotNull RedisManager redisManager, final @NotNull UserManager<TUser> userManager) {
         this.redisManager = redisManager;
@@ -158,7 +162,11 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
                                             newLeader.get().memberLimit()
                                     );
 
-                                    PartyAPI.get().sendMessageToMembers(party, "party.left", player.name());
+                                    final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                                            this.databaseAdapter.getPlayersWithEnabledSetting(party.members(), DatabaseSettingsType.NOTIFICATIONS) :
+                                            party.members();
+                                    PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
+
                                     PartyAPI.get().sendMessageToMembers(party, "party.new_leader", newLeader.get().name());
                                 } catch (final JsonProcessingException ignored) {
                                 }
@@ -169,7 +177,11 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
                         } else {
                             // Player is not the leader of the party, remove player from party
                             party.members().remove(player.uniqueId());
-                            PartyAPI.get().sendMessageToParty(party, "party.left", player.name());
+
+                            final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                                    this.databaseAdapter.getPlayersWithEnabledSetting(party.allMembers(), DatabaseSettingsType.NOTIFICATIONS) :
+                                    party.allMembers();
+                            PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
                         }
 
                         // Save updated party to Redis
@@ -205,5 +217,9 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             return this.updatePartyId(jedis, uniqueId, partyId);
         }
+    }
+
+    void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.databaseAdapter = databaseAdapter;
     }
 }

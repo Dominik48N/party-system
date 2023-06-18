@@ -19,6 +19,7 @@ package com.github.dominik48n.party.bungee.command;
 import com.github.dominik48n.party.command.ChatCommand;
 import com.github.dominik48n.party.command.CommandManager;
 import com.github.dominik48n.party.config.MessageConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.user.UserManager;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -57,5 +58,9 @@ public class PartyChatCommand extends Command {
                         PartyChatCommand.this.messageConfig.getMessage("command.user_not_loaded")
                 )
         );
+    }
+
+    public void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.chatCommand.databaseAdapter(databaseAdapter);
     }
 }

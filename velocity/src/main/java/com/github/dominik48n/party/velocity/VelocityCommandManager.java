@@ -20,6 +20,7 @@ import com.github.dominik48n.party.command.ChatCommand;
 import com.github.dominik48n.party.command.CommandManager;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
 import com.velocitypowered.api.command.RawCommand;
@@ -56,6 +57,29 @@ public class VelocityCommandManager implements RawCommand {
         this.chatCommand = new ChatCommand(this.commandManager);
         this.userManager = userManager;
         this.messageConfig = plugin.config().messageConfig();
+
+        if (plugin.config().databaseConfig().enabled()) {
+            DatabaseAdapter.createFromConfig(plugin.config().databaseConfig()).ifPresentOrElse(
+                    databaseAdapter -> {
+                        plugin.databaseAdapter(databaseAdapter);
+
+                        plugin.logger().info("Connect to " + plugin.config().databaseConfig().type().name() + "...");
+                        try {
+                            databaseAdapter.connect();
+                            plugin.logger().info("The connection to the database has been established.");
+
+                            VelocityCommandManager.this.commandManager.addToggleCommand(databaseAdapter);
+                            VelocityCommandManager.this.chatCommand.databaseAdapter(databaseAdapter);
+                        } catch (final Exception e) {
+                            plugin.logger().error(
+                                    "The connection to the database could not be established, which is why the party settings cannot be activated.",
+                                    e
+                            );
+                        }
+                    },
+                    () -> plugin.logger().warn("An unsupported database system was specified, which is why the party settings cannot be activated.")
+            );
+        } else plugin.logger().warn("The database support is deactivated, which is why the settings cannot be activated.");
     }
 
     @Override

@@ -21,12 +21,19 @@ import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.PartyConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
+import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class AcceptCommand extends PartyCommand {
 
     private final @NotNull PartyConfig config;
+
+    private @Nullable DatabaseAdapter databaseAdapter;
 
     AcceptCommand(final @NotNull PartyConfig config) {
         this.config = config;
@@ -86,9 +93,16 @@ public class AcceptCommand extends PartyCommand {
             return;
         }
 
-        PartyAPI.get().sendMessageToParty(party.get(), "party.join", player.name());
+        final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                this.databaseAdapter.getPlayersWithEnabledSetting(party.get().allMembers(), DatabaseSettingsType.NOTIFICATIONS) :
+                party.get().allMembers();
+        PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.join", player.name());
 
         player.partyId(party.get().id());
         player.sendMessage("command.accept.joined");
+    }
+
+    void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.databaseAdapter = databaseAdapter;
     }
 }

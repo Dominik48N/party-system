@@ -77,6 +77,11 @@ public class Document {
         return this;
     }
 
+    @NotNull Document append(final @NotNull String key, final long value) {
+        this.objectNode.put(key, value);
+        return this;
+    }
+
     @NotNull Document append(final @NotNull String key, final @NotNull Document value) {
         this.objectNode.set(key, value.objectNode);
         return this;
@@ -93,6 +98,10 @@ public class Document {
 
     int getInt(final @NotNull String key, final int defaultValue) {
         return this.contains(key) ? this.objectNode.get(key).asInt() : defaultValue;
+    }
+
+    long getLong(final @NotNull String key, final long defaultValue) {
+        return this.contains(key) ? this.objectNode.get(key).asLong() : defaultValue;
     }
 
     boolean getBoolean(final @NotNull String key, final boolean defaultValue) {
