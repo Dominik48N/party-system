@@ -21,6 +21,7 @@ import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.Document;
 import com.github.dominik48n.party.config.MessageConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.redis.RedisSwitchServerSub;
@@ -150,16 +151,7 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
     }
 
     @Override
-    public void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements) {
-        this.sendMessageToPlayers(party.allMembers(), messageKey, replacements);
-    }
-
-    @Override
-    public void sendMessageToMembers(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements) {
-        this.sendMessageToPlayers(party.members(), messageKey, replacements);
-    }
-
-    private void sendMessageToPlayers(final @NotNull List<UUID> players, final @NotNull String messageKey, final @NotNull Object... replacements) {
+    public void sendMessageToPlayers(final @NotNull List<UUID> players, final @NotNull String messageKey, final @NotNull Object... replacements) {
         final Component component = this.messageConfig.getMessage(messageKey, replacements);
         final String message = MiniMessage.miniMessage().serialize(component);
        players.forEach(uuid -> this.redisManager.publish(
@@ -216,5 +208,9 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
         try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
             return jedis.exists("request:" + source + ":" + target);
         }
+    }
+
+    public void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.onlinePlayerProvider.databaseAdapter(databaseAdapter);
     }
 }

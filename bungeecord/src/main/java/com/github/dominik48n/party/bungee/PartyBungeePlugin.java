@@ -23,6 +23,7 @@ import com.github.dominik48n.party.bungee.listener.OnlinePlayersListener;
 import com.github.dominik48n.party.bungee.listener.SwitchServerListener;
 import com.github.dominik48n.party.bungee.listener.UpdateCheckerListener;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
+import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.util.UpdateChecker;
@@ -40,8 +41,12 @@ public class PartyBungeePlugin extends Plugin {
 
     private @NotNull ProxyPluginConfig config = new ProxyPluginConfig();
 
+    private @Nullable DatabaseAdapter databaseAdapter = null;
     private @Nullable RedisManager redisManager = null;
     private @Nullable BungeeAudiences audiences = null;
+
+    private @Nullable DefaultPartyProvider<ProxiedPlayer> partyProvider;
+    private @Nullable PartyChatCommand partyChatCommand;
 
     @Override
     public void onEnable() {
@@ -75,7 +80,7 @@ public class PartyBungeePlugin extends Plugin {
         this.audiences = BungeeAudiences.create(this);
 
         final BungeeUserManager userManager = new BungeeUserManager(this);
-        new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
+        this.partyProvider = new DefaultPartyProvider<>(this.redisManager, userManager, this.config.messageConfig());
 
         this.redisManager.subscribes(userManager);
 
@@ -84,10 +89,8 @@ public class PartyBungeePlugin extends Plugin {
         super.getProxy().getPluginManager().registerListener(this, new OnlinePlayersListener(userManager, this));
         super.getProxy().getPluginManager().registerListener(this, new SwitchServerListener(userManager, this.config.serverSwitchConfig(), super.getLogger()));
 
-        super.getProxy().getPluginManager().registerCommand(
-                this,
-                new PartyChatCommand(bungeeCommandManager.commandManager, userManager, this.config().messageConfig())
-        );
+        this.partyChatCommand = new PartyChatCommand(bungeeCommandManager.commandManager, userManager, this.config().messageConfig());
+        super.getProxy().getPluginManager().registerCommand(this, this.partyChatCommand);
         super.getProxy().getPluginManager().registerCommand(this, bungeeCommandManager);
 
         if (this.config.updateChecker()) this.registerUpdateChecker();
@@ -129,6 +132,16 @@ public class PartyBungeePlugin extends Plugin {
             super.getLogger().info("Close connection to redis...");
             this.redisManager.close();
         } else super.getLogger().warning("The connection to redis is not closed, because the redis manager is not initialized.");
+
+        if (this.databaseAdapter != null) {
+            super.getLogger().info("Closing connection to database...");
+            try {
+                this.databaseAdapter.close();
+                super.getLogger().info("Closed database connection!");
+            } catch (final Exception e) {
+                super.getLogger().log(Level.SEVERE, "Failed to close database connection.", e);
+            }
+        }
     }
 
     public @NotNull ProxyPluginConfig config() {
@@ -143,5 +156,11 @@ public class PartyBungeePlugin extends Plugin {
     public @NotNull BungeeAudiences audiences() {
         if (this.audiences == null) throw new IllegalStateException("Audience isn't initialized.");
         return this.audiences;
+    }
+
+    void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+        this.databaseAdapter = databaseAdapter;
+        if (this.partyProvider != null) this.partyProvider.databaseAdapter(databaseAdapter);
+        if (this.partyChatCommand != null) this.partyChatCommand.databaseAdapter(databaseAdapter);
     }
 }

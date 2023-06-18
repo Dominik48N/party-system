@@ -18,6 +18,7 @@ package com.github.dominik48n.party.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.player.OnlinePlayerProvider;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -104,8 +105,12 @@ public interface PartyProvider {
      * @param party        the {@link Party} to send the message to
      * @param messageKey   the key of the message to send
      * @param replacements the replacements for any placeholders in the message
+     *
+     * @see #sendMessageToPlayers(List, String, Object...)
      */
-    void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements);
+    default void sendMessageToParty(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements) {
+        this.sendMessageToPlayers(party.allMembers(), messageKey, replacements);
+    }
 
     /**
      * Sends a message to all members of a party.
@@ -113,8 +118,21 @@ public interface PartyProvider {
      * @param party        the {@link Party} to send the message to
      * @param messageKey   the key of the message to send
      * @param replacements the replacements for any placeholders in the message
+     *
+     * @see #sendMessageToPlayers(List, String, Object...)
      */
-    void sendMessageToMembers(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements);
+    default void sendMessageToMembers(final @NotNull Party party, final @NotNull String messageKey, final @NotNull Object... replacements) {
+        this.sendMessageToPlayers(party.members(), messageKey, replacements);
+    }
+
+    /**
+     * Send a message by the given message key and replacements to all online players contains in the given list.
+     *
+     * @param players      a {@link List} with all {@link UUID}s of players that would receive the message
+     * @param messageKey   the key of the message to send
+     * @param replacements the replacements for any placeholders in the message
+     */
+    void sendMessageToPlayers(final @NotNull List<UUID> players, final @NotNull String messageKey, final @NotNull Object... replacements);
 
     /**
      * Connects a party to a server.

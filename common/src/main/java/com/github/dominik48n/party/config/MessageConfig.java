@@ -86,7 +86,8 @@ public class MessageConfig {
                                 .append("received", "%prefix% <green>You received a party request from <gradient:#d896ff:#be29ec>{0}</gradient>. " +
                                         "<dark_gray>[<green><click:run_command:/party accept {0}>Accept</click></green>] | " +
                                         "[<red><click:run_command:/party deny {0}>Decline</click></red>]")
-                                .append("limit", "%prefix% <red>You would exceed the member limit of {0} with the invitation, which is why you cannot invite anyone."))
+                                .append("limit", "%prefix% <red>You would exceed the member limit of {0} with the invitation, which is why you cannot invite anyone.")
+                                .append("disabled_requests", "%prefix% <red>The player does not want to receive party requests."))
                         .append("accept", new Document()
                                 .append("already", "%prefix% <red>You are already in a party.")
                                 .append("no_request", "%prefix% <red>You either didn't receive a party request or it has expired.")
@@ -105,7 +106,18 @@ public class MessageConfig {
                                 .append("self", "%prefix% <red>You can't kick yourself out of the party.")
                                 .append("kicked", "%prefix% <red>You got kicked out of the party.")
                                 .append("leader", "%prefix% You kicked <gradient:#d896ff:#be29ec>{0}</gradient> out of the party."))
+                        .append("toggle", new Document()
+                                .append("requests", new Document()
+                                        .append("enabled", "%prefix% <green>You will now receive party requests again.")
+                                        .append("disabled", "%prefix% <red>You will no longer receive party requests."))
+                                .append("notifications", new Document()
+                                        .append("enabled", "%prefix% <green>You will now receive Join and Quit messages from parties again.")
+                                        .append("disabled", "%prefix% <red>You will no longer receive Join and Quit messages from parties."))
+                                .append("chat", new Document()
+                                        .append("enabled", "%prefix% <green>You can now interact with the party chat again.")
+                                        .append("disabled", "%prefix% <red>You can no longer interact with the party chat.")))
                         .append("usage", new Document()
+                                .append("toggle", "%prefix% <red>Usage: /party toggle <requests/notifications/chat>")
                                 .append("invite", "%prefix% <red>Usage: /party invite <player>")
                                 .append("accept", "%prefix% <red>Usage: /party accept <player>")
                                 .append("deny", "%prefix% <red>Usage: /party deny <player>")
@@ -125,6 +137,7 @@ public class MessageConfig {
                         .append("not_in_your_party", "%prefix% <red>The player is not in your party.")
                         .append("user_not_loaded", "%prefix% <red>Your data has not yet been fully loaded, please wait a moment.")
                         .append("help", "%prefix% <gold>Party management<newline>" +
+                                " <yellow>/party toggle <requests/notifications/chat> <gray>Change your settings" +
                                 " <yellow>/party invite <player> <gray>Invites a player to the party<newline>" +
                                 " <yellow>/party accept <player> <gray>Accepts a request<newline>" +
                                 " <yellow>/party deny <player> <gray>Declines a request<newline>" +
