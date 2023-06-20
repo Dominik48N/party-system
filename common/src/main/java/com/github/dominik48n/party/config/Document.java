@@ -35,6 +35,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
@@ -92,6 +94,11 @@ public class Document {
         return this;
     }
 
+    @NotNull Document append(final @NotNull String key, final @NotNull List<String> value) {
+        this.objectNode.set(key, MAPPER.valueToTree(value));
+        return this;
+    }
+
     public @NotNull String getString(final @NotNull String key, final @NotNull String defaultValue) {
         return this.contains(key) ? this.objectNode.get(key).asText() : defaultValue;
     }
@@ -110,6 +117,10 @@ public class Document {
 
     @NotNull Document getDocument(final @NotNull String key) {
         return this.contains(key) ? new Document((ObjectNode) this.objectNode.get(key)) : new Document();
+    }
+
+    @NotNull List<String> getStringList(final @NotNull String key) {
+        return this.contains(key) ? this.objectNode.findValuesAsText(key) : Collections.emptyList();
     }
 
     @NotNull Set<String> keys() {
