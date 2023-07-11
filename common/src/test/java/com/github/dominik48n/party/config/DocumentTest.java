@@ -16,14 +16,24 @@
 
 package com.github.dominik48n.party.config;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.platform.commons.util.ReflectionUtils;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collector;
+import static java.util.List.of;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DocumentTest {
 
@@ -79,6 +89,66 @@ class DocumentTest {
     void testReadNonExistentFile() {
         final File file = new File("non-existent.json");
         assertThrows(FileNotFoundException.class, () -> Document.read(file));
+    }
+
+    @Test
+    void testAppendAndGetList() {
+        final List<String> list = of("Value1", "Value2", "Value3");
+
+        this.document.append("key", list, Document::addJsonConsumer);
+
+        List<String> retrievedList = this.document.getList("key", new ArrayList<>(), Document.stringCollector());
+
+        assertEquals(list, retrievedList);
+    }
+
+    @Test
+    void testAddJsonConsumer() {
+        final ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.withExactBigDecimals(false));
+        Document.addJsonConsumer("Value", arrayNode);
+
+        assertEquals("Value", arrayNode.get(0).asText());
+    }
+
+    @Test
+    void testStringCollector() {
+        final Collector<JsonNode, List<String>, List<String>> collector = Document.stringCollector();
+
+        final List<String> stringList1 = new ArrayList<>();
+        stringList1.add("Value1");
+
+        final List<String> stringList2 = new ArrayList<>();
+        stringList2.add("Value2");
+
+        final List<String> combinedList = collector.combiner().apply(stringList1, stringList2);
+
+        assertTrue(combinedList.containsAll(stringList1));
+        assertTrue(combinedList.containsAll(stringList2));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void testStringListCombiner() throws InvocationTargetException, IllegalAccessException {
+        final List<String> stringList1 = new ArrayList<>();
+        stringList1.add("Value1");
+
+        final List<String> stringList2 = new ArrayList<>();
+        stringList2.add("Value2");
+
+        final Optional<Method> stringListCombiner = ReflectionUtils.findMethod(Document.class,
+                "stringListCombiner",
+                List.class, List.class
+        );
+
+        assertTrue(stringListCombiner.isPresent());
+
+        final Method method = stringListCombiner.get();
+        method.setAccessible(true);
+        final List<String> result = (List<String>) method.invoke(null, stringList1, stringList2);
+        method.setAccessible(false);
+
+        assertTrue(result.containsAll(stringList1));
+        assertTrue(result.containsAll(stringList2));
     }
 }
 
