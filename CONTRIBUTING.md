@@ -35,4 +35,7 @@ Using the `final` keyword for method and variable arguments has several benefits
 ## IDE Files
 Please ensure that your IDE files are excluded from Git and are set up globally on your system instead. This will prevent any potential conflicts or errors when working with others and ensure that your IDE settings do not interfere with the project.
 
+## Pull Requests
+Pull requests are merged with *Squash and merge*. The squash commits are actually [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
 Thank you for your contribution to PartySystem!
