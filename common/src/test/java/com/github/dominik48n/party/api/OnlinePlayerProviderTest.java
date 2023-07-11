@@ -38,8 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.UnifiedJedis;
 
 public class OnlinePlayerProviderTest {
 
@@ -56,10 +55,7 @@ public class OnlinePlayerProviderTest {
     private UserManager<UserMock> userManager;
 
     @Mock
-    private JedisPool jedisPool;
-
-    @Mock
-    private Jedis jedis;
+    private UnifiedJedis jedis;
 
     private AutoCloseable mocks;
 
@@ -67,8 +63,7 @@ public class OnlinePlayerProviderTest {
     void setup() {
         this.mocks = MockitoAnnotations.openMocks(this);
         this.onlinePlayerProvider = new DefaultOnlinePlayersProvider<>(this.redisManager, this.userManager);
-        when(this.redisManager.jedisPool()).thenReturn(this.jedisPool);
-        when(this.jedisPool.getResource()).thenReturn(this.jedis);
+        when(this.redisManager.jedis()).thenReturn(this.jedis);
     }
 
     @AfterEach
