@@ -36,7 +36,7 @@ import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.UnifiedJedis;
 
 public class DefaultPartyProvider<TUser> implements PartyProvider {
 
@@ -69,17 +69,15 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
 
     @Override
     public void addPlayerToParty(final @NotNull UUID partyId, final @NotNull UUID player) throws JsonProcessingException {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            final String partyKey = "party:" + partyId;
-            final String partyJson = jedis.get(partyKey);
-            if (partyJson != null) {
-                final Party party = Document.MAPPER.readValue(partyJson, Party.class);
-                party.members().add(player);
-                jedis.set(partyKey, Document.MAPPER.writeValueAsString(party));
-            }
-
-            this.onlinePlayerProvider.updatePartyId(jedis, player, partyId);
+        final String partyKey = "party:" + partyId;
+        final String partyJson = this.redisManager.jedis().get(partyKey);
+        if (partyJson != null) {
+            final Party party = Document.MAPPER.readValue(partyJson, Party.class);
+            party.members().add(player);
+            this.redisManager.jedis().set(partyKey, Document.MAPPER.writeValueAsString(party));
         }
+
+        this.onlinePlayerProvider.updatePartyId(this.redisManager.jedis(), player, partyId);
     }
 
     @Override
@@ -88,18 +86,16 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
             final @NotNull UUID player,
             final @NotNull String username
     ) throws JsonProcessingException {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            final String partyKey = "party:" + partyId;
-            final String partyJson = jedis.get(partyKey);
-            if (partyJson != null) {
-                final Party party = Document.MAPPER.readValue(partyJson, Party.class);
-                party.members().remove(player);
-                jedis.set(partyKey, Document.MAPPER.writeValueAsString(party));
-            }
-
-            this.clearPartyRequest(jedis, username);
-            this.onlinePlayerProvider.updatePartyId(jedis, player, null);
+        final String partyKey = "party:" + partyId;
+        final String partyJson = this.redisManager.jedis().get(partyKey);
+        if (partyJson != null) {
+            final Party party = Document.MAPPER.readValue(partyJson, Party.class);
+            party.members().remove(player);
+            this.redisManager.jedis().set(partyKey, Document.MAPPER.writeValueAsString(party));
         }
+
+        this.clearPartyRequest(this.redisManager.jedis(), username);
+        this.onlinePlayerProvider.updatePartyId(this.redisManager.jedis(), player, null);
     }
 
     @Override
@@ -113,41 +109,35 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
                 maxMembers >= 0 && maxMembers <= Constants.MAXIMUM_MEMBER_LIMIT,
                 "maxMembers cannot be negative!"
         );
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            final String json = jedis.get("party:" + partyId);
-            if (json == null) return; // Party isn't exist.
+        final String json = this.redisManager.jedis().get("party:" + partyId);
+        if (json == null) return; // Party isn't exist.
 
-            final Party party = Document.MAPPER.readValue(json, Party.class);
-            party.members().remove(newLeader);
-            party.members().add(oldLeader);
-            jedis.set("party:" + partyId, Document.MAPPER.writeValueAsString(new Party(partyId, newLeader, party.members(), maxMembers)));
-        }
+        final Party party = Document.MAPPER.readValue(json, Party.class);
+        party.members().remove(newLeader);
+        party.members().add(oldLeader);
+        this.redisManager.jedis().set("party:" + partyId, Document.MAPPER.writeValueAsString(new Party(partyId, newLeader, party.members(), maxMembers)));
     }
 
     @Override
     public @NotNull Optional<Party> getParty(final @NotNull UUID id) throws JsonProcessingException {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            final String json = jedis.get("party:" + id);
-            if (json == null) return Optional.empty();
+        final String json = this.redisManager.jedis().get("party:" + id);
+        if (json == null) return Optional.empty();
 
-            final Party party = Document.MAPPER.readValue(json, Party.class);
-            return Optional.of(party);
-        }
+        final Party party = Document.MAPPER.readValue(json, Party.class);
+        return Optional.of(party);
     }
 
     @Override
     public @NotNull Party createParty(final @NotNull UUID leader, final int maxMembers) throws JsonProcessingException, IllegalArgumentException {
         Preconditions.checkArgument(maxMembers >= 0, "maxMembers cannot be negative!");
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            UUID partyId;
-            do {
-                partyId = UUID.randomUUID();
-            } while (jedis.exists("party:" + partyId));
+        UUID partyId;
+        do {
+            partyId = UUID.randomUUID();
+        } while (this.redisManager.jedis().exists("party:" + partyId));
 
-            final Party party = new Party(partyId, leader, Lists.newArrayList(), maxMembers);
-            jedis.set("party:" + partyId, Document.MAPPER.writeValueAsString(party));
-            return party;
-        }
+        final Party party = new Party(partyId, leader, Lists.newArrayList(), maxMembers);
+        this.redisManager.jedis().set("party:" + partyId, Document.MAPPER.writeValueAsString(party));
+        return party;
     }
 
     @Override
@@ -172,42 +162,32 @@ public class DefaultPartyProvider<TUser> implements PartyProvider {
 
     @Override
     public void deleteParty(final @NotNull UUID id) {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            jedis.del("party:" + id);
-        }
+        this.redisManager.jedis().del("party:" + id);
     }
 
     @Override
     public void removePartyRequest(final @NotNull String source, final @NotNull String target) {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            jedis.del("request:" + source + ":" + target);
-        }
+        this.redisManager.jedis().del("request:" + source + ":" + target);
     }
 
     @Override
     public void createPartyRequest(final @NotNull String source, final @NotNull String target, final int expires) {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            jedis.setex("request:" + source + ":" + target, expires, "");
-        }
+        this.redisManager.jedis().setex("request:" + source + ":" + target, expires, "");
     }
 
-    private void clearPartyRequest(final @NotNull Jedis jedis, final @NotNull String source) {
+    private void clearPartyRequest(final @NotNull UnifiedJedis jedis, final @NotNull String source) {
         final Set<String> keys = jedis.keys("request:" + source + ":*");
         if (!keys.isEmpty()) jedis.del(keys.toArray(String[]::new));
     }
 
     @Override
     public void clearPartyRequest(final @NotNull String source) {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            this.clearPartyRequest(jedis, source);
-        }
+        this.clearPartyRequest(this.redisManager.jedis(), source);
     }
 
     @Override
     public boolean existsPartyRequest(final @NotNull String source, final @NotNull String target) {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            return jedis.exists("request:" + source + ":" + target);
-        }
+        return this.redisManager.jedis().exists("request:" + source + ":" + target);
     }
 
     public void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
