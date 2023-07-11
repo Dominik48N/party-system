@@ -17,10 +17,12 @@
 package com.github.dominik48n.party.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.dominik48n.party.api.player.PartyPlayer;
@@ -95,7 +97,10 @@ public class Document {
     }
 
     @NotNull Document append(final @NotNull String key, final @NotNull List<String> value) {
-        this.objectNode.set(key, MAPPER.valueToTree(value));
+        final ArrayNode arrayNode = this.objectNode.putArray(key);
+        for (final String s : value) {
+            arrayNode.add(s);
+        }
         return this;
     }
 
@@ -119,8 +124,11 @@ public class Document {
         return this.contains(key) ? new Document((ObjectNode) this.objectNode.get(key)) : new Document();
     }
 
-    @NotNull List<String> getStringList(final @NotNull String key) {
-        return this.contains(key) ? this.objectNode.findValuesAsText(key) : Collections.emptyList();
+    @NotNull List<String> getStringList(final @NotNull String key) throws IOException {
+        final JsonNode node = this.objectNode.get(key);
+        if (node == null || !node.isArray()) return Collections.emptyList();
+
+        return MAPPER.readValue(node.traverse(), new TypeReference<>() {});
     }
 
     @NotNull Set<String> keys() {
