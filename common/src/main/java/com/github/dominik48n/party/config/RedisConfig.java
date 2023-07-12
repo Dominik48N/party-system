@@ -16,23 +16,37 @@
 
 package com.github.dominik48n.party.config;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.Protocol;
 
-public record RedisConfig(@NotNull String hostname, int port, @NotNull String username, @NotNull String password) {
+public record RedisConfig(@NotNull List<HostAndPort> hosts, @NotNull String username, @NotNull String password) {
 
-    static @NotNull RedisConfig fromDocument(final @NotNull Document document) {
+    static @NotNull RedisConfig fromDocument(final @NotNull Document document) throws IOException {
+        final List<HostAndPort> hosts = new ArrayList<>();
+        for (final String addresses : document.getStringList("hosts")) {
+            final String[] split = addresses.split(":");
+            final int port = split.length > 1 ? Integer.parseInt(split[1]) : Protocol.DEFAULT_PORT;
+            hosts.add(new HostAndPort(split[0], port));
+        }
+
         return new RedisConfig(
-                document.getString("hostname", "127.0.0.1"),
-                document.getInt("port", 6379),
+                hosts,
                 document.getString("username", ""),
                 document.getString("password", "secret")
         );
     }
 
+    static @NotNull List<String> hostsToStringList(final @NotNull List<HostAndPort> hosts) {
+        return hosts.stream().map(hostAndPort -> hostAndPort.getHost() + ":" + hostAndPort.getPort()).toList();
+    }
+
     @NotNull Document toDocument() {
         return new Document()
-                .append("hostname", this.hostname)
-                .append("port", this.port)
+                .append("hosts", hostsToStringList(this.hosts))
                 .append("username", this.username)
                 .append("password", this.password);
     }

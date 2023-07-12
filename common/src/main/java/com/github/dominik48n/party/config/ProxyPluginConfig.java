@@ -18,6 +18,7 @@ package com.github.dominik48n.party.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 
 public class ProxyPluginConfig {
@@ -41,12 +42,19 @@ public class ProxyPluginConfig {
     }
 
     private ProxyPluginConfig(final @NotNull Document document) {
-        this.redisConfig = RedisConfig.fromDocument(document.getDocument("redis"));
         this.databaseConfig = DatabaseConfig.fromDocument(document.getDocument("database"));
         this.partyConfig = PartyConfig.fromDocument(document.getDocument("party"));
         this.messageConfig = MessageConfig.fromDocument(document.getDocument("messages"));
 
         this.updateChecker = document.getBoolean("update_checker", true);
+
+        RedisConfig redisConfig;
+        try {
+            redisConfig = RedisConfig.fromDocument(document.getDocument("redis"));
+        } catch (final IOException e) {
+            redisConfig = new RedisConfig(Collections.emptyList(), "", "");
+        }
+        this.redisConfig = redisConfig;
     }
 
     public @NotNull RedisConfig redisConfig() {

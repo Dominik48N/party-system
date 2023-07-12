@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.UnifiedJedis;
 
 public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider {
 
@@ -51,44 +51,38 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
 
     @Override
     public @NotNull Optional<PartyPlayer> get(final @NotNull String username) throws JsonProcessingException {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            final Set<String> keys = jedis.keys("party_player:*");
-            for (final String key : keys) {
-                final String json = jedis.get(key);
-                if (json == null) continue;
+        final Set<String> keys = this.redisManager.jedis().keys("party_player:*");
+        for (final String key : keys) {
+            final String json = this.redisManager.jedis().get(key);
+            if (json == null) continue;
 
-                final PartyPlayer player = Document.MAPPER.readValue(json, PartyPlayer.class);
-                if (player.name().equalsIgnoreCase(username)) return Optional.of(new NetworkUser<>(player, this.userManager));
-            }
+            final PartyPlayer player = Document.MAPPER.readValue(json, PartyPlayer.class);
+            if (player.name().equalsIgnoreCase(username)) return Optional.of(new NetworkUser<>(player, this.userManager));
         }
         return Optional.empty();
     }
 
     @Override
     public @NotNull Optional<PartyPlayer> get(final @NotNull UUID uniqueId) throws JsonProcessingException {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            final String json = jedis.get("party_player:" + uniqueId);
-            if (json == null) return Optional.empty();
+        final String json = this.redisManager.jedis().get("party_player:" + uniqueId);
+        if (json == null) return Optional.empty();
 
-            final PartyPlayer player = Document.MAPPER.readValue(json, PartyPlayer.class);
-            return Optional.of(new NetworkUser<>(player, this.userManager));
-        }
+        final PartyPlayer player = Document.MAPPER.readValue(json, PartyPlayer.class);
+        return Optional.of(new NetworkUser<>(player, this.userManager));
     }
 
     @Override
     public @NotNull Map<UUID, PartyPlayer> get(final @NotNull Collection<UUID> uniqueIds) throws JsonProcessingException {
         final Map<UUID, PartyPlayer> players = Maps.newHashMap();
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            final String[] keys = uniqueIds.stream()
-                    .map(uuid -> "party_player:" + uuid.toString())
-                    .toArray(String[]::new);
+        final String[] keys = uniqueIds.stream()
+                .map(uuid -> "party_player:" + uuid.toString())
+                .toArray(String[]::new);
 
-            for (final String json : jedis.mget(keys)) {
-                if (json == null) continue;
+        for (final String json : this.redisManager.jedis().mget(keys)) {
+            if (json == null) continue;
 
-                final PartyPlayer player = Document.MAPPER.readValue(json, PartyPlayer.class);
-                players.put(player.uniqueId(), player);
-            }
+            final PartyPlayer player = Document.MAPPER.readValue(json, PartyPlayer.class);
+            players.put(player.uniqueId(), player);
         }
         return players;
     }
@@ -96,110 +90,104 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
     @Override
     public @NotNull List<PartyPlayer> all() throws JsonProcessingException {
         final List<PartyPlayer> partyPlayers = Lists.newArrayList();
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            final Set<String> keys = jedis.keys("party_player:*");
-            for (final String key : keys) {
-                final String json = jedis.get(key);
-                if (json == null) continue;
+        final Set<String> keys = this.redisManager.jedis().keys("party_player:*");
+        for (final String key : keys) {
+            final String json = this.redisManager.jedis().get(key);
+            if (json == null) continue;
 
-                final PartyPlayer player = Document.MAPPER.readValue(json, PartyPlayer.class);
-                partyPlayers.add(new NetworkUser<>(player, this.userManager));
-            }
+            final PartyPlayer player = Document.MAPPER.readValue(json, PartyPlayer.class);
+            partyPlayers.add(new NetworkUser<>(player, this.userManager));
         }
         return partyPlayers;
     }
 
     @Override
     public void login(final @NotNull PartyPlayer player) throws JsonProcessingException {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            jedis.set("party_player:" + player.uniqueId(), Document.MAPPER.writeValueAsString(player));
-        }
+        this.redisManager.jedis().set("party_player:" + player.uniqueId(), Document.MAPPER.writeValueAsString(player));
     }
 
     @Override
     public void logout(final @NotNull UUID uniqueId) {
         final String playerKey = "party_player:" + uniqueId;
 
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            // Check if player is logged in
-            final String json = jedis.get(playerKey);
-            if (json == null) return;
+        // Check if player is logged in
+        final String json = this.redisManager.jedis().get(playerKey);
+        if (json == null) return;
 
-            // Deserialize player object
-            final PartyPlayer player;
-            try {
-                player = Document.MAPPER.readValue(json, PartyPlayer.class);
-            } catch (final JsonProcessingException e) {
-                jedis.del(playerKey);
-                return;
-            }
+        // Deserialize player object
+        final PartyPlayer player;
+        try {
+            player = Document.MAPPER.readValue(json, PartyPlayer.class);
+        } catch (final JsonProcessingException e) {
+            this.redisManager.jedis().del(playerKey);
+            return;
+        }
 
-            // Check if player is in a party
-            if (player.partyId().isPresent()) try {
-                PartyAPI.get().getParty(player.partyId().get()).ifPresent(party -> {
-                    if (party.allMembers().size() <= 1) {
-                        // Last member leaving the party, delete the party
-                        PartyAPI.get().deleteParty(party.id());
-                    } else {
-                        // Player is in a party with multiple members
-                        if (party.isLeader(player.uniqueId())) {
-                            // Player is the leader of the party, transfer leadership to another member
-                            final Optional<PartyPlayer> newLeader = party.members().stream().findAny().map(uuid -> {
-                                try {
-                                    return PartyAPI.get().onlinePlayerProvider().get(uuid).orElse(null);
-                                } catch (final JsonProcessingException e) {
-                                    return null;
-                                }
-                            });
+        // Check if player is in a party
+        if (player.partyId().isPresent()) try {
+            PartyAPI.get().getParty(player.partyId().get()).ifPresent(party -> {
+                if (party.allMembers().size() <= 1) {
+                    // Last member leaving the party, delete the party
+                    PartyAPI.get().deleteParty(party.id());
+                } else {
+                    // Player is in a party with multiple members
+                    if (party.isLeader(player.uniqueId())) {
+                        // Player is the leader of the party, transfer leadership to another member
+                        final Optional<PartyPlayer> newLeader = party.members().stream().findAny().map(uuid -> {
+                            try {
+                                return PartyAPI.get().onlinePlayerProvider().get(uuid).orElse(null);
+                            } catch (final JsonProcessingException e) {
+                                return null;
+                            }
+                        });
 
-                            if (newLeader.isPresent()) {
-                                try {
-                                    // Change party leader
-                                    PartyAPI.get().changePartyLeader(
-                                            party.id(),
-                                            player.uniqueId(),
-                                            newLeader.get().uniqueId(),
-                                            newLeader.get().memberLimit()
-                                    );
+                        if (newLeader.isPresent()) {
+                            try {
+                                // Change party leader
+                                PartyAPI.get().changePartyLeader(
+                                        party.id(),
+                                        player.uniqueId(),
+                                        newLeader.get().uniqueId(),
+                                        newLeader.get().memberLimit()
+                                );
 
-                                    final List<UUID> playersToMessage = this.databaseAdapter != null ?
-                                            this.databaseAdapter.getPlayersWithEnabledSetting(party.members(), DatabaseSettingsType.NOTIFICATIONS) :
-                                            party.members();
-                                    PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
+                                final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                                        this.databaseAdapter.getPlayersWithEnabledSetting(party.members(), DatabaseSettingsType.NOTIFICATIONS) :
+                                        party.members();
+                                PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
 
-                                    PartyAPI.get().sendMessageToMembers(party, "party.new_leader", newLeader.get().name());
-                                } catch (final JsonProcessingException ignored) {
-                                }
-                            } else {
-                                // Party has no more members, delete the party
-                                PartyAPI.get().deleteParty(party.id());
+                                PartyAPI.get().sendMessageToMembers(party, "party.new_leader", newLeader.get().name());
+                            } catch (final JsonProcessingException ignored) {
                             }
                         } else {
-                            // Player is not the leader of the party, remove player from party
-                            party.members().remove(player.uniqueId());
-
-                            final List<UUID> playersToMessage = this.databaseAdapter != null ?
-                                    this.databaseAdapter.getPlayersWithEnabledSetting(party.allMembers(), DatabaseSettingsType.NOTIFICATIONS) :
-                                    party.allMembers();
-                            PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
+                            // Party has no more members, delete the party
+                            PartyAPI.get().deleteParty(party.id());
                         }
+                    } else {
+                        // Player is not the leader of the party, remove player from party
+                        party.members().remove(player.uniqueId());
 
-                        // Save updated party to Redis
-                        try {
-                            jedis.set("party:" + party.id(), Document.MAPPER.writeValueAsString(party));
-                        } catch (final JsonProcessingException ignored) {
-                        }
+                        final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                                this.databaseAdapter.getPlayersWithEnabledSetting(party.allMembers(), DatabaseSettingsType.NOTIFICATIONS) :
+                                party.allMembers();
+                        PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
                     }
-                });
-            } catch (final JsonProcessingException ignored) {
-            }
 
-            // Delete player object from Redis
-            jedis.del(playerKey);
+                    // Save updated party to Redis
+                    try {
+                        this.redisManager.jedis().set("party:" + party.id(), Document.MAPPER.writeValueAsString(party));
+                    } catch (final JsonProcessingException ignored) {
+                    }
+                }
+            });
+        } catch (final JsonProcessingException ignored) {
         }
+
+        // Delete player object from Redis
+        this.redisManager.jedis().del(playerKey);
     }
 
-    boolean updatePartyId(final @NotNull Jedis jedis, final @NotNull UUID uniqueId, final @Nullable UUID partyId) throws JsonProcessingException {
+    boolean updatePartyId(final @NotNull UnifiedJedis jedis, final @NotNull UUID uniqueId, final @Nullable UUID partyId) throws JsonProcessingException {
         final String key = "party_player:" + uniqueId;
         final String json = jedis.get(key);
         if (json == null) return false;
@@ -214,9 +202,7 @@ public class DefaultOnlinePlayersProvider<TUser> implements OnlinePlayerProvider
 
     @Override
     public boolean updatePartyId(final @NotNull UUID uniqueId, final @Nullable UUID partyId) throws JsonProcessingException {
-        try (final Jedis jedis = this.redisManager.jedisPool().getResource()) {
-            return this.updatePartyId(jedis, uniqueId, partyId);
-        }
+        return this.updatePartyId(this.redisManager.jedis(), uniqueId, partyId);
     }
 
     void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {

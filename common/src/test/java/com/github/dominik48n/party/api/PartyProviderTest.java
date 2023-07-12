@@ -29,8 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.UnifiedJedis;
 
 public class PartyProviderTest {
 
@@ -46,10 +45,7 @@ public class PartyProviderTest {
     private PartyProvider partyProvider;
 
     @Mock
-    private JedisPool jedisPool;
-
-    @Mock
-    private Jedis jedis;
+    private UnifiedJedis jedis;
 
     private AutoCloseable mocks;
 
@@ -57,8 +53,7 @@ public class PartyProviderTest {
     void setup() {
         this.mocks = MockitoAnnotations.openMocks(this);
         this.partyProvider = new DefaultPartyProvider<>(this.redisManager, this.userManager, this.messageConfig);
-        when(this.redisManager.jedisPool()).thenReturn(this.jedisPool);
-        when(this.jedisPool.getResource()).thenReturn(this.jedis);
+        when(this.redisManager.jedis()).thenReturn(this.jedis);
     }
 
     @AfterEach
@@ -82,8 +77,7 @@ public class PartyProviderTest {
     void testPartyDelete() {
         final UUID partyId = UUID.randomUUID();
 
-        when(this.redisManager.jedisPool()).thenReturn(this.jedisPool);
-        when(this.jedisPool.getResource()).thenReturn(this.jedis);
+        when(this.redisManager.jedis()).thenReturn(this.jedis);
 
         this.partyProvider.deleteParty(partyId);
 
@@ -96,7 +90,7 @@ public class PartyProviderTest {
         final String target = "randomUser";
         final int expires = 25;
 
-        when(this.jedisPool.getResource()).thenReturn(this.jedis);
+        when(this.redisManager.jedis()).thenReturn(this.jedis);
 
         // Request create
         this.partyProvider.createPartyRequest(source, target, expires);
