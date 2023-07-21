@@ -33,6 +33,8 @@ public abstract class SqlQueryFactory extends QueryFactory {
         this.tablePrefix = tablePrefix;
     }
 
+    public abstract void createSettingsTable();
+
     public abstract @NotNull List<UUID> getPlayersWithEnabledSetting(final @NotNull List<UUID> players, final @NotNull DatabaseSettingsType type);
 
     public abstract boolean getSettingValue(final @NotNull UUID uniqueId, final @NotNull DatabaseSettingsType type);

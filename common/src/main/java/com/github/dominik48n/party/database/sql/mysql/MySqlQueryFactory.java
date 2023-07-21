@@ -33,6 +33,23 @@ public class MySqlQueryFactory extends SqlQueryFactory {
     }
 
     @Override
+    public void createSettingsTable() {
+        final StringBuilder tableCreateCommand = new StringBuilder("CREATE TABLE IF NOT EXISTS ")
+                .append(this.settingsTable())
+                .append("(unique_id VARCHAR(36) NOT NULL PRIMARY KEY");
+        for (final DatabaseSettingsType settingsType : DatabaseSettingsType.values()) {
+            tableCreateCommand.append(",").append(settingsType.name().toLowerCase()).append(" INT(1) NOT NULL DEFAULT '0'");
+        }
+        tableCreateCommand.append(");");
+
+        super.builder()
+                .query(tableCreateCommand.toString())
+                .emptyParams()
+                .update()
+                .sendSync();
+    }
+
+    @Override
     public @NotNull List<UUID> getPlayersWithEnabledSetting(final @NotNull List<UUID> players, final @NotNull DatabaseSettingsType type) {
         if (players.isEmpty()) return players;
 

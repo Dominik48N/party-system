@@ -19,11 +19,12 @@ dependencies {
     implementation("redis.clients:jedis:4.3.2")
     implementation("org.mongodb:mongo-java-driver:3.12.14")
 
-    implementation("de.chojo.sadu:sadu-postgresql:1.3.1")
-    implementation("de.chojo.sadu:sadu-mariadb:1.3.1")
-    implementation("de.chojo.sadu:sadu-mysql:1.3.1")
-    implementation("de.chojo.sadu:sadu-datasource:1.3.1")
-    implementation("de.chojo.sadu:sadu-queries:1.3.1")
+    val saduVersion = "1.3.1"
+    implementation("de.chojo.sadu:sadu-postgresql:$saduVersion")
+    implementation("de.chojo.sadu:sadu-mariadb:$saduVersion")
+    implementation("de.chojo.sadu:sadu-mysql:$saduVersion")
+    implementation("de.chojo.sadu:sadu-datasource:$saduVersion")
+    implementation("de.chojo.sadu:sadu-queries:$saduVersion")
 
     runtimeOnly("org.postgresql:postgresql:42.6.0")
 

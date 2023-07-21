@@ -54,6 +54,7 @@ public abstract class SqlAdapter implements DatabaseAdapter {
                 })
                 .build();
         this.queryFactory = this.queryFactory();
+        this.queryFactory.createSettingsTable();
     }
 
     @Override
