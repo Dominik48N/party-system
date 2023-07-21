@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package com.github.dominik48n.party.database.sql.postgres;
+package com.github.dominik48n.party.database.sql.mysql;
 
 import com.github.dominik48n.party.config.DatabaseConfig;
 import com.github.dominik48n.party.database.sql.SqlAdapter;
 import com.github.dominik48n.party.database.sql.SqlQueryFactory;
-import de.chojo.sadu.databases.PostgreSql;
+import de.chojo.sadu.databases.MySql;
 import de.chojo.sadu.datasource.DataSourceCreator;
 import de.chojo.sadu.datasource.stage.ConfigurationStage;
 import org.jetbrains.annotations.NotNull;
 
-public class PostgresAdapter extends SqlAdapter {
+public class MySqlAdapter extends SqlAdapter {
 
-    public PostgresAdapter(final DatabaseConfig.@NotNull SQLConfig sqlConfig) {
+    public MySqlAdapter(final DatabaseConfig.@NotNull SQLConfig sqlConfig) {
         super(sqlConfig);
     }
 
     @Override
     protected @NotNull SqlQueryFactory queryFactory() {
-        return new PostgresSqlQueryFactory(super.dataSource, super.sqlConfig.tablePrefix());
+        return new MySqlQueryFactory(super.dataSource, super.sqlConfig.tablePrefix());
     }
 
     @Override
@@ -42,7 +42,7 @@ public class PostgresAdapter extends SqlAdapter {
         final String user = super.sqlConfig.username();
         final String password = super.sqlConfig.password();
         final String database = super.sqlConfig.database();
-        return DataSourceCreator.create(PostgreSql.get())
+        return DataSourceCreator.create(MySql.get())
                 .configure(config -> config.host(host).port(port).user(user).password(password).database(database))
                 .create();
     }

@@ -21,11 +21,9 @@ import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
 import com.zaxxer.hikari.HikariDataSource;
 import de.chojo.sadu.datasource.stage.ConfigurationStage;
-import de.chojo.sadu.wrapper.QueryBuilderConfig;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,14 +40,6 @@ public abstract class SqlAdapter implements DatabaseAdapter {
 
     @Override
     public void connect() {
-        QueryBuilderConfig.setDefault(QueryBuilderConfig.builder()
-                .withExecutor(Executors.newFixedThreadPool(2, r -> {
-                    final Thread thread = new Thread(r, "Query Builder Thread");
-                    thread.setDaemon(true);
-                    return thread;
-                }))
-                .build());
-
         this.dataSource = this.configurationStage()
                 .withMaximumPoolSize(this.sqlConfig.poolConfig().maxPoolSize())
                 .withMinimumIdle(this.sqlConfig.poolConfig().minIdle())
