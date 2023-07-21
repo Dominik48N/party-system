@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class MySqlQueryFactory extends SqlQueryFactory {
 
-    MySqlQueryFactory(final @Nullable DataSource dataSource, final @NotNull String tablePrefix) {
+    public MySqlQueryFactory(final @Nullable DataSource dataSource, final @NotNull String tablePrefix) {
         super(dataSource, tablePrefix);
     }
 
