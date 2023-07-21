@@ -21,7 +21,6 @@ import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
 import com.zaxxer.hikari.HikariDataSource;
 import de.chojo.sadu.datasource.stage.ConfigurationStage;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -64,7 +63,7 @@ public abstract class SqlAdapter implements DatabaseAdapter {
 
     @Override
     public @NotNull List<UUID> getPlayersWithEnabledSetting(final @NotNull List<UUID> players, final @NotNull DatabaseSettingsType type) {
-        return this.queryFactory != null ? this.queryFactory.getPlayersWithEnabledSetting(players, type) : Collections.emptyList();
+        return this.queryFactory != null ? this.queryFactory.getPlayersWithEnabledSetting(players, type) : players;
     }
 
     @Override
