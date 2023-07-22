@@ -18,10 +18,17 @@ package com.github.dominik48n.party.database.sql.mysql;
 
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
 import com.github.dominik48n.party.database.sql.SqlQueryFactory;
+import de.chojo.sadu.databases.MySql;
+import de.chojo.sadu.updater.QueryReplacement;
+import de.chojo.sadu.updater.SqlUpdater;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,24 +36,22 @@ import org.jetbrains.annotations.Nullable;
 public class MySqlQueryFactory extends SqlQueryFactory {
 
     public MySqlQueryFactory(final @Nullable DataSource dataSource, final @NotNull String tablePrefix) {
-        super(dataSource, tablePrefix);
+        super(dataSource, tablePrefix, "useless for mysql");
     }
 
     @Override
-    public void createSettingsTable() {
-        final StringBuilder tableCreateCommand = new StringBuilder("CREATE TABLE IF NOT EXISTS ")
-                .append(this.settingsTable())
-                .append("(unique_id VARCHAR(36) NOT NULL PRIMARY KEY");
-        for (final DatabaseSettingsType settingsType : DatabaseSettingsType.values()) {
-            tableCreateCommand.append(",").append(settingsType.name().toLowerCase()).append(" INT(1) NOT NULL DEFAULT '0'");
-        }
-        tableCreateCommand.append(");");
+    public void executeUpdater() throws IOException, SQLException {
+        final String settingTypeColumns = Arrays.stream(DatabaseSettingsType.values())
+                .map(type -> String.format("%s INT(1) NOT NULL DEFAULT 0", type.name().toLowerCase()))
+                .collect(Collectors.joining(","));
 
-        super.builder()
-                .query(tableCreateCommand.toString())
-                .emptyParams()
-                .update()
-                .sendSync();
+        SqlUpdater.builder(super.source(), MySql.get())
+                .setReplacements(
+                        new QueryReplacement("table_prefix.", super.tablePrefix),
+                        new QueryReplacement("setting_type_columns", settingTypeColumns)
+                )
+                .setVersionTable(super.tablePrefix + "version")
+                .execute();
     }
 
     @Override

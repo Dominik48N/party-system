@@ -16,7 +16,15 @@
 
 package com.github.dominik48n.party.database.sql.mariadb;
 
+import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
 import com.github.dominik48n.party.database.sql.mysql.MySqlQueryFactory;
+import de.chojo.sadu.databases.MariaDb;
+import de.chojo.sadu.updater.QueryReplacement;
+import de.chojo.sadu.updater.SqlUpdater;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,5 +33,20 @@ public class MariaDbQueryFactory extends MySqlQueryFactory {
 
     MariaDbQueryFactory(final @Nullable DataSource dataSource, final @NotNull String tablePrefix) {
         super(dataSource, tablePrefix);
+    }
+
+    @Override
+    public void executeUpdater() throws IOException, SQLException {
+        final String settingTypeColumns = Arrays.stream(DatabaseSettingsType.values())
+                .map(type -> String.format("%s INT(1) NOT NULL DEFAULT 0", type.name().toLowerCase()))
+                .collect(Collectors.joining(","));
+
+        SqlUpdater.builder(super.source(), MariaDb.get())
+                .setReplacements(
+                        new QueryReplacement("table_prefix.", super.tablePrefix),
+                        new QueryReplacement("setting_type_columns", settingTypeColumns)
+                )
+                .setVersionTable(super.tablePrefix + "version")
+                .execute();
     }
 }

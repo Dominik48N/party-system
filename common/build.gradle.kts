@@ -25,6 +25,7 @@ dependencies {
     implementation("de.chojo.sadu:sadu-mysql:$saduVersion")
     implementation("de.chojo.sadu:sadu-datasource:$saduVersion")
     implementation("de.chojo.sadu:sadu-queries:$saduVersion")
+    implementation("de.chojo.sadu:sadu-updater:$saduVersion")
 
     runtimeOnly("org.postgresql:postgresql:42.6.0")
 

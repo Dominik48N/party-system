@@ -21,6 +21,8 @@ import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
 import com.zaxxer.hikari.HikariDataSource;
 import de.chojo.sadu.datasource.stage.ConfigurationStage;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +55,12 @@ public abstract class SqlAdapter implements DatabaseAdapter {
                 })
                 .build();
         this.queryFactory = this.queryFactory();
-        this.queryFactory.createSettingsTable();
+
+        try {
+            this.queryFactory.executeUpdater();
+        } catch (final IOException | SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

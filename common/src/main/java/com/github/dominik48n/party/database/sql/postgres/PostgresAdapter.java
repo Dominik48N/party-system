@@ -32,7 +32,7 @@ public class PostgresAdapter extends SqlAdapter {
 
     @Override
     protected @NotNull SqlQueryFactory queryFactory() {
-        return new PostgresSqlQueryFactory(super.dataSource, super.sqlConfig.tablePrefix());
+        return new PostgresSqlQueryFactory(super.dataSource, super.sqlConfig.tablePrefix(), super.sqlConfig.postgresSchema());
     }
 
     @Override
@@ -42,8 +42,9 @@ public class PostgresAdapter extends SqlAdapter {
         final String user = super.sqlConfig.username();
         final String password = super.sqlConfig.password();
         final String database = super.sqlConfig.database();
+        final String schema = super.sqlConfig.postgresSchema();
         return DataSourceCreator.create(PostgreSql.get())
-                .configure(config -> config.host(host).port(port).user(user).password(password).database(database))
+                .configure(config -> config.host(host).port(port).user(user).password(password).database(database).currentSchema(schema))
                 .create();
     }
 }

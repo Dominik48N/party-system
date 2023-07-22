@@ -18,6 +18,8 @@ package com.github.dominik48n.party.database.sql;
 
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
 import de.chojo.sadu.base.QueryFactory;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
@@ -26,14 +28,16 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class SqlQueryFactory extends QueryFactory {
 
-    private final @NotNull String tablePrefix;
+    protected final @NotNull String tablePrefix;
+    protected final @NotNull String schema;
 
-    public SqlQueryFactory(final @Nullable DataSource dataSource, final @NotNull String tablePrefix) {
+    public SqlQueryFactory(final @Nullable DataSource dataSource, final @NotNull String tablePrefix, final @NotNull String schema) {
         super(dataSource);
         this.tablePrefix = tablePrefix;
+        this.schema = schema;
     }
 
-    public abstract void createSettingsTable();
+    public abstract void executeUpdater() throws IOException, SQLException;
 
     public abstract @NotNull List<UUID> getPlayersWithEnabledSetting(final @NotNull List<UUID> players, final @NotNull DatabaseSettingsType type);
 
