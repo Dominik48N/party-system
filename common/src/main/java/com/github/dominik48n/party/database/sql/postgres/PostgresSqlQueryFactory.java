@@ -23,12 +23,10 @@ import de.chojo.sadu.updater.QueryReplacement;
 import de.chojo.sadu.updater.SqlUpdater;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,15 +39,8 @@ public class PostgresSqlQueryFactory extends SqlQueryFactory {
 
     @Override
     public void executeUpdater() throws IOException, SQLException {
-        final String settingTypeColumns = Arrays.stream(DatabaseSettingsType.values())
-                .map(type -> String.format("%s BOOLEAN NOT NULL DEFAULT TRUE", type.name().toLowerCase()))
-                .collect(Collectors.joining(","));
-
         SqlUpdater.builder(super.source(), PostgreSql.get())
-                .setReplacements(
-                        new QueryReplacement("table_prefix.", super.tablePrefix),
-                        new QueryReplacement("setting_type_columns", settingTypeColumns)
-                )
+                .setReplacements(new QueryReplacement("table_prefix.", super.tablePrefix))
                 .setVersionTable(super.tablePrefix + "version")
                 .setSchemas(super.schema)
                 .execute();
