@@ -17,7 +17,6 @@
 package com.github.dominik48n.party.database.sql.postgres;
 
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
-import com.github.dominik48n.party.database.sql.SqlAdapter;
 import com.github.dominik48n.party.database.sql.SqlQueryFactory;
 import de.chojo.sadu.databases.PostgreSql;
 import de.chojo.sadu.updater.QueryReplacement;
