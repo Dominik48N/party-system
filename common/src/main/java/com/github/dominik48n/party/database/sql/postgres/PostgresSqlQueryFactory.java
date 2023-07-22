@@ -56,17 +56,17 @@ public class PostgresSqlQueryFactory extends SqlQueryFactory {
         final String uuidPlaceholder = String.join(",", Collections.nCopies(players.size(), "?"));
         final String settingColumn = type.name().toLowerCase();
         return super.builder(UUID.class)
-                .query("SELECT unique_id, " + settingColumn + " FROM " + super.settingsTable() + " WHERE unique_id IN (" + uuidPlaceholder + ")")
+                .query("SELECT unique_id, %s FROM %s WHERE unique_id IN (%s)", settingColumn, super.settingsTable(), uuidPlaceholder)
                 .parameter(paramBuilder -> {
                     for (final UUID player : players) {
-                        paramBuilder.setString(player.toString());
+                        paramBuilder.setUuidAsString(player);
                     }
                 })
                 .readRow(row -> {
                     if (!row.getBoolean(settingColumn)) return null;
 
                     try {
-                        return UUID.fromString(row.getString("unique_id"));
+                        return row.getUuidFromString("unique_id");
                     } catch (final IllegalArgumentException e) {
                         return null;
                     }
@@ -81,8 +81,8 @@ public class PostgresSqlQueryFactory extends SqlQueryFactory {
     public boolean getSettingValue(final @NotNull UUID uniqueId, final @NotNull DatabaseSettingsType type) {
         final String settingColumn = type.name().toLowerCase();
         return super.builder(Boolean.class)
-                .query("SELECT " + settingColumn + " FROM " + super.settingsTable() + " WHERE unique_id = ?")
-                .parameter(paramBuilder -> paramBuilder.setString(uniqueId.toString()))
+                .query("SELECT %s FROM %s WHERE unique_id = ?", settingColumn, super.settingsTable())
+                .parameter(paramBuilder -> paramBuilder.setUuidAsString(uniqueId))
                 .readRow(row -> row.getBoolean(settingColumn))
                 .firstSync()
                 .orElse(true);
@@ -92,10 +92,13 @@ public class PostgresSqlQueryFactory extends SqlQueryFactory {
     public void toggleSetting(final @NotNull UUID uniqueId, final @NotNull DatabaseSettingsType type, final boolean value) {
         final String settingColumn = type.name().toLowerCase();
         super.builder()
-                .query("INSERT INTO " + super.settingsTable() + " (unique_id, " + settingColumn + ") VALUES (?, ?) " +
-                        "ON CONFLICT (unique_id) DO UPDATE SET " + settingColumn + " = EXCLUDED." + settingColumn)
+                .query("INSERT INTO %s (unique_id, %s) VALUES (?, ?) ON CONFLICT (unique_id) DO UPDATE SET %s = EXCLUDED.%s",
+                        super.settingsTable(),
+                        settingColumn,
+                        settingColumn,
+                        settingColumn)
                 .parameter(paramBuilder -> {
-                    paramBuilder.setString(uniqueId.toString());
+                    paramBuilder.setUuidAsString(uniqueId);
                     paramBuilder.setBoolean(value);
                 })
                 .update()
