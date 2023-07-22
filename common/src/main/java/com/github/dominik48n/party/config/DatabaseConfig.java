@@ -62,6 +62,7 @@ public record DatabaseConfig(boolean enabled, @NotNull DatabaseType type, @NotNu
             @NotNull String password,
             @NotNull String database,
             @NotNull String tablePrefix,
+            @NotNull String postgresSchema,
             @NotNull PoolConfig poolConfig
     ) {
 
@@ -73,6 +74,7 @@ public record DatabaseConfig(boolean enabled, @NotNull DatabaseType type, @NotNu
                     document.getString("password", "topsecret"),
                     document.getString("database", "party"),
                     document.getString("table_prefix", "party_"),
+                    document.getString("postgres_schema", "public"),
                     PoolConfig.fromDocument(document.getDocument("pool"))
             );
         }
@@ -85,6 +87,7 @@ public record DatabaseConfig(boolean enabled, @NotNull DatabaseType type, @NotNu
                     .append("password", this.password)
                     .append("database", this.database)
                     .append("table_prefix", this.tablePrefix)
+                    .append("postgres_schema", this.postgresSchema)
                     .append("pool", this.poolConfig.toDocument());
         }
 

@@ -6,6 +6,7 @@ group = "com.github.dominik48n.party"
 
 repositories {
     mavenCentral()
+    maven("https://eldonexus.de/repository/maven-public")
 }
 
 dependencies {
@@ -17,7 +18,14 @@ dependencies {
     implementation(project(":api"))
     implementation("redis.clients:jedis:4.3.2")
     implementation("org.mongodb:mongo-java-driver:3.12.14")
-    implementation("com.zaxxer:HikariCP:5.0.1")
+
+    val saduVersion = "1.3.1"
+    implementation("de.chojo.sadu:sadu-postgresql:$saduVersion")
+    implementation("de.chojo.sadu:sadu-mariadb:$saduVersion")
+    implementation("de.chojo.sadu:sadu-mysql:$saduVersion")
+    implementation("de.chojo.sadu:sadu-datasource:$saduVersion")
+    implementation("de.chojo.sadu:sadu-queries:$saduVersion")
+    implementation("de.chojo.sadu:sadu-updater:$saduVersion")
 
     runtimeOnly("org.postgresql:postgresql:42.6.0")
 

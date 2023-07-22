@@ -19,7 +19,9 @@ package com.github.dominik48n.party.database;
 import com.github.dominik48n.party.config.DatabaseConfig;
 import com.github.dominik48n.party.database.mongo.MongoAdapter;
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
-import com.github.dominik48n.party.database.sql.SqlAdapter;
+import com.github.dominik48n.party.database.sql.mariadb.MariaDbAdapter;
+import com.github.dominik48n.party.database.sql.mysql.MySqlAdapter;
+import com.github.dominik48n.party.database.sql.postgres.PostgresAdapter;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,7 +35,9 @@ public interface DatabaseAdapter extends AutoCloseable {
         final DatabaseAdapter databaseAdapter;
         switch (config.type()) {
             case MONGODB -> databaseAdapter = new MongoAdapter(config.mongoConfig());
-            case POSTGRESQL, MARIADB, MYSQL -> databaseAdapter = new SqlAdapter(config.sqlConfig(), config.type());
+            case POSTGRESQL -> databaseAdapter = new PostgresAdapter(config.sqlConfig());
+            case MYSQL -> databaseAdapter = new MySqlAdapter(config.sqlConfig());
+            case MARIADB -> databaseAdapter = new MariaDbAdapter(config.sqlConfig());
             default -> {
                 return Optional.empty();
             }
