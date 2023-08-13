@@ -23,103 +23,118 @@ import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.PartyConfig;
 import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
-import java.util.Optional;
+import com.github.dominik48n.party.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 public class InviteCommand extends PartyCommand {
+   private final @NotNull PartyConfig config;
 
-    private final @NotNull PartyConfig config;
+   private @Nullable DatabaseAdapter databaseAdapter;
 
-    private @Nullable DatabaseAdapter databaseAdapter;
+   InviteCommand(final @NotNull CommandManager commandManager, final @NotNull PartyConfig config) {
+      super(commandManager);
+      this.config = config;
+   }
 
-    InviteCommand(final @NotNull PartyConfig config) {
-        this.config = config;
-    }
+   @Override
+   public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
+      if (args.length != 1) {
+         player.sendMessage("command.usage.invite");
+         return;
+      }
 
-    @Override
-    public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
-        if (args.length != 1) {
-            player.sendMessage("command.usage.invite");
-            return;
-        }
+      String name = args[0];
+      if (name.equalsIgnoreCase(player.name())) {
+         player.sendMessage("command.invite.self");
+         return;
+      }
 
-        String name = args[0];
-        if (name.equalsIgnoreCase(player.name())) {
-            player.sendMessage("command.invite.self");
-            return;
-        }
+      Optional<PartyPlayer> target;
+      try {
+         target = PartyAPI.get().onlinePlayerProvider().get(name);
+      } catch (final JsonProcessingException e) {
+         target = Optional.empty();
+      }
+      if (target.isEmpty()) {
+         player.sendMessage("general.player_not_online", name);
+         return;
+      }
 
-        Optional<PartyPlayer> target;
-        try {
-            target = PartyAPI.get().onlinePlayerProvider().get(name);
-        } catch (final JsonProcessingException e) {
-            target = Optional.empty();
-        }
-        if (target.isEmpty()) {
-            player.sendMessage("general.player_not_online", name);
-            return;
-        }
+      if (target.get().partyId().isPresent()) {
+         player.sendMessage("command.invite.already_in_party");
+         return;
+      }
 
-        if (target.get().partyId().isPresent()) {
-            player.sendMessage("command.invite.already_in_party");
-            return;
-        }
+      name = target.get().name();
 
-        name = target.get().name();
+      if (PartyAPI.get().existsPartyRequest(player.name(), name)) {
+         player.sendMessage("command.invite.already_invited");
+         return;
+      }
 
-        if (PartyAPI.get().existsPartyRequest(player.name(), name)) {
-            player.sendMessage("command.invite.already_invited");
-            return;
-        }
+      if (this.databaseAdapter != null && !this.databaseAdapter.getSettingValue(target.get().uniqueId(), DatabaseSettingsType.REQUESTS)) {
+         player.sendMessage("command.invite.disabled_requests");
+         return;
+      }
 
-        if (this.databaseAdapter != null && !this.databaseAdapter.getSettingValue(target.get().uniqueId(), DatabaseSettingsType.REQUESTS)) {
-            player.sendMessage("command.invite.disabled_requests");
-            return;
-        }
+      Optional<Party> party;
+      try {
+         party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+      } catch (final JsonProcessingException e) {
+         party = Optional.empty();
+      }
 
-        Optional<Party> party;
-        try {
-            party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
-        } catch (final JsonProcessingException e) {
-            party = Optional.empty();
-        }
-
-        if (party.isEmpty()) {
-            final Party createdParty;
-            try {
-                createdParty = PartyAPI.get().createParty(player.uniqueId(), player.memberLimit());
-                if (!PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), createdParty.id())) {
-                    player.sendMessage("general.error");
-                    PartyAPI.get().deleteParty(createdParty.id());
-                    return;
-                }
-            } catch (final JsonProcessingException e) {
-                player.sendMessage("general.error");
-                return;
+      if (party.isEmpty()) {
+         final Party createdParty;
+         try {
+            createdParty = PartyAPI.get().createParty(player.uniqueId(), player.memberLimit());
+            if (!PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), createdParty.id())) {
+               player.sendMessage("general.error");
+               PartyAPI.get().deleteParty(createdParty.id());
+               return;
             }
-
-            player.partyId(createdParty.id());
-            player.sendMessage("command.invite.created_party");
-
-            party = Optional.of(createdParty);
-        } else if (!party.get().isLeader(player.uniqueId())) {
-            player.sendMessage("command.invite.not_leader");
+         } catch (final JsonProcessingException e) {
+            player.sendMessage("general.error");
             return;
-        }
+         }
 
-        if (this.config.useMemberLimit() && party.get().members().size() >= party.get().maxMembers()) {
-            player.sendMessage("command.invite.limit", party.get().maxMembers());
-            return;
-        }
+         player.partyId(createdParty.id());
+         player.sendMessage("command.invite.created_party");
 
-        PartyAPI.get().createPartyRequest(player.name(), name, this.config.requestExpires());
+         party = Optional.of(createdParty);
+      } else if (!party.get().isLeader(player.uniqueId())) {
+         player.sendMessage("command.invite.not_leader");
+         return;
+      }
 
-        player.sendMessage("command.invite.sent", name);
-        target.get().sendMessage("command.invite.received", player.name());
-    }
+      if (this.config.useMemberLimit() && party.get().members().size() >= party.get().maxMembers()) {
+         player.sendMessage("command.invite.limit", party.get().maxMembers());
+         return;
+      }
 
-    void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
-        this.databaseAdapter = databaseAdapter;
-    }
+      PartyAPI.get().createPartyRequest(player.name(), name, this.config.requestExpires());
+
+      player.sendMessage("command.invite.sent", name);
+      target.get().sendMessage("command.invite.received", player.name());
+   }
+
+   void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+      this.databaseAdapter = databaseAdapter;
+   }
+
+   @Override
+   @NotNull List<String> tabComplete(@NotNull PartyPlayer player, @NotNull String[] args) {
+      if (args.length > 1) return Collections.emptyList();
+      List<String> suggestions = StringUtils.getSuggestions(this.commandManager.getOnlineUserNamesAtPlayerServer(player), args[0]);
+      suggestions.remove(player.name());
+
+      suggestions.removeAll(this.getPartyMemberNames(player));
+
+      return suggestions;
+   }
 }

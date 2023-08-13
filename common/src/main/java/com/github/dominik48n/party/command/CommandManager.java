@@ -16,81 +16,94 @@
 
 package com.github.dominik48n.party.command;
 
+import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
+import com.github.dominik48n.party.utils.StringUtils;
 import com.google.common.collect.ImmutableBiMap;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.*;
+
 public abstract class CommandManager {
+   private final @NotNull Map<String, PartyCommand> commands = new HashMap<>(
+         ImmutableBiMap.of(
+               "invite", new InviteCommand(this, this.config().partyConfig()),
+               "accept", new AcceptCommand(this, this.config().partyConfig()),
+               "deny", new DenyCommand(this),
+               "list", new ListCommand(this, this.config().partyConfig()),
+               "leave", new LeaveCommand(this),
+               "promote", new PromoteCommand(this),
+               "kick", new KickCommand(this, this.redisManager())
+         )
+   );
 
-    private final @NotNull Map<String, PartyCommand> commands = new HashMap<>(
-            ImmutableBiMap.of(
-                    "invite", new InviteCommand(this.config().partyConfig()),
-                    "accept", new AcceptCommand(this.config().partyConfig()),
-                    "deny", new DenyCommand(),
-                    "list", new ListCommand(this.config().partyConfig()),
-                    "leave", new LeaveCommand(),
-                    "promote", new PromoteCommand(),
-                    "kick", new KickCommand(this.redisManager())
-            )
-    );
+   private final List<String> commandLabels = List.of(
+         "invite",
+         "accept",
+         "deny",
+         "list",
+         "leave",
+         "promote",
+         "kick",
+         "toggle"
+   );
 
-    public void addToggleCommand(final @NotNull DatabaseAdapter databaseAdapter) {
-        this.commands.put("toggle", new ToggleCommand(databaseAdapter));
+   public void addToggleCommand(final @NotNull DatabaseAdapter databaseAdapter) {
+      this.commands.put("toggle", new ToggleCommand(this, databaseAdapter));
 
-        Optional.ofNullable(this.commands.get("invite")).ifPresent(partyCommand -> {
-            if (partyCommand instanceof final InviteCommand command) command.databaseAdapter(databaseAdapter);
-        });
-        Optional.ofNullable(this.commands.get("accept")).ifPresent(partyCommand -> {
-            if (partyCommand instanceof final AcceptCommand command) command.databaseAdapter(databaseAdapter);
-        });
-        Optional.ofNullable(this.commands.get("leave")).ifPresent(partyCommand -> {
-            if (partyCommand instanceof final LeaveCommand command) command.databaseAdapter(databaseAdapter);
-        });
-    }
+      Optional.ofNullable(this.commands.get("invite")).ifPresent(partyCommand -> {
+         if (partyCommand instanceof final InviteCommand command) command.databaseAdapter(databaseAdapter);
+      });
+      Optional.ofNullable(this.commands.get("accept")).ifPresent(partyCommand -> {
+         if (partyCommand instanceof final AcceptCommand command) command.databaseAdapter(databaseAdapter);
+      });
+      Optional.ofNullable(this.commands.get("leave")).ifPresent(partyCommand -> {
+         if (partyCommand instanceof final LeaveCommand command) command.databaseAdapter(databaseAdapter);
+      });
+   }
 
-    public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
-        if (args.length == 0) {
-            player.sendMessage("command.help");
-            return;
-        }
+   public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
+      if (args.length == 0) {
+         player.sendMessage("command.help");
+         return;
+      }
 
-        final PartyCommand command = this.commands.get(args[0].toLowerCase());
-        if (command == null) {
-            player.sendMessage("command.help");
-            return;
-        }
+      final PartyCommand command = this.commands.get(args[0].toLowerCase());
+      if (command == null) {
+         player.sendMessage("command.help");
+         return;
+      }
 
-        final String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-        this.runAsynchronous(() -> command.execute(player, commandArgs));
-    }
+      final String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
+      this.runAsynchronous(() -> command.execute(player, commandArgs));
+   }
 
-    public @NotNull List<String> tabComplete(final @NotNull String[] args) {
-        if (args.length == 0) return Collections.emptyList();
+   public @NotNull List<String> tabComplete(final @NotNull PartyPlayer player, final @NotNull String[] args) {
+      if (args.length == 0) return Collections.emptyList();
 
-        if (args.length == 1) {
-            final String search = args[0].toLowerCase();
-            return this.commands.keySet().stream().filter(s -> s.startsWith(search)).toList();
-        }
+      final String search = args[0].toLowerCase();
+      if (args.length == 1 || !this.commandLabels.contains(search)) {
+         return StringUtils.getSuggestions(this.commandLabels, search);
+      }
 
-        final PartyCommand command = this.commands.get(args[0].toLowerCase());
-        if (command == null) return Collections.emptyList();
+      final PartyCommand command = this.commands.get(search);
+      if (command == null) return Collections.emptyList();
 
-        final String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
-        return command.tabComplete(commandArgs);
-    }
+      final String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
+      return command.tabComplete(player, commandArgs);
+   }
 
-    public abstract void runAsynchronous(final @NotNull Runnable runnable);
 
-    public abstract @NotNull ProxyPluginConfig config();
+   public abstract List<String> getOnlineUserNamesAtPlayerServer(final @NotNull PartyPlayer player);
 
-    public abstract @NotNull RedisManager redisManager();
+   public abstract List<String> getPartyMemberNamesAtParty(final @NotNull Party party);
+
+   public abstract void runAsynchronous(final @NotNull Runnable runnable);
+
+   public abstract @NotNull ProxyPluginConfig config();
+
+   public abstract @NotNull RedisManager redisManager();
 }

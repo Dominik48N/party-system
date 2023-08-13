@@ -26,7 +26,7 @@ import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.github.dominik48n.party.redis.RedisSwitchServerSub;
 import com.github.dominik48n.party.user.UserManager;
-import com.github.dominik48n.party.util.Constants;
+import com.github.dominik48n.party.utils.Constants;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.List;

@@ -18,8 +18,8 @@ package com.github.dominik48n.party.bungee.listener;
 
 import com.github.dominik48n.party.bungee.PartyBungeePlugin;
 import com.github.dominik48n.party.config.MessageConfig;
-import com.github.dominik48n.party.util.Constants;
-import com.github.dominik48n.party.util.UpdateChecker;
+import com.github.dominik48n.party.utils.Constants;
+import com.github.dominik48n.party.utils.UpdateChecker;
 import java.io.IOException;
 import java.util.logging.Level;
 import net.kyori.adventure.text.Component;

@@ -45,3 +45,7 @@ tasks.processResources {
         expand(mapOf("version" to rootProject.version))
     }
 }
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}

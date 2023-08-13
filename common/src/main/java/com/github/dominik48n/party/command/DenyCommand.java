@@ -19,9 +19,16 @@ package com.github.dominik48n.party.command;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
+import com.github.dominik48n.party.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.List;
+
 public class DenyCommand extends PartyCommand {
+    DenyCommand(CommandManager commandManager) {
+        super(commandManager);
+    }
 
     @Override
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
@@ -43,5 +50,13 @@ public class DenyCommand extends PartyCommand {
             PartyAPI.get().onlinePlayerProvider().get(name).ifPresent(sender -> sender.sendMessage("command.deny.other", player.name()));
         } catch (final JsonProcessingException ignored) {
         }
+    }
+    @Override
+    @NotNull List<String> tabComplete(@NotNull PartyPlayer player, @NotNull String[] args) {
+        if (args.length > 1) return Collections.emptyList();
+        List<String> suggestions = StringUtils.getSuggestions(this.commandManager.getOnlineUserNamesAtPlayerServer(player), args[0]);
+        suggestions.remove(player.name());
+
+        return suggestions;
     }
 }

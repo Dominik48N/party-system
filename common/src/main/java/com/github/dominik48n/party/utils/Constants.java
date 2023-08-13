@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.dominik48n.party.util;
+package com.github.dominik48n.party.utils;
 
 import org.jetbrains.annotations.NotNull;
 

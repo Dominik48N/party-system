@@ -36,3 +36,7 @@ tasks.shadowJar {
 blossom {
     replaceToken("@version@", rootProject.version, "src/main/java/com/github/dominik48n/party/velocity/PartyVelocityPlugin.java")
 }
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}

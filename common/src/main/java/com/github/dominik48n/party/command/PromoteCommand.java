@@ -20,10 +20,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dominik48n.party.api.Party;
 import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import org.jetbrains.annotations.NotNull;
 
 public class PromoteCommand extends PartyCommand {
+    PromoteCommand(CommandManager commandManager) {
+        super(commandManager);
+    }
 
     @Override
     public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
@@ -77,5 +85,11 @@ public class PromoteCommand extends PartyCommand {
         PartyAPI.get().clearPartyRequest(player.name());
 
         player.sendMessage("command.promote.changed", name);
+    }
+
+    @Override
+    @NotNull List<String> tabComplete(@NotNull PartyPlayer player, @NotNull String[] args) {
+        if (args.length > 1) return Collections.emptyList();
+        return this.getPartyMemberNames(player);
     }
 }

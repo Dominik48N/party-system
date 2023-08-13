@@ -32,7 +32,8 @@ public class ListCommand extends PartyCommand {
 
     private final @NotNull PartyConfig config;
 
-    ListCommand(final @NotNull PartyConfig config) {
+    ListCommand(CommandManager commandManager, @NotNull PartyConfig config) {
+        super(commandManager);
         this.config = config;
     }
 

@@ -19,44 +19,49 @@ package com.github.dominik48n.party.command;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
+import com.github.dominik48n.party.utils.StringUtils;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
 
 public class ToggleCommand extends PartyCommand {
 
-    private final @NotNull DatabaseAdapter databaseAdapter;
+   private final @NotNull DatabaseAdapter databaseAdapter;
 
-    ToggleCommand(final @NotNull DatabaseAdapter databaseAdapter) {
-        this.databaseAdapter = databaseAdapter;
-    }
+   ToggleCommand(CommandManager commandManager, @NotNull DatabaseAdapter databaseAdapter) {
+      super(commandManager);
+      this.databaseAdapter = databaseAdapter;
+   }
 
-    @Override
-    public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
-        if (args.length != 1) {
-            player.sendMessage("command.usage.toggle");
-            return;
-        }
+   @Override
+   public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
+      if (args.length != 1) {
+         player.sendMessage("command.usage.toggle");
+         return;
+      }
 
-        final Optional<DatabaseSettingsType> type = Arrays.stream(DatabaseSettingsType.values())
-                .filter(settingsType -> settingsType.name().equalsIgnoreCase(args[0]))
-                .findAny();
-        if (type.isEmpty()) {
-            player.sendMessage("command.usage.toggle");
-            return;
-        }
+      final Optional<DatabaseSettingsType> type = Arrays.stream(DatabaseSettingsType.values())
+                                                        .filter(settingsType -> settingsType.name().equalsIgnoreCase(args[0]))
+                                                        .findAny();
+      if (type.isEmpty()) {
+         player.sendMessage("command.usage.toggle");
+         return;
+      }
 
-        final boolean value = this.databaseAdapter.getSettingValue(player.uniqueId(), type.get());
-        this.databaseAdapter.toggleSetting(player.uniqueId(), type.get(), !value);
-        player.sendMessage("command.toggle." + type.get().name().toLowerCase() + "." + (value ? "disabled" : "enabled"));
-    }
+      final boolean value = this.databaseAdapter.getSettingValue(player.uniqueId(), type.get());
+      this.databaseAdapter.toggleSetting(player.uniqueId(), type.get(), !value);
+      player.sendMessage("command.toggle." + type.get().name().toLowerCase() + "." + (value ? "disabled" : "enabled"));
+   }
 
-    @Override
-    @NotNull List<String> tabComplete(final @NotNull String[] args) {
-        if (args.length != 1) return super.tabComplete(args);
+   @Override
+   @NotNull List<String> tabComplete(final @NotNull String[] args) {
+      if (args.length > 1) return Collections.emptyList();
 
-        final String search = args[0].toLowerCase();
-        return Arrays.stream(DatabaseSettingsType.values()).map(type -> type.name().toLowerCase()).filter(s -> s.startsWith(search)).toList();
-    }
+      final String search = args[0].toLowerCase();
+      List<String> settingsType = Arrays.stream(DatabaseSettingsType.values()).map(type -> type.name().toLowerCase()).toList();
+      return StringUtils.getSuggestions(settingsType, search);
+   }
 }

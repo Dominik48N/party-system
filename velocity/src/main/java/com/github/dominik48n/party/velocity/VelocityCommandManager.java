@@ -16,6 +16,8 @@
 
 package com.github.dominik48n.party.velocity;
 
+import com.github.dominik48n.party.api.Party;
+import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.command.ChatCommand;
 import com.github.dominik48n.party.command.CommandManager;
 import com.github.dominik48n.party.config.MessageConfig;
@@ -23,85 +25,125 @@ import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.user.UserManager;
+import com.github.dominik48n.party.utils.StringUtils;
 import com.velocitypowered.api.command.RawCommand;
 import com.velocitypowered.api.proxy.Player;
-import java.util.Collections;
-import java.util.List;
+import com.velocitypowered.api.proxy.ServerConnection;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 public class VelocityCommandManager implements RawCommand {
+   private final @NotNull UserManager<Player> userManager;
+   private final @NotNull CommandManager commandManager;
+   private final @NotNull ChatCommand chatCommand;
+   private final @NotNull MessageConfig messageConfig;
 
-    private final @NotNull UserManager<Player> userManager;
-    private final @NotNull CommandManager commandManager;
-    private final @NotNull ChatCommand chatCommand;
-    private final @NotNull MessageConfig messageConfig;
+   public VelocityCommandManager(final @NotNull UserManager<Player> userManager, final @NotNull PartyVelocityPlugin plugin) {
+      this.commandManager = new CommandManager() {
+         @Override
+         public List<String> getOnlineUserNamesAtPlayerServer(PartyPlayer partyPlayer) {
+            Player player = plugin.server().getPlayer(partyPlayer.uniqueId()).orElse(null);
+            if (player == null) return Collections.emptyList();
 
-    public VelocityCommandManager(final @NotNull UserManager<Player> userManager, final @NotNull PartyVelocityPlugin plugin) {
-        this.commandManager = new CommandManager() {
-            @Override
-            public void runAsynchronous(final @NotNull Runnable runnable) {
-                plugin.server().getScheduler().buildTask(plugin, runnable).schedule();
+            ServerConnection connection = player.getCurrentServer().orElse(null);
+            if (connection == null) return Collections.emptyList();
+
+            return connection.getServer()
+                             .getPlayersConnected()
+                             .stream()
+                             .map(Player::getUsername)
+                             .collect(Collectors.toList());
+         }
+
+         @Override
+         public List<String> getPartyMemberNamesAtParty(@NotNull Party party) {
+            List<String> memberNames = new ArrayList<>();
+            for (UUID member : party.members()) {
+               Player memberPlayer = plugin.server().getPlayer(member).orElse(null);
+               if (memberPlayer == null) continue;
+               memberNames.add(memberPlayer.getUsername());
             }
 
-            @Override
-            public @NotNull ProxyPluginConfig config() {
-                return plugin.config();
-            }
+            return memberNames;
+         }
 
-            @Override
-            public @NotNull RedisManager redisManager() {
-                return plugin.redisManager();
-            }
-        };
-        this.chatCommand = new ChatCommand(this.commandManager);
-        this.userManager = userManager;
-        this.messageConfig = plugin.config().messageConfig();
+         @Override
+         public void runAsynchronous(final @NotNull Runnable runnable) {
+            plugin.server().getScheduler().buildTask(plugin, runnable).schedule();
+         }
 
-        if (plugin.config().databaseConfig().enabled()) {
-            DatabaseAdapter.createFromConfig(plugin.config().databaseConfig()).ifPresentOrElse(
-                    databaseAdapter -> {
-                        plugin.databaseAdapter(databaseAdapter);
+         @Override
+         public @NotNull ProxyPluginConfig config() {
+            return plugin.config();
+         }
 
-                        plugin.logger().info("Connect to " + plugin.config().databaseConfig().type().name() + "...");
-                        try {
-                            databaseAdapter.connect();
-                            plugin.logger().info("The connection to the database has been established.");
+         @Override
+         public @NotNull RedisManager redisManager() {
+            return plugin.redisManager();
+         }
+      };
+      this.chatCommand = new ChatCommand(this.commandManager);
+      this.userManager = userManager;
+      this.messageConfig = plugin.config().messageConfig();
 
-                            VelocityCommandManager.this.commandManager.addToggleCommand(databaseAdapter);
-                            VelocityCommandManager.this.chatCommand.databaseAdapter(databaseAdapter);
-                        } catch (final Exception e) {
-                            plugin.logger().error(
-                                    "The connection to the database could not be established, which is why the party settings cannot be activated.",
-                                    e
-                            );
-                        }
-                    },
-                    () -> plugin.logger().warn("An unsupported database system was specified, which is why the party settings cannot be activated.")
-            );
-        } else plugin.logger().warn("The database support is deactivated, which is why the settings cannot be activated.");
-    }
+      if (plugin.config().databaseConfig().enabled()) {
+         DatabaseAdapter.createFromConfig(plugin.config().databaseConfig()).ifPresentOrElse(
+               databaseAdapter -> {
+                  plugin.databaseAdapter(databaseAdapter);
 
-    @Override
-    public void execute(final Invocation invocation) {
-        if (!(invocation.source() instanceof final Player player)) {
-            invocation.source().sendMessage(Component.text("This command is only available for players!"));
+                  plugin.logger().info("Connect to " + plugin.config().databaseConfig().type().name() + "...");
+                  try {
+                     databaseAdapter.connect();
+                     plugin.logger().info("The connection to the database has been established.");
+
+                     VelocityCommandManager.this.commandManager.addToggleCommand(databaseAdapter);
+                     VelocityCommandManager.this.chatCommand.databaseAdapter(databaseAdapter);
+                  } catch (final Exception e) {
+                     plugin.logger().error(
+                           "The connection to the database could not be established, which is why the party settings cannot be activated.",
+                           e
+                     );
+                  }
+               },
+               () -> plugin.logger().warn("An unsupported database system was specified, which is why the party settings cannot be activated.")
+         );
+      } else
+         plugin.logger().warn("The database support is deactivated, which is why the settings cannot be activated.");
+   }
+
+   @Override
+   public void execute(final Invocation invocation) {
+      if (!(invocation.source() instanceof final Player player)) {
+         invocation.source().sendMessage(Component.text("This command is only available for players!"));
+         return;
+      }
+
+      this.userManager.getPlayer(player).ifPresentOrElse(partyPlayer -> {
+         if (invocation.alias().equalsIgnoreCase("p")) {
+            this.chatCommand.execute(partyPlayer, invocation.arguments().split(" "));
             return;
-        }
+         }
 
-        this.userManager.getPlayer(player).ifPresentOrElse(partyPlayer -> {
-            if (invocation.alias().equalsIgnoreCase("p")) {
-                this.chatCommand.execute(partyPlayer, invocation.arguments().split(" "));
-                return;
-            }
+         this.commandManager.execute(partyPlayer, invocation.arguments().split(" "));
+      }, () -> player.sendMessage(this.messageConfig.getMessage("command.user_not_loaded")));
+   }
 
-            this.commandManager.execute(partyPlayer, invocation.arguments().split(" "));
-        }, () -> player.sendMessage(this.messageConfig.getMessage("command.user_not_loaded")));
-    }
+   @Override
+   public List<String> suggest(final Invocation invocation) {
+      if (invocation.alias().equalsIgnoreCase("p")) return Collections.emptyList();
+      if (!(invocation.source() instanceof final Player player)) {
+         return Collections.emptyList();
+      }
 
-    @Override
-    public List<String> suggest(final Invocation invocation) {
-        if (invocation.alias().equalsIgnoreCase("p")) return Collections.emptyList();
-        return this.commandManager.tabComplete(invocation.arguments().split(" "));
-    }
+      PartyPlayer partyPlayer = this.userManager.getPlayer(player).orElse(null);
+      if (partyPlayer == null) return Collections.emptyList();
+
+      return this.commandManager.tabComplete(partyPlayer, StringUtils.safetySplit(invocation.arguments(), " "));
+   }
 }

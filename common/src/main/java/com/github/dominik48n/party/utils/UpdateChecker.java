@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.dominik48n.party.util;
+package com.github.dominik48n.party.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

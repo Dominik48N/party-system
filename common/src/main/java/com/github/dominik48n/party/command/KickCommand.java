@@ -22,68 +22,79 @@ import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisUpdateUserPartySub;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class KickCommand extends PartyCommand {
 
-    private final @NotNull RedisManager redisManager;
+   private final @NotNull RedisManager redisManager;
 
-    KickCommand(final @NotNull RedisManager redisManager) {
-        this.redisManager = redisManager;
-    }
+   KickCommand(CommandManager commandManager, @NotNull RedisManager redisManager) {
+      super(commandManager);
+      this.redisManager = redisManager;
+   }
 
-    @Override
-    public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
-        if (args.length != 1) {
-            player.sendMessage("command.usage.kick");
-            return;
-        }
+   @Override
+   public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
+      if (args.length != 1) {
+         player.sendMessage("command.usage.kick");
+         return;
+      }
 
-        Optional<Party> party;
-        try {
-            party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
-        } catch (final JsonProcessingException e) {
-            party = Optional.empty();
-        }
-        if (party.isEmpty()) {
-            player.sendMessage("command.not_in_party");
-            return;
-        }
+      Optional<Party> party;
+      try {
+         party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+      } catch (final JsonProcessingException e) {
+         party = Optional.empty();
+      }
+      if (party.isEmpty()) {
+         player.sendMessage("command.not_in_party");
+         return;
+      }
 
-        if (!party.get().isLeader(player.uniqueId())) {
-            player.sendMessage("command.kick.not_leader");
-            return;
-        }
+      if (!party.get().isLeader(player.uniqueId())) {
+         player.sendMessage("command.kick.not_leader");
+         return;
+      }
 
-        final String name = args[0];
-        if (player.name().equalsIgnoreCase(name)) {
-            player.sendMessage("command.kick.self");
-            return;
-        }
+      final String name = args[0];
+      if (player.name().equalsIgnoreCase(name)) {
+         player.sendMessage("command.kick.self");
+         return;
+      }
 
-        Optional<PartyPlayer> target;
-        try {
-            target = PartyAPI.get().onlinePlayerProvider().get(name);
-        } catch (final JsonProcessingException e) {
-            target = Optional.empty();
-        }
-        if (target.isEmpty() || !party.get().members().contains(target.get().uniqueId())) {
-            player.sendMessage("command.not_in_your_party");
-            return;
-        }
+      Optional<PartyPlayer> target;
+      try {
+         target = PartyAPI.get().onlinePlayerProvider().get(name);
+      } catch (final JsonProcessingException e) {
+         target = Optional.empty();
+      }
+      if (target.isEmpty() || !party.get().members().contains(target.get().uniqueId())) {
+         player.sendMessage("command.not_in_your_party");
+         return;
+      }
 
-        party.get().members().remove(target.get().uniqueId());
-        PartyAPI.get().sendMessageToParty(party.get(), "party.kick", name);
-        try {
-            PartyAPI.get().removePlayerFromParty(party.get().id(), target.get().uniqueId(), name);
-        } catch (final JsonProcessingException e) {
-            player.sendMessage("general.error");
-        }
+      party.get().members().remove(target.get().uniqueId());
+      PartyAPI.get().sendMessageToParty(party.get(), "party.kick", name);
+      try {
+         PartyAPI.get().removePlayerFromParty(party.get().id(), target.get().uniqueId(), name);
+      } catch (final JsonProcessingException e) {
+         player.sendMessage("general.error");
+      }
 
-        this.redisManager.publish(RedisUpdateUserPartySub.CHANNEL, target.get().uniqueId() + ":null");
+      this.redisManager.publish(RedisUpdateUserPartySub.CHANNEL, target.get().uniqueId() + ":null");
 
-        target.get().sendMessage("command.kick.kicked");
-        player.sendMessage("command.kick.leader", name);
-    }
+      target.get().sendMessage("command.kick.kicked");
+      player.sendMessage("command.kick.leader", name);
+   }
+
+   @Override
+   @NotNull List<String> tabComplete(@NotNull PartyPlayer player, @NotNull String[] args) {
+      if (args.length > 1) return Collections.emptyList();
+      return this.getPartyMemberNames(player);
+   }
 }

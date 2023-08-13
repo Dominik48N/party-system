@@ -16,16 +16,47 @@
 
 package com.github.dominik48n.party.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.dominik48n.party.api.Party;
+import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
-import java.util.Collections;
-import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
 public abstract class PartyCommand {
+   final @NotNull CommandManager commandManager;
 
-    public abstract void execute(final @NotNull PartyPlayer player, final @NotNull String[] args);
+   PartyCommand(CommandManager commandManager) {
+      this.commandManager = commandManager;
+   }
 
-    @NotNull List<String> tabComplete(final @NotNull String[] args) {
-        return Collections.emptyList();
-    }
+   public abstract void execute(final @NotNull PartyPlayer player, final @NotNull String[] args);
+
+   @NotNull List<String> tabComplete(final @NotNull String[] args) {
+      return Collections.emptyList();
+   }
+
+   @NotNull List<String> tabComplete(final @NotNull PartyPlayer player, final @NotNull String[] args) {
+      return Collections.emptyList();
+   }
+
+   @NotNull List<String> getPartyMemberNames(PartyPlayer player) {
+      UUID partyID = player.partyId().orElse(null);
+      if (partyID == null) return Collections.emptyList();
+
+      Party party = null;
+      try {
+         party = PartyAPI.get().getParty(partyID).orElse(null);
+      } catch (JsonProcessingException ignored) {
+
+      }
+
+      if (party == null || !party.isLeader(player.uniqueId())) return Collections.emptyList();
+      List<String> partyMemberNames = this.commandManager.getPartyMemberNamesAtParty(party);
+
+      return partyMemberNames;
+   }
 }

@@ -42,3 +42,7 @@ subprojects {
         val checkTask = tasks.getByName("check")
         checkTask.dependsOn("checkstyleMain", "checkstyleTest")*/
 }
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}

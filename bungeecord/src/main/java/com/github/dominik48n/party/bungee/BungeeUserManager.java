@@ -16,80 +16,81 @@
 
 package com.github.dominik48n.party.bungee;
 
-import com.github.dominik48n.party.util.Constants;
 import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.config.ProxyPluginConfig;
 import com.github.dominik48n.party.user.UserManager;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
+import com.github.dominik48n.party.utils.Constants;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
+
 public class BungeeUserManager extends UserManager<ProxiedPlayer> {
 
-    private final @NotNull ProxyPluginConfig config;
-    private final @NotNull PartyBungeePlugin plugin;
+   private final @NotNull ProxyPluginConfig config;
+   private final @NotNull PartyBungeePlugin plugin;
 
-    BungeeUserManager(final @NotNull PartyBungeePlugin plugin) {
-        super(plugin.redisManager());
-        this.config = plugin.config();
-        this.plugin = plugin;
-    }
+   BungeeUserManager(final @NotNull PartyBungeePlugin plugin) {
+      super(plugin.redisManager());
+      this.config = plugin.config();
+      this.plugin = plugin;
+   }
 
-    @Override
-    public void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component) {
-        Optional.ofNullable(this.plugin.getProxy().getPlayer(uniqueId)).ifPresent(player -> this.sendMessage(player, component));
-    }
+   @Override
+   public void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component) {
+      Optional.ofNullable(this.plugin.getProxy().getPlayer(uniqueId)).ifPresent(player -> this.sendMessage(player, component));
+   }
 
-    @Override
-    public void connectToServer(final @NotNull UUID uniqueId, final @NotNull String serverName) {
-        Optional.ofNullable(this.plugin.getProxy().getPlayer(uniqueId)).ifPresent(player -> {
-            final ServerInfo serverInfo = this.plugin.getProxy().getServerInfo(serverName);
-            if (serverInfo == null) {
-                this.plugin.getLogger().log(
-                        Level.SEVERE,
-                        "Failed to send {0} to {1}, because the server is unknown on this proxy.",
-                        new Object[] {uniqueId, serverName}
-                );
-                return;
-            }
+   @Override
+   public void connectToServer(final @NotNull UUID uniqueId, final @NotNull String serverName) {
+      Optional.ofNullable(this.plugin.getProxy().getPlayer(uniqueId)).ifPresent(player -> {
+         final ServerInfo serverInfo = this.plugin.getProxy().getServerInfo(serverName);
+         if (serverInfo == null) {
+            this.plugin.getLogger().log(
+                  Level.SEVERE,
+                  "Failed to send {0} to {1}, because the server is unknown on this proxy.",
+                  new Object[]{uniqueId, serverName}
+            );
+            return;
+         }
 
-            if (!player.getServer().getInfo().getName().equals(serverInfo.getName())) player.connect(serverInfo);
-        });
-    }
+         if (!player.getServer().getInfo().getName().equals(serverInfo.getName())) player.connect(serverInfo);
+      });
+   }
 
-    @Override
-    protected void sendMessage(final @NotNull ProxiedPlayer player, final @NotNull Component component) {
-        this.plugin.audiences().player(player).sendMessage(component);
-    }
+   @Override
+   protected void sendMessage(final @NotNull ProxiedPlayer player, final @NotNull Component component) {
+      this.plugin.audiences().player(player).sendMessage(component);
+   }
 
-    @Override
-    protected int memberLimit(final @NotNull ProxiedPlayer player) {
-        if (!this.config.partyConfig().useMemberLimit()) return -1;
+   @Override
+   protected int memberLimit(final @NotNull ProxiedPlayer player) {
+      if (!this.config.partyConfig().useMemberLimit()) return -1;
 
-        int result = -1;
-        for (int i = Constants.MAXIMUM_MEMBER_LIMIT; i > 0; i--) {
-            if (!player.hasPermission(Constants.MEMBER_LIMIT_PERMISSION_PREFIX + i) || result > i) continue;
-            result = i;
-        }
-        return result == -1 ? this.config.partyConfig().defaultMemberLimit() : result;
-    }
+      int result = -1;
+      for (int i = Constants.MAXIMUM_MEMBER_LIMIT; i > 0; i--) {
+         if (!player.hasPermission(Constants.MEMBER_LIMIT_PERMISSION_PREFIX + i) || result > i) continue;
+         result = i;
+      }
+      return result == -1 ? this.config.partyConfig().defaultMemberLimit() : result;
+   }
 
-    @Override
-    protected @NotNull String playerName(final @NotNull ProxiedPlayer player) {
-        return player.getName();
-    }
+   @Override
+   protected @NotNull String playerName(final @NotNull ProxiedPlayer player) {
+      return player.getName();
+   }
 
-    @Override
-    protected @NotNull UUID playerUUID(final @NotNull ProxiedPlayer player) {
-        return player.getUniqueId();
-    }
+   @Override
+   protected @NotNull UUID playerUUID(final @NotNull ProxiedPlayer player) {
+      return player.getUniqueId();
+   }
 
-    @Override
-    protected @NotNull MessageConfig messageConfig() {
-        return this.config.messageConfig();
-    }
+   @Override
+   protected @NotNull MessageConfig messageConfig() {
+      return this.config.messageConfig();
+   }
 }

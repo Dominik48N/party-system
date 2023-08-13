@@ -22,56 +22,57 @@ import com.github.dominik48n.party.config.MessageConfig;
 import com.github.dominik48n.party.redis.RedisManager;
 import com.github.dominik48n.party.redis.RedisMessageSub;
 import com.google.common.collect.Maps;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 public abstract class UserManager<TUser> {
 
-    private final @NotNull Map<TUser, PartyPlayer> cachedPlayers = Maps.newConcurrentMap();
-    private final @NotNull RedisManager redisManager;
+   private final @NotNull Map<TUser, PartyPlayer> cachedPlayers = Maps.newConcurrentMap();
+   private final @NotNull RedisManager redisManager;
 
-    protected UserManager(final @NotNull RedisManager redisManager) {
-        this.redisManager = redisManager;
-    }
+   protected UserManager(final @NotNull RedisManager redisManager) {
+      this.redisManager = redisManager;
+   }
 
-    void cachePlayer(final @NotNull TUser user, final @NotNull PartyPlayer player) {
-        this.cachedPlayers.put(user, player);
-    }
+   void cachePlayer(final @NotNull TUser user, final @NotNull PartyPlayer player) {
+      this.cachedPlayers.put(user, player);
+   }
 
-    public @NotNull Optional<PartyPlayer> getPlayer(final @NotNull TUser user) {
-        return Optional.ofNullable(this.cachedPlayers.get(user));
-    }
+   public @NotNull Optional<PartyPlayer> getPlayer(final @NotNull TUser user) {
+      return Optional.ofNullable(this.cachedPlayers.get(user));
+   }
 
-    public @NotNull Optional<PartyPlayer> userFromCache(final @NotNull UUID playerId) {
-        return this.cachedPlayers.values().stream().filter(player -> player.uniqueId().equals(playerId)).findAny();
-    }
+   public @NotNull Optional<PartyPlayer> userFromCache(final @NotNull UUID playerId) {
+      return this.cachedPlayers.values().stream().filter(player -> player.uniqueId().equals(playerId)).findAny();
+   }
 
-    public void removePlayerFromCache(final @NotNull TUser user) {
-        this.cachedPlayers.remove(user);
-    }
+   public void removePlayerFromCache(final @NotNull TUser user) {
+      this.cachedPlayers.remove(user);
+   }
 
-    void sendMessage(final @NotNull UUID uniqueId, final @NotNull Component component) {
-        this.redisManager.publish(
-                RedisMessageSub.CHANNEL,
-                new Document().append("unique_id", uniqueId.toString()).append("message", MiniMessage.miniMessage().serialize(component))
-        );
-    }
+   void sendMessage(final @NotNull UUID uniqueId, final @NotNull Component component) {
+      this.redisManager.publish(
+            RedisMessageSub.CHANNEL,
+            new Document().append("unique_id", uniqueId.toString()).append("message", MiniMessage.miniMessage().serialize(component))
+      );
+   }
 
-    public abstract void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component);
+   public abstract void sendMessageToLocalUser(final @NotNull UUID uniqueId, final @NotNull Component component);
 
-    public abstract void connectToServer(final @NotNull UUID uniqueId, final @NotNull String serverName);
+   public abstract void connectToServer(final @NotNull UUID uniqueId, final @NotNull String serverName);
 
-    protected abstract void sendMessage(final @NotNull TUser user, final @NotNull Component component);
+   protected abstract void sendMessage(final @NotNull TUser user, final @NotNull Component component);
 
-    protected abstract int memberLimit(final @NotNull TUser user);
+   protected abstract int memberLimit(final @NotNull TUser user);
 
-    protected abstract @NotNull String playerName(final @NotNull TUser user);
+   protected abstract @NotNull String playerName(final @NotNull TUser user);
 
-    protected abstract @NotNull UUID playerUUID(final @NotNull TUser user);
+   protected abstract @NotNull UUID playerUUID(final @NotNull TUser user);
 
-    protected abstract @NotNull MessageConfig messageConfig();
+   protected abstract @NotNull MessageConfig messageConfig();
 }

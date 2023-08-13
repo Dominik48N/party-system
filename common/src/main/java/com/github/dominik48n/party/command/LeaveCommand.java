@@ -22,85 +22,89 @@ import com.github.dominik48n.party.api.PartyAPI;
 import com.github.dominik48n.party.api.player.PartyPlayer;
 import com.github.dominik48n.party.database.DatabaseAdapter;
 import com.github.dominik48n.party.database.settings.DatabaseSettingsType;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 public class LeaveCommand extends PartyCommand {
+   private @Nullable DatabaseAdapter databaseAdapter;
 
-    private @Nullable DatabaseAdapter databaseAdapter;
+   LeaveCommand(CommandManager commandManager) {
+      super(commandManager);
+   }
 
-    @Override
-    public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
-        Optional<Party> party;
-        try {
-            party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
-        } catch (final JsonProcessingException e) {
-            party = Optional.empty();
-        }
-        if (party.isEmpty()) {
-            player.sendMessage("command.not_in_party");
+   @Override
+   public void execute(final @NotNull PartyPlayer player, final @NotNull String[] args) {
+      Optional<Party> party;
+      try {
+         party = player.partyId().isPresent() ? PartyAPI.get().getParty(player.partyId().get()) : Optional.empty();
+      } catch (final JsonProcessingException e) {
+         party = Optional.empty();
+      }
+      if (party.isEmpty()) {
+         player.sendMessage("command.not_in_party");
+         return;
+      }
+
+      if (party.get().allMembers().size() <= 1) {
+         this.deleteParty(party.get(), player);
+      } else {
+         if (party.get().isLeader(player.uniqueId())) {
+            final Optional<PartyPlayer> target = party.get().members().stream().findAny().map(uuid -> {
+               try {
+                  return PartyAPI.get().onlinePlayerProvider().get(uuid).orElse(null);
+               } catch (final JsonProcessingException e) {
+                  return null;
+               }
+            });
+            if (target.isPresent()) {
+               try {
+                  PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get().uniqueId(), target.get().memberLimit());
+               } catch (final JsonProcessingException e) {
+                  player.sendMessage("general.error");
+                  return;
+               }
+
+               final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                     this.databaseAdapter.getPlayersWithEnabledSetting(party.get().members(), DatabaseSettingsType.NOTIFICATIONS) :
+                     party.get().members();
+               PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
+
+               PartyAPI.get().sendMessageToMembers(party.get(), "party.new_leader", target.get().name());
+            } else this.deleteParty(party.get(), player);
+         } else {
+            party.get().members().remove(player.uniqueId());
+            final List<UUID> playersToMessage = this.databaseAdapter != null ?
+                  this.databaseAdapter.getPlayersWithEnabledSetting(party.get().allMembers(), DatabaseSettingsType.NOTIFICATIONS) :
+                  party.get().allMembers();
+            PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
+         }
+
+         try {
+            PartyAPI.get().removePlayerFromParty(party.get().id(), player.uniqueId(), player.name());
+         } catch (final JsonProcessingException e) {
+            player.sendMessage("general.error");
             return;
-        }
+         }
+      }
 
-        if (party.get().allMembers().size() <= 1) {
-            this.deleteParty(party.get(), player);
-        } else {
-            if (party.get().isLeader(player.uniqueId())) {
-                final Optional<PartyPlayer> target = party.get().members().stream().findAny().map(uuid -> {
-                    try {
-                        return PartyAPI.get().onlinePlayerProvider().get(uuid).orElse(null);
-                    } catch (final JsonProcessingException e) {
-                        return null;
-                    }
-                });
-                if (target.isPresent()) {
-                    try {
-                        PartyAPI.get().changePartyLeader(party.get().id(), player.uniqueId(), target.get().uniqueId(), target.get().memberLimit());
-                    } catch (final JsonProcessingException e) {
-                        player.sendMessage("general.error");
-                        return;
-                    }
+      player.partyId(null);
+      player.sendMessage("command.leave");
+   }
 
-                    final List<UUID> playersToMessage = this.databaseAdapter != null ?
-                            this.databaseAdapter.getPlayersWithEnabledSetting(party.get().members(), DatabaseSettingsType.NOTIFICATIONS) :
-                            party.get().members();
-                    PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
+   void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
+      this.databaseAdapter = databaseAdapter;
+   }
 
-                    PartyAPI.get().sendMessageToMembers(party.get(), "party.new_leader", target.get().name());
-                } else this.deleteParty(party.get(), player);
-            } else {
-                party.get().members().remove(player.uniqueId());
-                final List<UUID> playersToMessage = this.databaseAdapter != null ?
-                        this.databaseAdapter.getPlayersWithEnabledSetting(party.get().allMembers(), DatabaseSettingsType.NOTIFICATIONS) :
-                        party.get().allMembers();
-                PartyAPI.get().sendMessageToPlayers(playersToMessage, "party.left", player.name());
-            }
-
-            try {
-                PartyAPI.get().removePlayerFromParty(party.get().id(), player.uniqueId(), player.name());
-            } catch (final JsonProcessingException e) {
-                player.sendMessage("general.error");
-                return;
-            }
-        }
-
-        player.partyId(null);
-        player.sendMessage("command.leave");
-    }
-
-    void databaseAdapter(final @NotNull DatabaseAdapter databaseAdapter) {
-        this.databaseAdapter = databaseAdapter;
-    }
-
-    private void deleteParty(final @NotNull Party party, final @NotNull PartyPlayer player) {
-        PartyAPI.get().deleteParty(party.id());
-        try {
-            PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), null);
-        } catch (final JsonProcessingException ignored) {
-        }
-        PartyAPI.get().clearPartyRequest(player.name());
-    }
+   private void deleteParty(final @NotNull Party party, final @NotNull PartyPlayer player) {
+      PartyAPI.get().deleteParty(party.id());
+      try {
+         PartyAPI.get().onlinePlayerProvider().updatePartyId(player.uniqueId(), null);
+      } catch (final JsonProcessingException ignored) {
+      }
+      PartyAPI.get().clearPartyRequest(player.name());
+   }
 }
